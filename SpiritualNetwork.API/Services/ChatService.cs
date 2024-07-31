@@ -461,7 +461,7 @@ namespace SpiritualNetwork.API.Services
             if (res.GroupId == 0)
             {
                 MessageGroupDetails details = new MessageGroupDetails();
-                details.GroupName = res.Name;
+                details.GroupName = res.Name ?? "";
                 details.ProfileImgUrl = "";
                 await _messageGroupDetailsRepository.InsertAsync(details);
 
