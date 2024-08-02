@@ -96,6 +96,7 @@ namespace SpiritualNetwork.API.Services
                     infoBox.isPremium = user.IsPremium;
                     infoBox.isfollowing = user.IsFollowedByLoginUser;
                     infoBox.isPeer = user.IsFollowingLoginUser;
+                    infoBox.IsBusinessAccount = user.IsBusinessAccount;
                     mentionList.Add(infoBox);
                 }
                 return new JsonResponse(200, true, "Success", mentionList);

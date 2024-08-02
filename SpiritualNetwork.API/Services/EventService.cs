@@ -176,7 +176,7 @@ namespace SpiritualNetwork.API.Services
                                            ProfileImgUrl = us.ProfileImg,
                                            IsFollowing = uf != null,
                                            IsDisplay = !(uf != null),
-
+                                           IsBusinessAccount = us.IsBusinessAccount
                                        }).ToList();
 
                 item.EventSpeakers = (from es in _eventspeakersRepository.Table
@@ -194,6 +194,7 @@ namespace SpiritualNetwork.API.Services
                                           ProfileImgUrl = us.ProfileImg,
                                           IsFollowing = uf != null,
                                           IsDisplay = !(uf != null),
+                                          IsBusinessAccount = us.IsBusinessAccount
 
                                       }).ToList();
 
@@ -212,8 +213,7 @@ namespace SpiritualNetwork.API.Services
                                           ProfileImgUrl = us.ProfileImg,
                                           IsFollowing = uf != null,
                                           IsDisplay = !(uf != null),
-
-
+                                          IsBusinessAccount = us.IsBusinessAccount
                                       }).ToList();
 
                 item.EventComments = (from ec in _eventCommentRepository.Table
@@ -226,7 +226,8 @@ namespace SpiritualNetwork.API.Services
                                           UserFullName = us.FirstName + " " + us.LastName,
                                           ProfileImgUrl = us.ProfileImg,
                                           UserName = us.UserName,
-                                          Comment = ec.Comment
+                                          Comment = ec.Comment,
+                                          IsBusinessAccount =us.IsBusinessAccount
                                       }).ToList();
 
             }
@@ -333,6 +334,7 @@ namespace SpiritualNetwork.API.Services
                                            ProfileImgUrl = us.ProfileImg,
                                            IsFollowing = uf != null,
                                            IsDisplay = !(uf != null),
+                                           IsBusinessAccount = us.IsBusinessAccount
 
                                        }).ToList();
 
@@ -358,6 +360,7 @@ namespace SpiritualNetwork.API.Services
                                           ProfileImgUrl = us.ProfileImg,
                                           IsFollowing = uf != null,
                                           IsDisplay = !(uf != null),
+                                          IsBusinessAccount = us.IsBusinessAccount
 
                                       }).ToList();
 
@@ -376,6 +379,7 @@ namespace SpiritualNetwork.API.Services
                                         ProfileImgUrl = us.ProfileImg,
                                         IsFollowing = uf != null,
                                         IsDisplay = !(uf != null),
+                                        IsBusinessAccount = us.IsBusinessAccount
 
                                     }).ToList();
 
@@ -389,7 +393,9 @@ namespace SpiritualNetwork.API.Services
                                             UserFullName = us.FirstName + " " + us.LastName,
                                             ProfileImgUrl = us.ProfileImg,
                                             UserName = us.UserName,
-                                            Comment = ec.Comment
+                                            Comment = ec.Comment,
+                                            IsBusinessAccount = us.IsBusinessAccount
+
                                         }).ToList();
 
             }
@@ -652,6 +658,7 @@ namespace SpiritualNetwork.API.Services
                                              ProfileImgUrl = us.ProfileImg,
                                              IsFollowing = uf != null,
                                              IsDisplay = !(uf != null),
+                                             IsBusinessAccount = us.IsBusinessAccount
 
                                          }).ToList();
 
@@ -669,7 +676,8 @@ namespace SpiritualNetwork.API.Services
                                             UserName = us.UserName,
                                             ProfileImgUrl = us.ProfileImg,
                                             IsFollowing = uf != null,
-                                            IsDisplay = !(uf != null)
+                                            IsDisplay = !(uf != null),
+                                          IsBusinessAccount = us.IsBusinessAccount
 
                                         }).ToList();
             eventModel.EventHosts = (from es in _eventspeakersRepository.Table
@@ -687,6 +695,8 @@ namespace SpiritualNetwork.API.Services
                                            ProfileImgUrl = us.ProfileImg,
                                            IsFollowing = uf != null,
                                            IsDisplay= !(uf != null),
+                                           IsBusinessAccount = us.IsBusinessAccount
+
                                        }).ToList();
 
             eventModel.EventComments = (from ec in _eventCommentRepository.Table
@@ -699,8 +709,10 @@ namespace SpiritualNetwork.API.Services
                                               UserFullName = us.FirstName + " " + us.LastName,
                                               ProfileImgUrl = us.ProfileImg,
                                               UserName = us.UserName,
-                                              Comment = ec.Comment
-                                          }).ToList();
+                                              Comment = ec.Comment,
+                                            IsBusinessAccount = us.IsBusinessAccount
+
+                                        }).ToList();
 
             return eventModel;
         }
@@ -807,7 +819,9 @@ namespace SpiritualNetwork.API.Services
                             FirstName = us.FirstName,
                             LastName = us.LastName,
                             UserName = us.UserName,
-                            ProfileImgUrl = us.ProfileImg
+                            ProfileImgUrl = us.ProfileImg,
+                            IsBusinessAccount = us.IsBusinessAccount
+
                         }).ToList();
 
             return new JsonResponse(200, true, "Success", list);

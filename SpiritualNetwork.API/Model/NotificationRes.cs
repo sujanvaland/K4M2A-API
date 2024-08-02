@@ -38,6 +38,8 @@ namespace SpiritualNetwork.API.Model
         public string LastName { get; set; }
         public string? About { get; set; }
         public string? ProfileImg { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class NotificationCountRes

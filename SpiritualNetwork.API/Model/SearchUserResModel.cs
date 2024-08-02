@@ -27,5 +27,7 @@ namespace SpiritualNetwork.API.Model
         public bool? IsInvited { get; set; }
         public bool? IsHidden { get; set; }
         public DateTime? Created { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 }

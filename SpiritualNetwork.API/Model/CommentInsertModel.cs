@@ -28,5 +28,7 @@ namespace SpiritualNetwork.API.Model
         public string? ProfileImg { get; set; }
         public bool IsFollowing { get; set; }
         public bool IsDisplay { get; set;}
+        public bool? IsBusinessAccount { get; set; }
+
     }
 }

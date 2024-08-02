@@ -16,6 +16,8 @@
         public string FullName { get; set; }
         public string? ProfileImgUrl { get; set; }
         public string UserName { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
     public class SearchProfileSuggestion
     {

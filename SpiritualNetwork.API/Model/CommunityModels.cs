@@ -80,6 +80,8 @@ namespace SpiritualNetwork.API.Model
         public bool  IsFollowing { get; set;}
         public bool IsFollower { get; set; }
         public string? Answer { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class CommunityRulesModel

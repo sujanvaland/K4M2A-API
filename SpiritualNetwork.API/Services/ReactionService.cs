@@ -265,7 +265,7 @@ namespace SpiritualNetwork.API.Services
                                             ProfileImg = u.ProfileImg,
                                             IsFollowing = uf != null,
                                             IsDisplay = !(uf != null),
-
+                                            IsBusinessAccount = u.IsBusinessAccount,
                                         }
                                     ).ToListAsync();
 

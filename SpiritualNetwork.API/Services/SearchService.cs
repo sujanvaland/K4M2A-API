@@ -50,7 +50,8 @@ namespace SpiritualNetwork.API.Services
                                           UserName = user.UserName,
                                           ProfileImg = user.ProfileImg,
                                           Online = onlineUser != null ? true : false,
-                                          IsInvited = false
+                                          IsInvited = false,
+                                          IsBusinessAccount= user.IsBusinessAccount,
                                       })
                                     .Skip((PageNo - 1) * Record)
                                     .Take(Record)
@@ -116,7 +117,8 @@ namespace SpiritualNetwork.API.Services
                                           name = user.FirstName + " " + user.LastName,
                                           avatar = (user.ProfileImg == null || user.ProfileImg == "") ? "https://www.k4m2a.com/images/img_userpic.jpg" : user.ProfileImg,
                                           link = "/profile/" + user.UserName,
-                                          userId = user.Id
+                                          userId = user.Id,
+                                          IsBusinessAccount = user.IsBusinessAccount
                                       })
                                     .Skip((PageNo - 1) * Record)
                                     .Take(Record)
@@ -152,7 +154,8 @@ namespace SpiritualNetwork.API.Services
                                                   x.CreatedDate,
                                                   x.About,
                                                   x.Skills,
-                                                  x.Tags
+                                                  x.Tags,
+                                                  x.IsBusinessAccount
                                               }).FirstOrDefaultAsync();
 
                     return new JsonResponse(200, true, "Success", data);

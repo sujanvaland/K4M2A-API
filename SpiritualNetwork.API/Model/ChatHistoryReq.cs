@@ -37,6 +37,8 @@ namespace SpiritualNetwork.API.Model
         public bool IsBlockByUser { get; set; }
         public bool IsBlock { get; set; }
         public int? MemberCount { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class ChatHistory : BaseEntity
@@ -54,5 +56,7 @@ namespace SpiritualNetwork.API.Model
         public int? DeleteForUserId2 { get; set; }
         public string ThumbnailUrl { get; set; }
         public string ActualUrl { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 }

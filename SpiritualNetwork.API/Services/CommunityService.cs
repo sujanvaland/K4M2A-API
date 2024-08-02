@@ -165,6 +165,7 @@ namespace SpiritualNetwork.API.Services
                                           UserName = u.UserName,
                                           Answer = m.ReportDetail,
                                           ProfileImgUrl = u.ProfileImg,
+                                          IsBusinessAccount = u.IsBusinessAccount,
                                       }).ToListAsync();
                 result.Add(post);
             }
@@ -537,6 +538,7 @@ namespace SpiritualNetwork.API.Services
                         infoBox.IsModerator = member.IsModerator;
                         infoBox.IsFollowing = Convert.ToBoolean(user.IsFollowedByLoginUser);
                         infoBox.IsFollower = Convert.ToBoolean(user.IsFollowingLoginUser);
+                        infoBox.IsBusinessAccount =user.IsBusinessAccount;
                         memberlist.Add(infoBox);
                     }
                 community.MemberList = memberlist;
@@ -557,7 +559,9 @@ namespace SpiritualNetwork.API.Services
                         infoBox.IsModerator = member.IsModerator;
                         infoBox.IsFollowing = Convert.ToBoolean(user.IsFollowedByLoginUser);
                         infoBox.IsFollower = Convert.ToBoolean(user.IsFollowingLoginUser);
-                        modlist.Add(infoBox);
+                        infoBox.IsBusinessAccount = user.IsBusinessAccount;
+
+                    modlist.Add(infoBox);
                     }
                 community.Moderators = modlist;
                
@@ -691,6 +695,8 @@ namespace SpiritualNetwork.API.Services
                     infoBox.IsModerator = member.IsModerator;
                     infoBox.IsFollowing = Convert.ToBoolean(user.IsFollowedByLoginUser);
                     infoBox.IsFollower = Convert.ToBoolean(user.IsFollowingLoginUser);
+                    infoBox.IsBusinessAccount = user.IsBusinessAccount;
+
                     memberlist.Add(infoBox);
                 }
                 return new JsonResponse(200, true, "Success", memberlist);
@@ -722,6 +728,8 @@ namespace SpiritualNetwork.API.Services
                     infoBox.IsModerator = member.IsModerator;
                     infoBox.IsFollowing = Convert.ToBoolean(user.IsFollowedByLoginUser);
                     infoBox.IsFollower = Convert.ToBoolean(user.IsFollowingLoginUser);
+                    infoBox.IsBusinessAccount = user.IsBusinessAccount;
+
                     memberlist.Add(infoBox);
                 }
 
@@ -756,6 +764,8 @@ namespace SpiritualNetwork.API.Services
                     infoBox.IsModerator = member.IsModerator;
                     infoBox.IsFollowing = Convert.ToBoolean(user.IsFollowedByLoginUser);
                     infoBox.IsFollower = Convert.ToBoolean(user.IsFollowingLoginUser);
+                    infoBox.IsBusinessAccount = user.IsBusinessAccount;
+
                     memberlist.Add(infoBox);
                 }
                 return new JsonResponse(200, true, "Success", memberlist);

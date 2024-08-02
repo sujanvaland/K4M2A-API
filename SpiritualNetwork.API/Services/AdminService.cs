@@ -67,7 +67,8 @@ namespace SpiritualNetwork.API.Services
                                           Online = onlineUser != null ? true : false,
                                           IsInvited = false,
                                           IsHidden = user.IsDeleted,
-                                          Created = user.CreatedDate
+                                          Created = user.CreatedDate,
+                                          IsBusinessAccount = user.IsBusinessAccount,
                                       }).ToListAsync();
 
                     var data = query.Skip((PageNo - 1) * Record).Take(Record).ToList();
@@ -98,7 +99,8 @@ namespace SpiritualNetwork.API.Services
                                           Online = onlineUser != null ? true : false,
                                           IsInvited = false,
                                           IsHidden = user.IsDeleted,
-                                          Created = user.CreatedDate
+                                          Created = user.CreatedDate,
+                                          IsBusinessAccount = user.IsBusinessAccount,
                                       }).Skip((PageNo - 1) * Record)
                                  .Take(Record).ToListAsync();
 
@@ -185,6 +187,7 @@ namespace SpiritualNetwork.API.Services
                             ReportedId = dr.ReportedId,
                             ReportCount=dr.ReportCount,
                             Type = dr.Type,
+                            IsBusinessAccount = u.IsBusinessAccount,
                         }).ToList();
 
                  return new JsonResponse(200, true, "Success", query);
@@ -205,6 +208,7 @@ namespace SpiritualNetwork.API.Services
                                  ReportedId = dr.ReportedId,
                                  ReportCount = dr.ReportCount,
                                  Type = dr.Type,
+                                 IsBusinessAccount= u.IsBusinessAccount,
                              }).ToList();
                 return new JsonResponse(200, true, "Success", query);
             }
@@ -224,6 +228,7 @@ namespace SpiritualNetwork.API.Services
                                  ReportedId = dr.ReportedId,
                                  ReportCount = dr.ReportCount,
                                  Type = dr.Type,
+                                 IsBusinessAccount = u.IsBusinessAccount,
                              }).ToList();
                 return new JsonResponse(200, true, "Success", query);
             }
@@ -245,6 +250,7 @@ namespace SpiritualNetwork.API.Services
                                         Value = m.Value,
                                         Description = m.Description,
                                         ProfileImgUrl = u.ProfileImg,
+                                        IsBusinessAccount=u.IsBusinessAccount,
                                     }).ToListAsync();
 
             return new JsonResponse(200, true, "Success", query);

@@ -31,6 +31,8 @@
         public string? Value { get; set; }
         public string? Description { get; set; } 
         public string? ProfileImgUrl { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class IdReq
@@ -55,6 +57,8 @@
         public int ReportedId { get; set; }
         public string Type { get; set; }
         public int? ReportCount { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
 
     }
 
