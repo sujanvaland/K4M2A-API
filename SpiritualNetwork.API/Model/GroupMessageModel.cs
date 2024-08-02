@@ -55,6 +55,8 @@ namespace SpiritualNetwork.API.Model
         public int isfollowing { get; set; }
         public bool isPremium { get; set; }
         public int? isPeer { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class ActionUserFGroup
@@ -77,5 +79,7 @@ namespace SpiritualNetwork.API.Model
         public int? isPeer { get; set; }
 
         public bool isPremium { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 }

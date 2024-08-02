@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  spiritualnetwork.api:
+    image: ${DOCKER_REGISTRY-}spiritualnetworkapi
+    build:
+      context: .
+      dockerfile: SpiritualNetwork.API/Dockerfile
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ConnectionStrings__Default=Server=tcp:k4m2a.database.windows.net,1433;Initial Catalog=k4m2a;Persist Security Info=False;User ID=k4admin;Password=Mango-man;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+

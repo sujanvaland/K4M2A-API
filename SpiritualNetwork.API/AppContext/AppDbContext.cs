@@ -67,9 +67,9 @@ namespace SpiritualNetwork.API.AppContext
 
 
 
-        public AppDbContext(IConfiguration configuration)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+         : base(options)
         {
-            _configuration = configuration;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,10 +88,5 @@ namespace SpiritualNetwork.API.AppContext
                 .ToTable("UserChatResponse", t => t.ExcludeFromMigrations());
 
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_configuration.GetConnectionString("Default"));
-        }
-
     }
 }

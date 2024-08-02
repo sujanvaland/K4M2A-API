@@ -22,6 +22,8 @@ builder.Services.AddSignalR();
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
 
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
     var ConnectionString = builder.Configuration.GetConnectionString("Default");
@@ -104,7 +106,6 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IK4M2AService, K4M2AService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-
 
 
 

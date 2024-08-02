@@ -65,6 +65,8 @@ namespace SpiritualNetwork.API.Model
         public string UserName { get; set; }
         public string? ProfileImgUrl { get; set; }
         public string Comment  { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
     }
 
     public class EventAttend
@@ -77,6 +79,8 @@ namespace SpiritualNetwork.API.Model
         public string? ProfileImgUrl { get; set; }
         public bool? IsFollowing { get; set; }
         public bool IsDisplay { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
 
     }
 

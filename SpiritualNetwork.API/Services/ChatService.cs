@@ -99,7 +99,8 @@ namespace SpiritualNetwork.API.Services
                                 ActualUrl = file != null ? file.ActualUrl : null,
                                 Id = cm.Id,
                                 CreatedDate = cm.CreatedDate,
-                                CreatedBy = cm.CreatedBy
+                                CreatedBy = cm.CreatedBy,
+                                IsBusinessAccount = u.IsBusinessAccount
                             };
                 var countGroupMessage = Chatquery.Count();
 
@@ -171,7 +172,8 @@ namespace SpiritualNetwork.API.Services
                             ActualUrl = file != null ? file.ActualUrl : null,
                             Id = cm.Id,
                             CreatedDate = cm.CreatedDate,
-                            CreatedBy = cm.CreatedBy
+                            CreatedBy = cm.CreatedBy,
+                            IsBusinessAccount = u.IsBusinessAccount
                         };
 
             string sql = @"
@@ -210,6 +212,7 @@ namespace SpiritualNetwork.API.Services
             Chatprofile.IsGroup = false;
             Chatprofile.IsBlock = block;
             Chatprofile.IsBlockByUser = blockbyUser;
+            Chatprofile.IsBusinessAccount = profile.IsBusinessAccount;
 
             if (setting != null)
             {
@@ -276,6 +279,7 @@ namespace SpiritualNetwork.API.Services
                     infoBox.IsAdmin = member.IsAdmin;
                     infoBox.isfollowing = user.IsFollowedByLoginUser;
                     infoBox.isPeer = user.IsFollowingLoginUser;
+                    infoBox.IsBusinessAccount = user.IsBusinessAccount;
                     groupInfoBoxModels.Add(infoBox);
                 }
 
@@ -301,6 +305,7 @@ namespace SpiritualNetwork.API.Services
             InfoBox.IsAdmin = false;
             InfoBox.isfollowing = User.IsFollowedByLoginUser;
             InfoBox.isPeer = User.IsFollowingLoginUser;
+            InfoBox.IsBusinessAccount =User.IsBusinessAccount;
             groupInfoBoxModels.Add(InfoBox);
 
             GroupInfoDetails response = new GroupInfoDetails();

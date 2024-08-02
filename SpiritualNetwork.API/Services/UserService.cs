@@ -15,6 +15,7 @@ using Twilio;
 using Twilio.Rest.IpMessaging.V2.Service.Channel;
 using Twilio.Rest.Chat.V1.Service.Channel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using SpiritualNetwork.API.Migrations;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -619,7 +620,8 @@ namespace SpiritualNetwork.API.Services
                                  FirstName = user.FirstName,
                                  LastName = user.LastName,
                                  ProfileImg = user.ProfileImg,
-                            }).ToListAsync();
+                                 IsBusinessAccount = user.IsBusinessAccount,
+                                 }).ToListAsync();
 
                 //var data = await (from onlineuser in _onlineUsers.Table.Where(x => x.IsDeleted == false)
                 //             join
@@ -836,7 +838,8 @@ namespace SpiritualNetwork.API.Services
                                 Id = us.Id,
                                 FullName = us.FirstName+" "+us.LastName,
                                 ProfileImgUrl = us.ProfileImg,
-                                UserName = us.UserName
+                                UserName = us.UserName,
+                                IsBusinessAccount = us.IsBusinessAccount,
                             }).ToListAsync();
                 return new JsonResponse(200, true, "Success", query);
             }
