@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using Twilio.TwiML.Messaging;
 
 
 namespace SpiritualNetwork.API.Controllers
@@ -15,9 +17,11 @@ namespace SpiritualNetwork.API.Controllers
     public class PostController : ApiBaseController
     {
         private readonly IPostService _postService;
-        public PostController(IPostService postService)
+        private readonly RabbitMQService _rabbitMQService;
+        public PostController(IPostService postService, RabbitMQService rabbitMQService)
         {
             _postService = postService;
+            _rabbitMQService = rabbitMQService;
         }
 
         [HttpPost(Name = "PostUpload")]
@@ -25,7 +29,9 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
+                
                 var response = await _postService.InsertPost(form,user_unique_id, username);
+                _rabbitMQService.PublishMessage("newposts",JsonConvert.SerializeObject(response.Result));
                 return response;
             }
             catch (Exception ex)

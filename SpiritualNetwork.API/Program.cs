@@ -12,6 +12,7 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
+using SpiritualNetwork.API.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,8 +105,9 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IK4M2AService, K4M2AService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-
-
+builder.Services.AddSingleton<RabbitMQService>();
+builder.Services.AddSingleton<RabbitMQConsumerService>();
+builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

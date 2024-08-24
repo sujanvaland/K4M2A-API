@@ -16,14 +16,15 @@ namespace SpiritualNetwork.API.Controllers
         private readonly ILogger<UserController> logger;
         private IUserService _userService;
         private IQuestion _question;
-        
+        private readonly RabbitMQService _rabbitMQService;
 
         public UserController(ILogger<UserController> logger, 
-            IUserService userService, IQuestion question)
+            IUserService userService, IQuestion question, RabbitMQService rabbitMQService)
         {
             this.logger = logger;
             this._userService = userService;
             _question = question;
+            _rabbitMQService = rabbitMQService;
         }
 
         [AllowAnonymous]
@@ -83,6 +84,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
+               // _rabbitMQService.PublishMessage("newposts", "received new post");
                 return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
             }
             catch (Exception ex)
