@@ -16,6 +16,7 @@ public class RabbitMQConsumerService : IDisposable
     private readonly IModel _channel;
     private readonly string _queueName;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly HttpClient _httpClient; // Add HttpClient
     public RabbitMQConsumerService(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
@@ -27,7 +28,7 @@ public class RabbitMQConsumerService : IDisposable
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
         _queueName = "newposts"; // Change to your queue name
-
+        _httpClient = new HttpClient(); // Initialize HttpClient
         _channel.QueueDeclare(queue: _queueName,
                               durable: true,
                               exclusive: false,
@@ -74,6 +75,30 @@ public class RabbitMQConsumerService : IDisposable
             await Task.Run(() => notificationService.SaveNotification(notification));
         }
     }
+
+    //private async Task NotifyService(string message)
+    //{
+    //    // Assuming your notification service has an endpoint like /api/notify
+    //    var notificationEndpoint = "https://your-notification-service/api/notify";
+    //    var content = new StringContent(message, Encoding.UTF8, "application/json");
+
+    //    try
+    //    {
+    //        var response = await _httpClient.PostAsync(notificationEndpoint, content);
+    //        if (response.IsSuccessStatusCode)
+    //        {
+    //            Console.WriteLine("Notification sent successfully.");
+    //        }
+    //        else
+    //        {
+    //            Console.WriteLine($"Failed to send notification: {response.StatusCode}");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine($"Error calling notification service: {ex.Message}");
+    //    }
+    //}
 
     public void Dispose()
     {
