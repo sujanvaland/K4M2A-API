@@ -16,3 +16,4 @@ namespace SpiritualNetwork.API.Model
 		public string Email { get; set; }
 
 	}
+}
