@@ -350,7 +350,7 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
         // public Task<JsonResponse> EmailVerificationRequest(EmailVerificationReq req);
-
+        [AllowAnonymous]
 		[HttpPost(Name = "EmailVerification")]
 		public async Task<JsonResponse> EmailVerification(EmailVerificationReq req)
 		{
@@ -364,7 +364,7 @@ namespace SpiritualNetwork.API.Controllers
 				return new JsonResponse(200, false, "Fail", ex.Message);
 			}
 		}
-
+		[AllowAnonymous]
 		[HttpPost(Name = "VerifiedEmailReq")]
 		public async Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req)
 		{
