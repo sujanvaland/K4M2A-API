@@ -15,4 +15,13 @@ namespace SpiritualNetwork.Entities
         public bool IsUsed { get; set; }
 
     }
+
+    public class EmailVerificationRequest : BaseEntity
+    {
+        public string Email { get; set; }
+		public string OTP { get; set; }
+		public DateTime ActivationDate { get; set; }
+		public DateTime ExpirtionDate { get; set; }
+		public bool IsUsed { get; set; }
+	}
 }

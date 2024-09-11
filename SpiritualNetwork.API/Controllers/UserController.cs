@@ -349,5 +349,36 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
-    }
+        // public Task<JsonResponse> EmailVerificationRequest(EmailVerificationReq req);
+
+		[HttpPost(Name = "EmailVerification")]
+		public async Task<JsonResponse> EmailVerification(EmailVerificationReq req)
+		{
+			try
+			{
+				var response = await _userService.EmailVerificationReq(req);
+				return response;
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+		[HttpPost(Name = "VerifiedEmailReq")]
+		public async Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req)
+		{
+			try
+			{
+				var response = await _userService.VerifiedEmailReq(req);
+				return response;
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+
+	}
 }

@@ -25,7 +25,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRepository<PasswordResetRequest> _passwordResetRequestRepository;
-        private readonly INotificationService _notificationService;
+		private readonly IRepository<EmailVerificationRequest> _emailVerificationRequestRepository;
+		private readonly INotificationService _notificationService;
         private readonly IGlobalSettingService _globalSettingService;
         private readonly IRepository<PreRegisteredUser> _preRegisteredUserRepository;
         private readonly IRepository<UserFollowers> _userFollowersRepository;
@@ -52,7 +53,8 @@ namespace SpiritualNetwork.API.Services
             IProfileService profileService,
             IRepository<UserNetwork> userNetworkRepository,
             IRepository<UserAttribute> userAttributeRepository,
-            IRepository<Invitation> invitationRepository)
+            IRepository<Invitation> invitationRepository,
+			IRepository<EmailVerificationRequest> emailVerificationRequestRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -69,6 +71,7 @@ namespace SpiritualNetwork.API.Services
             _profileService = profileService;
             _userAttributeRepository = userAttributeRepository;
             _InvitationRepository = invitationRepository;
+            _emailVerificationRequestRepository = emailVerificationRequestRepository;
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId)
@@ -864,5 +867,78 @@ namespace SpiritualNetwork.API.Services
                 throw ex;
             }
         }
-    }
+
+		public async Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req)
+		{
+            var check = await _emailVerificationRequestRepository.Table.Where(x=> x.Email ==  req.Email && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+			if (req.Email == null || req.FirstName == null || req.LastName == null)
+			{
+				return new JsonResponse(200, false, "Bad Request", null);
+			}
+
+           
+
+			EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
+			EmailRequest.Email = req.Email;
+			EmailRequest.OTP = StringHelper.GenerateRandomNumber;
+			EmailRequest.ActivationDate = DateTime.Now;
+			EmailRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+			EmailRequest.IsUsed = false;
+			if (check != null)
+			{
+                check.OTP = EmailRequest.OTP;
+                check.ActivationDate = EmailRequest.ActivationDate;
+                check.ExpirtionDate= EmailRequest.ExpirtionDate;
+                await _emailVerificationRequestRepository.UpdateAsync(check);
+            }
+            else
+            {
+				await _emailVerificationRequestRepository.InsertAsync(EmailRequest);
+			}
+
+
+			EmailRequest emailRequest = new EmailRequest();
+			emailRequest.USERNAME = "Dear "+ req.FirstName + " " +req.LastName +",";
+			emailRequest.CONTENT1 = "Welcome to " + await _globalSettingService.GetValue("SiteName") + " ! We're excited to have you as part of our community. To complete the registration process and activate your account, please verify your email address.";
+			emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
+			emailRequest.CTALINK = EmailRequest.OTP;
+			emailRequest.CTATEXT = "Please enter this OTP on the verification page in the app to confirm your email address, This code is valid for 15 minutes ";
+			emailRequest.ToEmail = req.Email;
+			emailRequest.Subject = " Verify Your Account: Your OTP for " + await _globalSettingService.GetValue("SiteName");
+
+			SMTPDetails smtpDetails = new SMTPDetails();
+			smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
+			smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
+			smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
+			smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
+			smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+			var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+			return new JsonResponse(200, true, "Success", null);
+		}
+
+
+		public async Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req)
+		{
+			try
+			{
+                var check = await _emailVerificationRequestRepository.Table.Where(x=> x.Email ==  req.Email && x.OTP == req.OTP && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+                if (check != null) 
+                {
+                    check.IsUsed = true;
+                    await _emailVerificationRequestRepository.UpdateAsync(check);
+			    	return new JsonResponse(200, true, "Email Verified", null);
+				}
+				return new JsonResponse(200, true, "Invalid OTP", null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
+
+
+
+	}
 }

@@ -61,8 +61,8 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<CommunityReportPost> CommunityReportPost { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceFAQ> ServicesFAQ { get; set; }
-        
-        public DbSet<ServiceImages> ServicesImages { get; set; }
+		public DbSet<EmailVerificationRequest> EmailOTPRequest { get; set; }
+		public DbSet<ServiceImages> ServicesImages { get; set; }
         public DbSet<ReportEntity> Reports { get; set; }
 
 
