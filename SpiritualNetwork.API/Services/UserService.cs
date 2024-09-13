@@ -37,8 +37,9 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserNetwork> _userNetworkRepository;
         private readonly IRepository<UserAttribute> _userAttributeRepository;
         private readonly IRepository<Invitation> _InvitationRepository;
+		private readonly IRepository<Tags> _tagsRepository;
 
-        public UserService(
+		public UserService(
             IRepository<OnlineUsers> onlineUsers,
             IRepository<PreRegisteredUser> preregistereduserrepository,
             IRepository<User> userRepository,
@@ -54,7 +55,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<UserNetwork> userNetworkRepository,
             IRepository<UserAttribute> userAttributeRepository,
             IRepository<Invitation> invitationRepository,
-			IRepository<EmailVerificationRequest> emailVerificationRequestRepository)
+			IRepository<EmailVerificationRequest> emailVerificationRequestRepository,
+			IRepository<Tags> tagsRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -72,6 +74,7 @@ namespace SpiritualNetwork.API.Services
             _userAttributeRepository = userAttributeRepository;
             _InvitationRepository = invitationRepository;
             _emailVerificationRequestRepository = emailVerificationRequestRepository;
+            _tagsRepository = tagsRepository;
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId)
@@ -876,8 +879,6 @@ namespace SpiritualNetwork.API.Services
 				return new JsonResponse(200, false, "Bad Request", null);
 			}
 
-           
-
 			EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
 			EmailRequest.Email = req.Email;
 			EmailRequest.OTP = StringHelper.GenerateRandomNumber;
@@ -936,9 +937,17 @@ namespace SpiritualNetwork.API.Services
 			}
 		}
 
-
-
-
-
+		public async Task<JsonResponse> getTagsList()
+		{
+			try
+			{
+                var tags = await _tagsRepository.Table.ToListAsync();
+				return new JsonResponse(200, true, "Success", tags);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 	}
 }

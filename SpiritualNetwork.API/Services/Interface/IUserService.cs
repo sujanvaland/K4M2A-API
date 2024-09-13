@@ -30,6 +30,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> ChangePassword(ChangePasswordReq req, int UserId);
         public Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req);
         public Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req);
+        public Task<JsonResponse> getTagsList();
 
 	}
 }

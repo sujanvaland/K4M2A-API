@@ -63,11 +63,11 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<ServiceFAQ> ServicesFAQ { get; set; }
 		public DbSet<EmailVerificationRequest> EmailOTPRequest { get; set; }
 		public DbSet<ServiceImages> ServicesImages { get; set; }
-        public DbSet<ReportEntity> Reports { get; set; }
+		public DbSet<ReportEntity> Reports { get; set; }
+		public DbSet<Tags> Tags { get; set; }
 
 
-
-        public AppDbContext(IConfiguration configuration)
+		public AppDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

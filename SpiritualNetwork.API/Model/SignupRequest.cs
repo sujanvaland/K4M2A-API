@@ -12,10 +12,10 @@
         public bool? IsBusinessAccount { get; set; }
         public List<AnswerModel>? Answers { get; set; }
         public string? LoginMethod { get; set; }
-        
-    }
+		public int? IsEmailVerified { get; set; } = 0;
+	}
 
-    public class ClaimUsernameRequest
+	public class ClaimUsernameRequest
     {
         public string InviterName { get; set; }
         public string UserName { get; set; }
