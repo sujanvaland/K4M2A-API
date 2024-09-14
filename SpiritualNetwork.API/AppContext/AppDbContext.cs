@@ -66,7 +66,7 @@ namespace SpiritualNetwork.API.AppContext
 		public DbSet<ReportEntity> Reports { get; set; }
 		public DbSet<Tags> Tags { get; set; }
 
-
+		//public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 		public AppDbContext(IConfiguration configuration)
         {
             _configuration = configuration;

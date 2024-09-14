@@ -29,11 +29,11 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) 
     dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
 });
 
-//builder.Services
-//    .AddGraphQLServer()
-//    .AddQueryType<Query>();
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>();
 
-//builder.Services.AddGraphQLSchema<AppDbContext>();
+builder.Services.AddGraphQLSchema<AppDbContext>();
 
 builder.Services.AddCors(options =>
 {
