@@ -598,6 +598,7 @@ namespace SpiritualNetwork.API.Services
                 userPost.Type = postData.type;
                 userPost.Latitude = postData.latitude;
                 userPost.Longitude = postData.longitude;
+                userPost.IsVideo = postData.videoUrl.Count > 0;
                 await _userPostRepository.InsertAsync(userPost);
 
                 if (permiumcheck != null)
