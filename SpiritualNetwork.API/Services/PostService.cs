@@ -598,7 +598,6 @@ namespace SpiritualNetwork.API.Services
                 userPost.Type = postData.type;
                 userPost.Latitude = postData.latitude;
                 userPost.Longitude = postData.longitude;
-
                 await _userPostRepository.InsertAsync(userPost);
 
                 if (permiumcheck != null)
@@ -690,6 +689,7 @@ namespace SpiritualNetwork.API.Services
                         //}
                     }
                     await _postFiles.InsertRangeAsync(postfiles);
+                    userPost.IsVideo = postData.videoUrl.Count > 0;
                     userPost.PostMessage = JsonSerializer.Serialize(postData);
                     await _userPostRepository.UpdateAsync(userPost);
 
