@@ -689,7 +689,8 @@ namespace SpiritualNetwork.API.Services
                         //}
                     }
                     await _postFiles.InsertRangeAsync(postfiles);
-                    userPost.IsVideo = postData.videoUrl.Count > 0;
+                    userPost.IsVideo = (postData.videoUrl.Count > 0 ? true : false);
+
                     userPost.PostMessage = JsonSerializer.Serialize(postData);
                     await _userPostRepository.UpdateAsync(userPost);
 
