@@ -108,7 +108,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddSingleton<RabbitMQService>();
 builder.Services.AddSingleton<RabbitMQConsumerService>();
 builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
-
+builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {

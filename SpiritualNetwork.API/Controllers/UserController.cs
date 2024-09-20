@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpiritualNetwork.API.Model;
+using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
@@ -84,8 +85,13 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-               // _rabbitMQService.PublishMessage("newposts", "received new post");
-                return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
+				string topicName = "like";
+
+				// Produce a message
+				await KafkaProducer.ProduceMessage(topicName, "Vasu liked your post");
+
+				// _rabbitMQService.PublishMessage("newposts", "received new post");
+				return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
             }
             catch (Exception ex)
             {
