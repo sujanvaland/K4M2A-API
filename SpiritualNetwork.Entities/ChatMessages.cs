@@ -5,7 +5,7 @@
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public int? GroupId { get; set; }
-        public int? ReplyId { get; set; }
+        public long? ReplyId { get; set; }
         public string? Message { get; set; }
         public bool? IsDelivered { get; set; }
         public bool? IsRead { get; set; }

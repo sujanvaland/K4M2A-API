@@ -148,7 +148,7 @@ namespace SpiritualNetwork.API.Services
             var query = from cm in chatMessage
                         join file in _fileRepository.Table on cm.AttachmentId equals file.Id into fileJoin
                         from file in fileJoin.DefaultIfEmpty()
-                        join cmr in _chatMessagesRepository.Table on cm.ReplyId equals cmr.Id into reply
+                        join cmr in _chatMessagesRepository.Table on cm.ReplyId equals cmr.Timestamp into reply
                         from cmr in reply.DefaultIfEmpty()
                         join u in _userRepository.Table on cm.SenderId equals u.Id
                         join ru in _userRepository.Table on cmr.SenderId equals ru.Id into replyUser
