@@ -414,50 +414,50 @@ namespace SpiritualNetwork.API.Services
             else
                 await _chatMessagesRepository.InsertAsync(chatMessages);
 
-            List<string> ConnectionList = new List<string>();
+            //List<string> ConnectionList = new List<string>();
 
-            if(chatMessages.GroupId != 0)
-            {
-                var GroupMember = await _groupMemberRepository.Table.Where(x=> x.GroupId == chatMessages.GroupId).ToListAsync();
-                NotificationRes notification = new NotificationRes();
-                foreach (var item in GroupMember)
-                {
-                    var receiverConnectionId = await _onlineUsers.Table.Where(x => x.IsDeleted == false 
-                    && x.UserId == item.UserId).FirstOrDefaultAsync();
+            //if(chatMessages.GroupId != 0)
+            //{
+            //    var GroupMember = await _groupMemberRepository.Table.Where(x=> x.GroupId == chatMessages.GroupId).ToListAsync();
+            //    NotificationRes notification = new NotificationRes();
+            //    foreach (var item in GroupMember)
+            //    {
+            //        var receiverConnectionId = await _onlineUsers.Table.Where(x => x.IsDeleted == false 
+            //        && x.UserId == item.UserId).FirstOrDefaultAsync();
 
-                    if (receiverConnectionId != null)
-                    {
-                        notification.connectionIds.Add(receiverConnectionId.ConnectionId);
-                    }
-                }
-                notification.PostId = 0;
-                notification.ActionByUserId = chatMessages.SenderId;
-                notification.ActionType = "newgroupmessage";
-                notification.RefId2 = chatMessages.GroupId.ToString();
-                notification.RefId1 = "";
-                notification.Message = "";
-                await _notificationService.SaveNotification(notification);
-            }
-            else
-            {
-                var receiverConnectionId = await _onlineUsers.Table
-                .Where(x => x.IsDeleted == false && x.UserId == chatMessages.ReceiverId)
-                .FirstOrDefaultAsync();
+            //        if (receiverConnectionId != null)
+            //        {
+            //            notification.connectionIds.Add(receiverConnectionId.ConnectionId);
+            //        }
+            //    }
+            //    notification.PostId = 0;
+            //    notification.ActionByUserId = chatMessages.SenderId;
+            //    notification.ActionType = "newgroupmessage";
+            //    notification.RefId2 = chatMessages.GroupId.ToString();
+            //    notification.RefId1 = "";
+            //    notification.Message = "";
+            //    await _notificationService.SaveNotification(notification);
+            //}
+            //else
+            //{
+            //    var receiverConnectionId = await _onlineUsers.Table
+            //    .Where(x => x.IsDeleted == false && x.UserId == chatMessages.ReceiverId)
+            //    .FirstOrDefaultAsync();
 
-                if (receiverConnectionId == null)
-                    return;
+            //    if (receiverConnectionId == null)
+            //        return;
 
-                NotificationRes notification = new NotificationRes();
-                notification.PostId = 0;
-                notification.ActionByUserId = chatMessages.SenderId;
-                notification.ActionType = "newchatmessage";
-                notification.RefId1 = chatMessages.ReceiverId.ToString();
-                notification.RefId2 = chatMessages.SenderId.ToString();
-                notification.Message = "";
-                notification.connectionIds.Add(receiverConnectionId.ConnectionId);
+            //    NotificationRes notification = new NotificationRes();
+            //    notification.PostId = 0;
+            //    notification.ActionByUserId = chatMessages.SenderId;
+            //    notification.ActionType = "newchatmessage";
+            //    notification.RefId1 = chatMessages.ReceiverId.ToString();
+            //    notification.RefId2 = chatMessages.SenderId.ToString();
+            //    notification.Message = "";
+            //    notification.connectionIds.Add(receiverConnectionId.ConnectionId);
 
-                await _notificationService.SaveNotification(notification);
-            }
+            //    await _notificationService.SaveNotification(notification);
+            //}
             
         }
 
@@ -538,7 +538,6 @@ namespace SpiritualNetwork.API.Services
             }
             return new JsonResponse(200, true, "Success", null);
         }
-
 
         public async Task<JsonResponse> LeaveGroupConversation (int GroupId, int UserId)
         {
