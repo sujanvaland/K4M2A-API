@@ -75,7 +75,7 @@ namespace SpiritualNetwork.API.Services
                 var Chatquery = from cm in _chatMessagesRepository.Table
                             join file in _fileRepository.Table on cm.AttachmentId equals file.Id into fileJoin
                             from file in fileJoin.DefaultIfEmpty()
-                            join cmr in _chatMessagesRepository.Table on cm.ReplyId equals cmr.Id into reply
+                            join cmr in _chatMessagesRepository.Table on cm.ReplyId equals cmr.Timestamp into reply
                             from cmr in reply.DefaultIfEmpty()
                             join u in _userRepository.Table on cm.SenderId equals u.Id into user
                             from u in user.DefaultIfEmpty()
@@ -610,7 +610,7 @@ namespace SpiritualNetwork.API.Services
                _chatMessagesRepository.DeleteHard(chatMessages);
         }
 
-        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId, string TimeStamp)
+        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId, int TimeStamp)
         {
             var history = _chatMessagesRepository.Table.Where(x => (x.SenderId == LoginUserId
             || x.ReceiverId == LoginUserId) &&

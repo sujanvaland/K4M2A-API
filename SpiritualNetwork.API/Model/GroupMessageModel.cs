@@ -20,7 +20,7 @@ namespace SpiritualNetwork.API.Model
     {
         public int Id { get; set; }
         public int MessageId { get; set; } = 0;
-        public string? TimeStamp { get; set; }
+        public int TimeStamp { get; set; } = 0;
     }
 
     public class leaveGroupModel

@@ -12,7 +12,7 @@
         public int? AttachmentId { get; set; }
         public int? DeleteForUserId1 { get; set; }
         public int? DeleteForUserId2 { get; set; }
-        public string? Timestamp { get; set; }
+        public long? Timestamp { get; set; }
 
 	}
 
