@@ -9,7 +9,7 @@ namespace SpiritualNetwork.API.Services.Interface
         Task<JsonResponse> GetChatMessages(int LoginUserId, ChatHistoryReq req, int Size);
         Task SaveChatMessage(ChatMessages chatMessages);
         void DeleteChatMessage(ChatMessages chatMessages);
-        public Task<JsonResponse> DeleteChatHistory(int UserId, int LoginUserId, int MessageId);
+        public Task<JsonResponse> DeleteChatHistory(int UserId, int LoginUserId, int MessageId, string TimeStamp);
         public Task<JsonResponse> GetUserChatList(int UserId);
         public Task<JsonResponse> LeaveGroupConversation(int GroupId, int UserId);
         public Task<JsonResponse> AddCreateMemberGroup(GroupMessageModel res, int UserId);

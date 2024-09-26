@@ -100,7 +100,8 @@ namespace SpiritualNetwork.API.Services
                                 Id = cm.Id,
                                 CreatedDate = cm.CreatedDate,
                                 CreatedBy = cm.CreatedBy,
-                                IsBusinessAccount = u.IsBusinessAccount
+                                IsBusinessAccount = u.IsBusinessAccount,
+                                Timestamp = cm.Timestamp,
                             };
                 var countGroupMessage = Chatquery.Count();
 
@@ -173,8 +174,10 @@ namespace SpiritualNetwork.API.Services
                             Id = cm.Id,
                             CreatedDate = cm.CreatedDate,
                             CreatedBy = cm.CreatedBy,
-                            IsBusinessAccount = u.IsBusinessAccount
-                        };
+                            IsBusinessAccount = u.IsBusinessAccount,
+							Timestamp = cm.Timestamp,
+
+						};
 
             string sql = @"
                             UPDATE ChatMessages
@@ -607,7 +610,7 @@ namespace SpiritualNetwork.API.Services
                _chatMessagesRepository.DeleteHard(chatMessages);
         }
 
-        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId)
+        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId, string TimeStamp)
         {
             var history = _chatMessagesRepository.Table.Where(x => (x.SenderId == LoginUserId
             || x.ReceiverId == LoginUserId) &&
@@ -616,9 +619,9 @@ namespace SpiritualNetwork.API.Services
 
             List<ChatMessages> list = new List<ChatMessages>();
 
-            if (MessageId > 0)
+            if (MessageId > 0 || TimeStamp != null)
             {
-                list = await history.Where(x => x.Id == MessageId).ToListAsync();
+                list = await history.Where(x => x.Id == MessageId || x.Timestamp == TimeStamp).ToListAsync();
             }
             else
             {

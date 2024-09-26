@@ -143,7 +143,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                return await _chatService.DeleteChatHistory(req.Id,user_unique_id,req.MessageId);
+                return await _chatService.DeleteChatHistory(req.Id,user_unique_id,req.MessageId,req.TimeStamp);
             }
             catch (Exception ex)
             {

@@ -19,7 +19,8 @@ namespace SpiritualNetwork.API.Model
     public class DeleteMessage
     {
         public int Id { get; set; }
-        public int MessageId { get; set; }
+        public int MessageId { get; set; } = 0;
+        public string? TimeStamp { get; set; }
     }
 
     public class leaveGroupModel

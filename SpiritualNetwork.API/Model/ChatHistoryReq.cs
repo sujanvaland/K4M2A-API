@@ -57,6 +57,7 @@ namespace SpiritualNetwork.API.Model
         public string ThumbnailUrl { get; set; }
         public string ActualUrl { get; set; }
         public bool? IsBusinessAccount { get; set; }
+		public string? Timestamp { get; set; }
 
-    }
+	}
 }
