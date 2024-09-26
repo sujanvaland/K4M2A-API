@@ -619,7 +619,7 @@ namespace SpiritualNetwork.API.Services
 
             List<ChatMessages> list = new List<ChatMessages>();
 
-            if (MessageId > 0 || TimeStamp != null)
+            if (MessageId > 0 || TimeStamp > 0)
             {
                 list = await history.Where(x => x.Id == MessageId || x.Timestamp == TimeStamp).ToListAsync();
             }
