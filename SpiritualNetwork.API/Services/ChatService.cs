@@ -610,7 +610,7 @@ namespace SpiritualNetwork.API.Services
                _chatMessagesRepository.DeleteHard(chatMessages);
         }
 
-        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId, int TimeStamp)
+        public async Task<JsonResponse> DeleteChatHistory(int UserId,int LoginUserId,int MessageId, long TimeStamp)
         {
             var history = _chatMessagesRepository.Table.Where(x => (x.SenderId == LoginUserId
             || x.ReceiverId == LoginUserId) &&
