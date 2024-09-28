@@ -134,6 +134,7 @@ namespace SpiritualNetwork.API.Services
             {
                 _notificationRepository.Insert(notification);
             }
+
             if (notification.ActionType == "repost" || notification.ActionType == "inviteattendee" || notification.ActionType == "like" || notification.ActionType == "makespeaker"
                 || notification.ActionType == "follow" || notification.ActionType == "addattendees" || notification.ActionType == "makehost" )
             {

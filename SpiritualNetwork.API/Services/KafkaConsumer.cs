@@ -1,12 +1,21 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using SpiritualNetwork.API.Model;
+using SpiritualNetwork.API.Services.Interface;
 
 namespace SpiritualNetwork.API.Services
 {
 	public class KafkaConsumerBackgroundService : BackgroundService
 	{
 		private readonly string _topicName = "like";  // Your Kafka topic name
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
-		
+		public KafkaConsumerBackgroundService(IServiceScopeFactory serviceScopeFactory)
+		{
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+
+		}
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			await Task.Yield(); // Ensures this runs as a background task
@@ -32,6 +41,17 @@ namespace SpiritualNetwork.API.Services
 					while (!stoppingToken.IsCancellationRequested)
 					{
 						var consumeResult = consumer.Consume(stoppingToken);
+						var messageObject = JsonConvert.DeserializeObject<dynamic>(consumeResult.Message.Value);
+						int postId = messageObject.PostId;
+						int userUniqueId = messageObject.UserUniqueId;
+
+						using (var scope = _serviceScopeFactory.CreateScope())
+						{
+							var reactionService = scope.ServiceProvider.GetRequiredService<IReactionService>();
+
+							// Call ToggleLike with the deserialized values
+							await reactionService.ToggleLike(postId, userUniqueId);
+						}
 						Console.WriteLine($"Consumed message '{consumeResult.Message.Value}' from topic '{consumeResult.Topic}'");
 
 						// Process the consumed message (e.g., store it in a database)
