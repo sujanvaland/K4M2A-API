@@ -9,6 +9,8 @@ namespace SpiritualNetwork.API.Services
 		
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
+			await Task.Yield(); // Ensures this runs as a background task
+
 			var config = new ConsumerConfig
 			{
 				BootstrapServers = "kafka-3f4b1c5a-k4m2a.e.aivencloud.com:25290",
@@ -29,15 +31,23 @@ namespace SpiritualNetwork.API.Services
 				{
 					while (!stoppingToken.IsCancellationRequested)
 					{
-						var consumeResult = await Task.Run(() => consumer.Consume(stoppingToken), stoppingToken);
+						var consumeResult = consumer.Consume(stoppingToken);
 						Console.WriteLine($"Consumed message '{consumeResult.Message.Value}' from topic '{consumeResult.Topic}'");
 
 						// Process the consumed message (e.g., store it in a database)
 					}
 				}
+				catch (ConsumeException ex)
+				{
+					Console.WriteLine($"Consume error: {ex.Error.Reason}");
+				}
 				catch (OperationCanceledException)
 				{
 					// This is expected when the service is stopping
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Unexpected error: {ex.Message}");
 				}
 				finally
 				{

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
@@ -61,8 +62,17 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                return await _reactionService.ToggleLike(req.PostId,user_unique_id);
-            }
+				string topicName = "like";
+				var message = JsonConvert.SerializeObject(new
+				{
+					PostId = req.PostId,
+					UserUniqueId = user_unique_id
+				});
+				// Produce a message
+				await KafkaProducer.ProduceMessage(topicName, message);
+				return new JsonResponse(200, true, "Success", null);
+				//return await _reactionService.ToggleLike(req.PostId,user_unique_id);
+			}
             catch (Exception ex)
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);

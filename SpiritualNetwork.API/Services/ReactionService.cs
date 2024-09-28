@@ -206,6 +206,7 @@ namespace SpiritualNetwork.API.Services
             public string type { get; set; }
             public List<string> ConnectionIds { get; set; }
         }
+
         public async Task<JsonResponse> GetAllReaction(int PostId)
         {
             try

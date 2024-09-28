@@ -85,10 +85,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-				string topicName = "like";
-
-				// Produce a message
-				//await KafkaProducer.ProduceMessage(topicName, "Vasu liked your post");
+				
 
 				// _rabbitMQService.PublishMessage("newposts", "received new post");
 				return await _userService.SignIn(loginRequest.Username, loginRequest.Password);

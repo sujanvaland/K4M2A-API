@@ -1,4 +1,6 @@
 ﻿using Confluent.Kafka;
+using HotChocolate.Subscriptions;
+using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -20,12 +22,29 @@ namespace SpiritualNetwork.API.Services
 			{
 				try
 				{
-					var result = await producer.ProduceAsync(topicName, new Message<Null, string> { Value = message });
-					Console.WriteLine($"Message sent to topic {result.Topic}, partition {result.Partition}, offset {result.Offset}");
+					//var result = await producer.ProduceAsync(topicName, new Message<Null, string> { Value = message });
+					producer.Produce(topicName, new Message<Null, string> {  Value = message },
+					(deliveryReport) =>
+					{
+						if (deliveryReport.Error.Code != ErrorCode.NoError)
+						{
+							Console.WriteLine($"Failed to deliver message: {deliveryReport.Error.Reason}");
+						}
+						else
+						{
+							Console.WriteLine($"Produced event to topic {topicName}: value = {message}");
+						}
+					});
+					//Console.WriteLine($"Message sent to topic {result.Topic}, partition {result.Partition}, offset {result.Offset}");
 				}
 				catch (ProduceException<Null, string> e)
 				{
 					Console.WriteLine($"Error: {e.Error.Reason}");
+				}
+				finally
+				{
+					// Ensure all messages in the queue are delivered before closing
+					producer.Flush(TimeSpan.FromSeconds(10));  // Adjust timeout as necessary
 				}
 			}
 		}
