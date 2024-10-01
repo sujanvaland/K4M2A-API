@@ -66,7 +66,8 @@ namespace SpiritualNetwork.API.Controllers
 				var message = JsonConvert.SerializeObject(new
 				{
 					PostId = req.PostId,
-					UserUniqueId = user_unique_id
+					UserUniqueId = user_unique_id,
+                    Topic = topicName
 				});
 				// Produce a message
 				await KafkaProducer.ProduceMessage(topicName, message);

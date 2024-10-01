@@ -559,15 +559,15 @@ namespace SpiritualNetwork.API.Services
             return (int)postData.noOfRepost;
         }
 
-        public async Task<JsonResponse> InsertPost(IFormCollection form, int UserId, string Username)
+        public async Task<JsonResponse> InsertPost(PostDataDto postDataDto)
         {
             try
             {
-                var user = _userRepository.GetById(UserId);
+                var user = _userRepository.GetById(postDataDto.UserUniqueId);
 
-                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == UserId &&
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == postDataDto.UserUniqueId &&
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
-                var str = form.ToList()[0].Value;
+                var str = postDataDto.FormFields.ToList()[0].Value;
                 var postData = JsonSerializer.Deserialize<Post>(str);
                 if(postData == null)
                     return new JsonResponse(200, false, "Fail", "Bad Request");
@@ -628,106 +628,162 @@ namespace SpiritualNetwork.API.Services
                     parentPost.PostMessage = postMessageStr;
                     _userPostRepository.Update(parentPost);
                 }
-                if (form.Files.Count == 0)
+                if (postDataDto.Files.Count == 0)
                 {
                     userPost.PostMessage = JsonSerializer.Serialize(postData);
                     await _userPostRepository.UpdateAsync(userPost);
-                }   
-
-                if (form.Files.Count > 0)
-                {
-                    List<IFormFile> formFiles = new List<IFormFile>();
-                    foreach (var item in form.Files)
-                    {
-                        if (!(item.FileName.ToLower() == ".mp4" || item.FileName.ToLower() == ".avi"
-                            || item.FileName.ToLower() == ".mov" || item.FileName.ToLower() == ".wmv"
-                            || item.FileName.ToLower() == ".flv" || item.FileName.ToLower() == ".mkv"
-                            || item.FileName.ToLower() == ".webm" || item.FileName.ToLower() == ".mpeg"
-                            || item.FileName.ToLower() == ".mpg" || item.FileName.ToLower() == ".3gp"))
-                        {
-                            formFiles.Add(item);
-                        }
-                           
-                    }
-                    var uploadedfiles = await _attachmentService.InsertAttachment(formFiles);
-                    uploadPostResponse.Files = uploadedfiles;
-                    List<PostFiles> postfiles = new List<PostFiles>();
-
-                    
-                    postData.imgUrl = new List<string>();
-                    postData.pdfUrl = new List<string>();
-                    postData.thumbnailUrl = new List<string>();
-                    bool hasImageFile = false;
-                    bool hasVideoFile = false;
-                    foreach (var item in uploadedfiles)
-                    {
-                        PostFiles post = new PostFiles();
-                        post.PostId = userPost.Id;
-                        post.FileId = item.Id;
-                       
-                        postfiles.Add(post);
-                        if(item.FileExtension.ToLower() == ".jpg" || item.FileExtension.ToLower() == ".jpeg" 
-                            || item.FileExtension.ToLower() == ".png" || item.FileExtension.ToLower() == ".gif"
-                            || item.FileExtension.ToLower() == ".svg" || item.FileExtension.ToLower() == ".webp"
-                            || item.FileExtension.ToLower() == ".bmp" || item.FileExtension.ToLower() == ".tiff")
-                        {
-                            hasImageFile = true;
-                            postData.imgUrl.Add(item.ActualUrl);
-                            postData.thumbnailUrl.Add(item.ThumbnailUrl);
-                        }
-                        if (item.FileExtension.ToLower() == ".pdf")
-                        {
-                            postData.pdfUrl.Add(item.ActualUrl);
-                        }
-                        //if (item.FileExtension.ToLower() == ".mp4" || item.FileExtension.ToLower() == ".avi"
-                        //    || item.FileExtension.ToLower() == ".mov" || item.FileExtension.ToLower() == ".wmv"
-                        //    || item.FileExtension.ToLower() == ".flv" || item.FileExtension.ToLower() == ".mkv"
-                        //    || item.FileExtension.ToLower() == ".webm" || item.FileExtension.ToLower() == ".mpeg"
-                        //    || item.FileExtension.ToLower() == ".mpg" || item.FileExtension.ToLower() == ".3gp")
-                        //{
-                        //    hasVideoFile = true;
-                        //    postData.videoUrl.Add(item.ActualUrl);
-                        //}
-                    }
-                    await _postFiles.InsertRangeAsync(postfiles);
-                    userPost.IsVideo = (postData.videoUrl.Count > 0 ? true : false);
-
-                    userPost.PostMessage = JsonSerializer.Serialize(postData);
-                    await _userPostRepository.UpdateAsync(userPost);
-
-                }
-                else
-                {
-                    uploadPostResponse.Files = new List<Entities.File>();
                 }
 
-                try
-                {
-                    NotificationRes notification = new NotificationRes();
-                    notification.PostId = postData.id;
-                    notification.ActionByUserId = UserId;
-                    notification.ActionType = postData.type;
-                    notification.RefId1 = postData.parentId.ToString();
-                    notification.RefId2 = "";
-                    notification.Message = "";
-                    await _notificationService.SaveNotification(notification);
-                }
-                catch (Exception ex)
-                {
-                    //log to db
-                }
+				// Define maximum file size (e.g., 10 MB)
+				const long MaxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
 
-                return new JsonResponse(200, true, "Success", uploadPostResponse);
+				if (postDataDto.Files.Count > 0)
+				{
+					List<IFormFile> formFiles = new List<IFormFile>();
+
+					// Iterate through postDataDto.Files (Base64 encoded)
+					foreach (var item in postDataDto.Files)
+					{
+						// Filter based on file type extension
+						if (!(item.FileName.ToLower().EndsWith(".mp4") || item.FileName.ToLower().EndsWith(".avi")
+							|| item.FileName.ToLower().EndsWith(".mov") || item.FileName.ToLower().EndsWith(".wmv")
+							|| item.FileName.ToLower().EndsWith(".flv") || item.FileName.ToLower().EndsWith(".mkv")
+							|| item.FileName.ToLower().EndsWith(".webm") || item.FileName.ToLower().EndsWith(".mpeg")
+							|| item.FileName.ToLower().EndsWith(".mpg") || item.FileName.ToLower().EndsWith(".3gp")))
+						{
+							// Convert Base64 back to byte array
+							byte[] fileBytes = Convert.FromBase64String(item.Base64Content);
+
+							// Validate file size
+							if (fileBytes.Length > MaxFileSizeInBytes)
+							{
+								throw new Exception($"The file {item.FileName} exceeds the maximum allowed size of {MaxFileSizeInBytes / (1024 * 1024)} MB.");
+							}
+							// Create a stream from the byte array
+							var stream = new MemoryStream(fileBytes);
+
+							// Create an IFormFile instance
+							var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName);
+							// Set the correct content type based on the file extension
+							formFile.ContentType = GetContentType(item.FileName);
+							formFiles.Add(formFile);
+						}
+					}
+
+					// Insert attachments (files)
+					var uploadedFiles = await _attachmentService.InsertAttachment(formFiles);
+					uploadPostResponse.Files = uploadedFiles;
+
+					List<PostFiles> postFiles = new List<PostFiles>();
+					postData.imgUrl = new List<string>();
+					postData.pdfUrl = new List<string>();
+					postData.thumbnailUrl = new List<string>();
+
+					bool hasImageFile = false;
+					bool hasVideoFile = false;
+
+					// Process uploaded files
+					foreach (var item in uploadedFiles)
+					{
+						PostFiles post = new PostFiles
+						{
+							PostId = userPost.Id,
+							FileId = item.Id
+						};
+						postFiles.Add(post);
+
+						// Handling images
+						if (item.FileExtension.ToLower() == ".jpg" || item.FileExtension.ToLower() == ".jpeg"
+							|| item.FileExtension.ToLower() == ".png" || item.FileExtension.ToLower() == ".gif"
+							|| item.FileExtension.ToLower() == ".svg" || item.FileExtension.ToLower() == ".webp"
+							|| item.FileExtension.ToLower() == ".bmp" || item.FileExtension.ToLower() == ".tiff")
+						{
+							hasImageFile = true;
+							postData.imgUrl.Add(item.ActualUrl);
+							postData.thumbnailUrl.Add(item.ThumbnailUrl);
+						}
+
+						// Handling PDFs
+						if (item.FileExtension.ToLower() == ".pdf")
+						{
+							postData.pdfUrl.Add(item.ActualUrl);
+						}
+
+						// If you want to handle videos in the future, uncomment and handle them:
+						/*
+						if (item.FileExtension.ToLower() == ".mp4" || item.FileExtension.ToLower() == ".avi"
+							|| item.FileExtension.ToLower() == ".mov" || item.FileExtension.ToLower() == ".wmv"
+							|| item.FileExtension.ToLower() == ".flv" || item.FileExtension.ToLower() == ".mkv"
+							|| item.FileExtension.ToLower() == ".webm" || item.FileExtension.ToLower() == ".mpeg"
+							|| item.FileExtension.ToLower() == ".mpg" || item.FileExtension.ToLower() == ".3gp")
+						{
+							hasVideoFile = true;
+							postData.videoUrl.Add(item.ActualUrl);
+						}
+						*/
+					}
+
+					// Save PostFiles to DB
+					await _postFiles.InsertRangeAsync(postFiles);
+
+					// Set IsVideo based on whether video files were uploaded
+					userPost.IsVideo = postData.videoUrl.Count > 0;
+
+					// Serialize PostMessage
+					userPost.PostMessage = JsonSerializer.Serialize(postData);
+
+					// Update the post
+					await _userPostRepository.UpdateAsync(userPost);
+				}
+				else
+				{
+					uploadPostResponse.Files = new List<Entities.File>();
+				}
+
+				//try
+				//{
+				//    NotificationRes notification = new NotificationRes();
+				//    notification.PostId = postData.id;
+				//    notification.ActionByUserId = UserId;
+				//    notification.ActionType = postData.type;
+				//    notification.RefId1 = postData.parentId.ToString();
+				//    notification.RefId2 = "";
+				//    notification.Message = "";
+				//    await _notificationService.SaveNotification(notification);
+				//}
+				//catch (Exception ex)
+				//{
+				//    //log to db
+				//}
+
+				return new JsonResponse(200, true, "Success", uploadPostResponse);
 
             }
             catch (Exception ex)
             {
-                throw ex;
-            }
+				return new JsonResponse(500, false, "Fail", ex.Message);
+			}
 
         }
 
-        public async Task<JsonResponse> DeletePostAsync(int PostId)
+		// Function to get MIME type based on file extension
+		private string GetContentType(string fileName)
+		{
+			var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+			return extension switch
+			{
+				".jpg" => "image/jpeg",
+				".jpeg" => "image/jpeg",
+				".png" => "image/png",
+				".gif" => "image/gif",
+				".pdf" => "application/pdf",
+				".doc" => "application/msword",
+				".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				_ => "application/octet-stream", // Default MIME type if unknown
+			};
+		}
+
+		public async Task<JsonResponse> DeletePostAsync(int PostId)
         {
             try
             {

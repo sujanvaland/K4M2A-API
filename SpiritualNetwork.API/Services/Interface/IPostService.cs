@@ -6,7 +6,7 @@ namespace SpiritualNetwork.API.Services.Interface
 {
     public interface IPostService
     {
-        public Task<JsonResponse> InsertPost(IFormCollection form, int Id, string Username);
+        public Task<JsonResponse> InsertPost(PostDataDto postDataDto);
         public Task<JsonResponse> GetAllPostsAsync(int Id, int PageNo,int? ProfileUserId,string? Type);
         public Task<JsonResponse> GetPostById(int loginUserId, int postId);
         public Task<JsonResponse> RePost(int PostId, int UserId);

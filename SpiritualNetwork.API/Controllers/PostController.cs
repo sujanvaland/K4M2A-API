@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
+using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
@@ -29,10 +30,44 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                
-                var response = await _postService.InsertPost(form,user_unique_id, username);
-                _rabbitMQService.PublishMessage("newposts",JsonConvert.SerializeObject(response.Result));
-                return response;
+				// Validate if files were uploaded
+				if (form.Files.Count == 0)
+				{
+					return new JsonResponse(400, false, "Fail", "No files uploaded.");
+				}
+
+				// Convert form data to DTO
+				var postDataDto = new PostDataDto();
+
+				// Populate the form fields
+				foreach (var key in form.Keys)
+				{
+					postDataDto.FormFields[key] = form[key];
+				}
+
+				// Handle file uploads
+				foreach (var file in form.Files)
+				{
+					using (var memoryStream = new MemoryStream())
+					{
+						await file.CopyToAsync(memoryStream);
+						var base64Content = Convert.ToBase64String(memoryStream.ToArray());
+
+						// Add file info to the DTO
+						postDataDto.Files.Add(new FileDataDto
+						{
+							FileName = file.FileName,
+							Base64Content = base64Content
+						});
+					}
+				}
+                postDataDto.Topic = "post";
+                postDataDto.UserUniqueId = user_unique_id;
+                postDataDto.Username = username;
+				// Produce a message
+				//await KafkaProducer.ProduceMessage("post", postDataDto);
+				var response = await _postService.InsertPost(postDataDto);
+				return new JsonResponse(200,true,"Success");
             }
             catch (Exception ex)
             {

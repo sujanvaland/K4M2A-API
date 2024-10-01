@@ -1,5 +1,6 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
@@ -8,7 +9,7 @@ namespace SpiritualNetwork.API.Services
 {
 	public class KafkaConsumerBackgroundService : BackgroundService
 	{
-		private readonly string _topicName = "like";  // Your Kafka topic name
+		private readonly List<string> _topics = new List<string> { "like","comment","post" };
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 
 		public KafkaConsumerBackgroundService(IServiceScopeFactory serviceScopeFactory)
@@ -25,6 +26,7 @@ namespace SpiritualNetwork.API.Services
 				BootstrapServers = "kafka-3f4b1c5a-k4m2a.e.aivencloud.com:25290",
 				GroupId = "your-consumer-group-id",
 				AutoOffsetReset = AutoOffsetReset.Earliest,
+				EnableAutoCommit = false, // Disable auto commit
 				SecurityProtocol = SecurityProtocol.Ssl,
 				SslCaLocation = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Certificates", "ca.pem"),  // Path to the CA certificate
 				SslCertificateLocation = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Certificates", "service.cert"),
@@ -34,23 +36,52 @@ namespace SpiritualNetwork.API.Services
 
 			using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
 			{
-				consumer.Subscribe(_topicName);
-
+				consumer.Subscribe(_topics);
 				try
 				{
 					while (!stoppingToken.IsCancellationRequested)
 					{
 						var consumeResult = consumer.Consume(stoppingToken);
 						var messageObject = JsonConvert.DeserializeObject<dynamic>(consumeResult.Message.Value);
-						int postId = messageObject.PostId;
-						int userUniqueId = messageObject.UserUniqueId;
-
 						using (var scope = _serviceScopeFactory.CreateScope())
 						{
-							var reactionService = scope.ServiceProvider.GetRequiredService<IReactionService>();
+							
+							if(messageObject.Topic == "like")
+							{
+								var reactionService = scope.ServiceProvider.GetRequiredService<IReactionService>();
+								int postId = messageObject.PostId;
+								int userUniqueId = messageObject.UserUniqueId;
+								// Call ToggleLike with the deserialized values
+								var result = await reactionService.ToggleLike(postId, userUniqueId);
+								if (result != null && result.Success)
+								{
+									// Manually commit the offset after successful processing
+									consumer.Commit(consumeResult);
+								}
+							}
+							if (messageObject.Topic == "post")
+							{
+								consumer.Commit(consumeResult);
+								var postDataDto = JsonConvert.DeserializeObject<PostDataDto>(consumeResult.Message.Value);
+								// Convert the dictionary back to IFormCollection if needed
+								var formCollection = new FormCollection(
+									postDataDto.FormFields.ToDictionary(
+										k => k.Key,
+										v => new StringValues(v.Value)
+									)
+								);
 
-							// Call ToggleLike with the deserialized values
-							await reactionService.ToggleLike(postId, userUniqueId);
+								var postService = scope.ServiceProvider.GetRequiredService<IPostService>();
+								// Call the InsertPost method with the correct parameters
+								var result = await postService.InsertPost(postDataDto);
+								if (result != null && result.Success)
+								{
+									// Manually commit the offset after successful processing
+									consumer.Commit(consumeResult);
+								}
+							}
+							consumer.Commit(consumeResult);
+
 						}
 						Console.WriteLine($"Consumed message '{consumeResult.Message.Value}' from topic '{consumeResult.Topic}'");
 

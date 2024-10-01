@@ -1,13 +1,14 @@
 ﻿using Confluent.Kafka;
 using HotChocolate.Subscriptions;
+using Newtonsoft.Json;
 using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.Services
 {
 	public class KafkaProducer
 	{
-		public static async Task ProduceMessage(string topicName, string message)
-		{
+		public static async Task ProduceMessage<T>(string topicName, T message)
+		{ 
 			var config = new ProducerConfig
 			{
 				BootstrapServers = "kafka-3f4b1c5a-k4m2a.e.aivencloud.com:25290",
@@ -23,7 +24,8 @@ namespace SpiritualNetwork.API.Services
 				try
 				{
 					//var result = await producer.ProduceAsync(topicName, new Message<Null, string> { Value = message });
-					producer.Produce(topicName, new Message<Null, string> {  Value = message },
+					var jsonMessage = JsonConvert.SerializeObject(message);
+					producer.Produce(topicName, new Message<Null, string> {  Value = jsonMessage },
 					(deliveryReport) =>
 					{
 						if (deliveryReport.Error.Code != ErrorCode.NoError)

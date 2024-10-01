@@ -2,7 +2,7 @@
 
 namespace SpiritualNetwork.API.Model
 {
-    public class NewPostRes : UserPost
+	public class NewPostRes : UserPost
     {
 
     }
