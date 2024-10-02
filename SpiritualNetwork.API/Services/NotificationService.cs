@@ -5,24 +5,13 @@ using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Common;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
-using static SpiritualNetwork.API.Services.ReactionService;
 using System.Text.Json;
 using SpiritualNetwork.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
-using Azure.Core;
-using System.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Drawing;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
 using RestSharp;
-using static System.Collections.Specialized.BitVector32;
 using Event = SpiritualNetwork.Entities.Event;
 using Community = SpiritualNetwork.Entities.Community;
-using System.IO.Hashing;
 using SpiritualNetwork.API.AppContext;
 
 namespace SpiritualNetwork.API.Services
@@ -142,7 +131,7 @@ namespace SpiritualNetwork.API.Services
                 userNotification.NotificationId = notification.Id;
                 userNotification.UserId = int.Parse(notification.RefId1);
                 await _userNotificationRepository.InsertAsync(userNotification);
-                await SendEmailNotification(userNotification, notification.ActionType);
+                //await SendEmailNotification(userNotification, notification.ActionType);
             }
             if(notification.ActionType == "eventattend")
             {
@@ -150,7 +139,7 @@ namespace SpiritualNetwork.API.Services
                 userNotification.NotificationId = notification.Id;
                 userNotification.UserId = int.Parse(notification.RefId1);
                 await _userNotificationRepository.InsertAsync(userNotification);
-                await SendEmailNotification(userNotification, notification.ActionType);
+                //await SendEmailNotification(userNotification, notification.ActionType);
 
                 var eventHost = await _eventspeakersRepository.Table.Where(x => x.Type == "host" && x.EventId == Res.PostId && x.IsDeleted == false).Select(x => x.UserId).ToListAsync();
 
@@ -160,7 +149,7 @@ namespace SpiritualNetwork.API.Services
                     userNotifications.NotificationId = notification.Id;
                     userNotifications.UserId = id;
                     await _userNotificationRepository.InsertAsync(userNotifications);
-                    await SendEmailNotification(userNotifications, notification.ActionType);
+                    //await SendEmailNotification(userNotifications, notification.ActionType);
                 }
             }
             
@@ -171,7 +160,7 @@ namespace SpiritualNetwork.API.Services
                 userNotification.NotificationId = notification.Id;
                 userNotification.UserId = parentPost.UserId;
                 await _userNotificationRepository.InsertAsync(userNotification);
-                await SendEmailNotification(userNotification, notification.ActionType);
+                //await SendEmailNotification(userNotification, notification.ActionType);
             }
 
 
@@ -187,13 +176,11 @@ namespace SpiritualNetwork.API.Services
                     userNotification.NotificationId = notification.Id;
                     userNotification.UserId = userId;
                     await _userNotificationRepository.InsertAsync(userNotification);
-                    await SendEmailNotification(userNotification, notification.ActionType);
+                    //await SendEmailNotification(userNotification, notification.ActionType);
                 }
 
-                var followToconnection = (from uf in _userFollowers.Table
-                                          join u in _userRepository.Table on uf.UserId equals u.Id
-                                          join ou in _onlineUserRepository.Table on uf.UserId equals ou.UserId
-                                          where uf.FollowToUserId == notification.ActionByUserId
+                var followToconnection = (from uf in followerConnection 
+                                          join ou in _onlineUserRepository.Table on uf equals ou.UserId
                                           select ou.ConnectionId).ToList();
 
                 var userconnenction = _onlineUserRepository.Table.Where(x => x.UserId == notification.ActionByUserId).FirstOrDefault();
@@ -229,10 +216,10 @@ namespace SpiritualNetwork.API.Services
                                 userNotification.NotificationId = MentionNotitficaion.Id;
                                 userNotification.UserId = id;
                                 await _userNotificationRepository.InsertAsync(userNotification);
-                                await SendEmailNotification(userNotification, notification.ActionType);
+                                //await SendEmailNotification(userNotification, notification.ActionType);
 
                             }
-                            await NodeNotification(MentionNotitficaion.Id);
+                            //await NodeNotification(MentionNotitficaion.Id);
                         }
                     }
                     if (PostMessage.tagUser != null)
@@ -250,9 +237,9 @@ namespace SpiritualNetwork.API.Services
                                 userNotification.NotificationId = tagNotitficaion.Id;
                                 userNotification.UserId = id;
                                 await _userNotificationRepository.InsertAsync(userNotification);
-                                await SendEmailNotification(userNotification, notification.ActionType);
+                                //await SendEmailNotification(userNotification, notification.ActionType);
                             }
-                            await NodeNotification(tagNotitficaion.Id);
+                            //await NodeNotification(tagNotitficaion.Id);
                         }
                     }
 
@@ -260,14 +247,14 @@ namespace SpiritualNetwork.API.Services
 
             }
 
-            if (notification.ActionType == "newchatmessage" || notification.ActionType == "newgroupmessage" || notification.ActionType == "eventapprovdeny"
-                || notification.ActionType == "communityReqApproveDeny") 
-            {
-                string strmessage = JsonSerializer.Serialize(Res);
-                await SendNotification(Res, strmessage);
-            } else{   
-                await NodeNotification(notification.Id);
-            }
+            //if (notification.ActionType == "newchatmessage" || notification.ActionType == "newgroupmessage" || notification.ActionType == "eventapprovdeny"
+            //    || notification.ActionType == "communityReqApproveDeny") 
+            //{
+            //    string strmessage = JsonSerializer.Serialize(Res);
+            //    await SendNotification(Res, strmessage);
+            //} else{   
+            //    await NodeNotification(notification.Id);
+            //}
 
             return new JsonResponse(200, true, "Saved Success", null);
         }
@@ -454,5 +441,23 @@ namespace SpiritualNetwork.API.Services
             return new JsonResponse(200, true, " Success", Ncount);
 
         }
-    }
+
+
+		public async Task SendPostReadyNotification(PostReadyRes request)
+		{
+			var options = new RestClientOptions(GlobalVariables.NotificationAPIUrl)
+			{
+				MaxTimeout = -1,
+			};
+			var client = new RestClient(options);
+			var requests = new RestRequest("/notification/postready", Method.Post);
+			requests.AddHeader("Content-Type", "application/json");
+			requests.AddHeader("Authorization", GlobalVariables.Token);
+
+			var body = JsonSerializer.Serialize(request);
+			requests.AddStringBody(body, DataFormat.Json);
+			RestResponse response = await client.ExecuteAsync(requests);
+			Console.WriteLine(response.Content);
+		}
+	}
 }

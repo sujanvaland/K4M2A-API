@@ -10,5 +10,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> SaveNotification(NotificationRes Res);
         public Task<JsonResponse> UserNotification(int userId, int PageNo, int Size);
         public Task<JsonResponse> GetAllNotificationCount(int User);
-    }
+        public Task SendPostReadyNotification(PostReadyRes request);
+
+	}
 }

@@ -132,6 +132,7 @@ namespace SpiritualNetwork.API.Services
                 {
                     _reaction.DeleteHard(like);
                     await _postService.UpdateCount(PostId,"like",0);
+                    like = null;
                 }
 
                 if (like == null)
@@ -143,16 +144,6 @@ namespace SpiritualNetwork.API.Services
                     await _reaction.InsertAsync(reaction);
                     await _postService.UpdateCount(PostId, "like", 1);
                     like = reaction;
-
-                    NotificationRes notification = new NotificationRes();
-                    notification.PostId = PostId;
-                    notification.ActionByUserId = UserId;
-                    notification.ActionType = "like";
-                    notification.RefId1 = data.UserId.ToString();
-                    notification.RefId2 = "";
-                    notification.Message = "";
-                    await _notificationService.SaveNotification(notification);
-
                 }
 
                 //var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();

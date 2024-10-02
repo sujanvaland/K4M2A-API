@@ -51,4 +51,11 @@ namespace SpiritualNetwork.API.Model
         public int Notification { get; set; }
     }
 
+    public class  PostReadyRes
+    {
+        public int UserId { get; set; }
+        public string Message { get; set; }
+        public string PostBody { get; set; }
+    }
+
 }

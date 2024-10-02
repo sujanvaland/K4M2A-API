@@ -31,10 +31,10 @@ namespace SpiritualNetwork.API.Controllers
             try
             {
 				// Validate if files were uploaded
-				if (form.Files.Count == 0)
-				{
-					return new JsonResponse(400, false, "Fail", "No files uploaded.");
-				}
+				//if (form.Files.Count == 0)
+				//{
+				//	return new JsonResponse(400, false, "Fail", "No files uploaded.");
+				//}
 
 				// Convert form data to DTO
 				var postDataDto = new PostDataDto();
@@ -65,8 +65,8 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.UserUniqueId = user_unique_id;
                 postDataDto.Username = username;
 				// Produce a message
-				//await KafkaProducer.ProduceMessage("post", postDataDto);
-				var response = await _postService.InsertPost(postDataDto);
+				await KafkaProducer.ProduceMessage("post", postDataDto);
+				//var response = await _postService.InsertPost(postDataDto);
 				return new JsonResponse(200,true,"Success");
             }
             catch (Exception ex)

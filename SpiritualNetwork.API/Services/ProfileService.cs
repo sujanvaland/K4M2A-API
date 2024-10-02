@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
-using System.Runtime.CompilerServices;
 
 namespace SpiritualNetwork.API.Services
 {

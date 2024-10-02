@@ -1199,6 +1199,15 @@ namespace SpiritualNetwork.API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsEmail")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPush")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSMS")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(100)

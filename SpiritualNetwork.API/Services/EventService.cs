@@ -1,13 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Extensions.Logging;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
-using static HotChocolate.ErrorCodes;
 using Event = SpiritualNetwork.Entities.Event;
 
 namespace SpiritualNetwork.API.Services

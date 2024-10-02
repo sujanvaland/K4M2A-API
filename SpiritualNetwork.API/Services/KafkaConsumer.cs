@@ -1,9 +1,12 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
+using SpiritualNetwork.Entities;
+using static HotChocolate.ErrorCodes;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -15,7 +18,6 @@ namespace SpiritualNetwork.API.Services
 		public KafkaConsumerBackgroundService(IServiceScopeFactory serviceScopeFactory)
 		{
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-
 		}
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
@@ -45,8 +47,10 @@ namespace SpiritualNetwork.API.Services
 						var messageObject = JsonConvert.DeserializeObject<dynamic>(consumeResult.Message.Value);
 						using (var scope = _serviceScopeFactory.CreateScope())
 						{
-							
-							if(messageObject.Topic == "like")
+							var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+							var userpost = scope.ServiceProvider.GetRequiredService<IRepository<OnlineUsers>>();
+
+							if (messageObject.Topic == "like")
 							{
 								var reactionService = scope.ServiceProvider.GetRequiredService<IReactionService>();
 								int postId = messageObject.PostId;
@@ -58,10 +62,25 @@ namespace SpiritualNetwork.API.Services
 									// Manually commit the offset after successful processing
 									consumer.Commit(consumeResult);
 								}
+								if (result.Success)
+								{
+									var data = userpost.Table.Where(x => x.Id == postId).FirstOrDefault();
+									NotificationRes notification = new NotificationRes();
+									notification.PostId = postId;
+									notification.ActionByUserId = userUniqueId;
+									notification.ActionType = "like";
+									notification.RefId1 = data.UserId.ToString();
+									notification.RefId2 = "";
+									notification.Message = "";
+									await notificationService.SaveNotification(notification);
+								}
+
 							}
 							if (messageObject.Topic == "post")
 							{
 								consumer.Commit(consumeResult);
+								int userUniqueId = messageObject.UserUniqueId;
+
 								var postDataDto = JsonConvert.DeserializeObject<PostDataDto>(consumeResult.Message.Value);
 								// Convert the dictionary back to IFormCollection if needed
 								var formCollection = new FormCollection(
@@ -74,10 +93,28 @@ namespace SpiritualNetwork.API.Services
 								var postService = scope.ServiceProvider.GetRequiredService<IPostService>();
 								// Call the InsertPost method with the correct parameters
 								var result = await postService.InsertPost(postDataDto);
+								PostReadyRes postReadyRes = new PostReadyRes();
+								postReadyRes.UserId = userUniqueId;
+								postReadyRes.Message = "New Post Uploaded";
+								postReadyRes.PostBody = JsonConvert.SerializeObject(result);
 								if (result != null && result.Success)
 								{
 									// Manually commit the offset after successful processing
 									consumer.Commit(consumeResult);
+									await notificationService.SendPostReadyNotification(postReadyRes);
+								}
+								if (result.Success)
+								{
+
+									var userPosts = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(result.Result));
+									NotificationRes notification = new NotificationRes();
+									notification.PostId = userPosts.Post.Id;
+									notification.ActionByUserId = userPosts.Post.UserId;
+									notification.ActionType = userPosts.Post.Type;
+									notification.RefId1 = userPosts.Post.ParentId.ToString();
+									notification.RefId2 = "";
+									notification.Message = "";
+									await notificationService.SaveNotification(notification);
 								}
 							}
 							consumer.Commit(consumeResult);

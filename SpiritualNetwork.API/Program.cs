@@ -12,7 +12,9 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
+using Microsoft.Extensions.Options;
 using SpiritualNetwork.API.Migrations;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +25,15 @@ builder.Services.AddSignalR();
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
 
-builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
-{
-    var ConnectionString = builder.Configuration.GetConnectionString("Default");
-    dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
-});
+//builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
+//{
+//	var ConnectionString = builder.Configuration.GetConnectionString("Default");
+//	dbContextBuilder.UseSqlServer(ConnectionString, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+//});
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+	options.UseNpgsql(builder.Configuration.GetConnectionString("Default"),
+	npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "dbo")));
 
 builder.Services
     .AddGraphQLServer()
@@ -108,7 +114,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddSingleton<RabbitMQService>();
 builder.Services.AddSingleton<RabbitMQConsumerService>();
 builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
-//builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
+builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;

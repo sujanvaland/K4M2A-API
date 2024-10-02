@@ -9,13 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using SpiritualNetwork.Common;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System;
-using Azure;
 using Twilio;
-using Twilio.Rest.IpMessaging.V2.Service.Channel;
-using Twilio.Rest.Chat.V1.Service.Channel;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
 
 namespace SpiritualNetwork.API.Services
 {

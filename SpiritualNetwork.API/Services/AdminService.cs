@@ -3,7 +3,6 @@ using SpiritualNetwork.Entities.CommonModel;
 using SpiritualNetwork.Entities;
 using Microsoft.EntityFrameworkCore;
 using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.API.Migrations;
 using Event = SpiritualNetwork.Entities.Event;
 using Community = SpiritualNetwork.Entities.Community;
 using static HotChocolate.ErrorCodes;
