@@ -308,20 +308,22 @@ namespace SpiritualNetwork.API.Services
                         }
                     }
 
-                }
+				}
 
             }
+			await SendNotification(notification);
 
-            //if (notification.ActionType == "newchatmessage" || notification.ActionType == "newgroupmessage" || notification.ActionType == "eventapprovdeny"
-            //    || notification.ActionType == "communityReqApproveDeny") 
-            //{
-            //    string strmessage = JsonSerializer.Serialize(Res);
-            //    await SendNotification(Res, strmessage);
-            //} else{   
-            //    await NodeNotification(notification.Id);
-            //}
 
-            return new JsonResponse(200, true, "Saved Success", null);
+			//if (notification.ActionType == "newchatmessage" || notification.ActionType == "newgroupmessage" || notification.ActionType == "eventapprovdeny"
+			//    || notification.ActionType == "communityReqApproveDeny") 
+			//{
+			//    string strmessage = JsonSerializer.Serialize(Res);
+			//    await SendNotification(Res, strmessage);
+			//} else{   
+			//    await NodeNotification(notification.Id);
+			//}
+
+			return new JsonResponse(200, true, "Saved Success", null);
         }
 
         public async Task SendEmailNotification(UserNotification usernotification, string ActionType)
@@ -394,41 +396,43 @@ namespace SpiritualNetwork.API.Services
             smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
            var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
         }
-        public async Task SendNotification(NotificationRes request, string strmessage)
-        {
-            //if(request.ActionType == "post")
-            //{
-            //    foreach (var connectionId in request.connectionIds)
-            //    {
-            //        await _notificationHub.Clients.Client(connectionId).OnNewPost(strmessage);
-            //    }
-            //}
-            //else if (request.ActionType == "newchatmessage" || request.ActionType == "newgroupmessage")
-            //{
-            //    foreach (var connectionId in request.connectionIds)
-            //    {
-            //        await _notificationHub.Clients.Client(connectionId).SendChatMessage(strmessage);
-            //    }
-            //    if (request.connectionIds.Count() == 0)
-            //    {
-            //        await _notificationHub.Clients.All.SendChatMessage(strmessage);
-            //    }
-            //}
 
-            var options = new RestClientOptions(GlobalVariables.NotificationAPIUrl)
-            {
-                MaxTimeout = -1,
-            };
-            var client = new RestClient(options);
-            var requests = new RestRequest("/notification/newmessage", Method.Post);
-            requests.AddHeader("Content-Type", "application/json");
-            requests.AddHeader("Authorization", GlobalVariables.Token);
 
-            var body = JsonSerializer.Serialize(request);
-            requests.AddStringBody(body, DataFormat.Json);
-            RestResponse response = await client.ExecuteAsync(requests);
-            Console.WriteLine(response.Content);
-        }
+        //public async Task SendNotification(NotificationRes request, string strmessage)
+        //{
+        //    //if(request.ActionType == "post")
+        //    //{
+        //    //    foreach (var connectionId in request.connectionIds)
+        //    //    {
+        //    //        await _notificationHub.Clients.Client(connectionId).OnNewPost(strmessage);
+        //    //    }
+        //    //}
+        //    //else if (request.ActionType == "newchatmessage" || request.ActionType == "newgroupmessage")
+        //    //{
+        //    //    foreach (var connectionId in request.connectionIds)
+        //    //    {
+        //    //        await _notificationHub.Clients.Client(connectionId).SendChatMessage(strmessage);
+        //    //    }
+        //    //    if (request.connectionIds.Count() == 0)
+        //    //    {
+        //    //        await _notificationHub.Clients.All.SendChatMessage(strmessage);
+        //    //    }
+        //    //}
+
+        //    var options = new RestClientOptions(GlobalVariables.NotificationAPIUrl)
+        //    {
+        //        MaxTimeout = -1,
+        //    };
+        //    var client = new RestClient(options);
+        //    var requests = new RestRequest("/notification/newmessage", Method.Post);
+        //    requests.AddHeader("Content-Type", "application/json");
+        //    requests.AddHeader("Authorization", GlobalVariables.Token);
+
+        //    var body = JsonSerializer.Serialize(request);
+        //    requests.AddStringBody(body, DataFormat.Json);
+        //    RestResponse response = await client.ExecuteAsync(requests);
+        //    Console.WriteLine(response.Content);
+        //}
 
 		public async Task SendNotification(Notification request)
 		{
@@ -437,7 +441,7 @@ namespace SpiritualNetwork.API.Services
 				MaxTimeout = -1,
 			};
 			var client = new RestClient(options);
-			var requests = new RestRequest("/notify/send", Method.Post);
+			var requests = new RestRequest("/notification/send", Method.Post);
 			requests.AddHeader("Content-Type", "application/json");
 			//requests.AddHeader("Authorization", GlobalVariables.Token);
 

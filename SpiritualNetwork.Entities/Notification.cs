@@ -21,4 +21,9 @@ namespace SpiritualNetwork.Entities
         public string Message { get; set; }
 
 	}
+
+    public class NodeNotificationRes
+    {
+        public int NotificationId { get; set; }
+    }
 }
