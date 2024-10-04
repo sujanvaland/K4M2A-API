@@ -31,6 +31,8 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req);
         public Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req);
         public Task<JsonResponse> getTagsList();
+        public Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type);
+
 
 	}
 }

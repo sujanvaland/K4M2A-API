@@ -151,47 +151,50 @@ namespace SpiritualNetwork.API.Services
                     notification.RefId1 = data.UserId.ToString();
                     notification.RefId2 = "";
                     notification.Message = "";
-                    await _notificationService.SaveNotification(notification);
+                    notification.PushAttribute = "pushlikepost";
+					notification.EmailAttribute = "emaillikepost";
+					await _notificationService.SaveNotification(notification);
 
-                }
+					return new JsonResponse(200, true, "Success", notification);
+				}
 
-                //var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();
-                //foreach (var childPost in childPosts)
-                //{
-                //    var childpostReaction = await _reaction.Table
-                //    .Where(x => x.IsDeleted == false && x.PostId == childPost.Id)
-                //    .ToListAsync();
+				//var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();
+				//foreach (var childPost in childPosts)
+				//{
+				//    var childpostReaction = await _reaction.Table
+				//    .Where(x => x.IsDeleted == false && x.PostId == childPost.Id)
+				//    .ToListAsync();
 
-                //    var childlike = childpostReaction.Where(x => x.Type == "like" && x.UserId == UserId).FirstOrDefault();
+				//    var childlike = childpostReaction.Where(x => x.Type == "like" && x.UserId == UserId).FirstOrDefault();
 
-                //    if (childlike != null)
-                //    {
-                //        _reaction.DeleteHard(childlike);
-                //        await _postService.UpdateCount(childPost.Id, "like", 0);
-                //    }
+				//    if (childlike != null)
+				//    {
+				//        _reaction.DeleteHard(childlike);
+				//        await _postService.UpdateCount(childPost.Id, "like", 0);
+				//    }
 
-                //    if (childlike == null)
-                //    {
-                //        Reaction reaction = new Reaction();
-                //        reaction.PostId = childPost.Id;
-                //        reaction.UserId = UserId;
-                //        reaction.Type = "like";
-                //        await _reaction.InsertAsync(reaction);
-                //        await _postService.UpdateCount(childPost.Id, "like", 1);
-                //        like = reaction;
+				//    if (childlike == null)
+				//    {
+				//        Reaction reaction = new Reaction();
+				//        reaction.PostId = childPost.Id;
+				//        reaction.UserId = UserId;
+				//        reaction.Type = "like";
+				//        await _reaction.InsertAsync(reaction);
+				//        await _postService.UpdateCount(childPost.Id, "like", 1);
+				//        like = reaction;
 
-                //        NotificationRes notification = new NotificationRes();
-                //        notification.PostId = childPost.Id;
-                //        notification.ActionByUserId = UserId;
-                //        notification.ActionType = "like";
-                //        notification.RefId1 = data.UserId.ToString();
-                //        notification.RefId2 = "";
-                //        notification.Message = "";
-                //        await _notificationService.SaveNotification(notification);
+				//        NotificationRes notification = new NotificationRes();
+				//        notification.PostId = childPost.Id;
+				//        notification.ActionByUserId = UserId;
+				//        notification.ActionType = "like";
+				//        notification.RefId1 = data.UserId.ToString();
+				//        notification.RefId2 = "";
+				//        notification.Message = "";
+				//        await _notificationService.SaveNotification(notification);
 
-                //    }
-                //}
-                return new JsonResponse(200,true,"Success",like);
+				//    }
+				//}
+				return new JsonResponse(200,true,"Success",null);
             }
             catch(Exception ex)
             {

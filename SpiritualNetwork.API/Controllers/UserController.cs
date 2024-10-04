@@ -209,7 +209,20 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpGet(Name = "GetOnlineUsers")]
+		[HttpPost(Name = "SaveRemoveDeviceToken")]
+		public async Task<JsonResponse> SaveRemoveDeviceToken(DeviceTokenReq Req)
+		{
+			try
+			{
+				return await _userService.SaveRemoveDeviceToken(user_unique_id, Req.Token, Req.Type);
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+		
+		[HttpGet(Name = "GetOnlineUsers")]
         public async Task<JsonResponse> GetOnlineUsers()
         {
             try

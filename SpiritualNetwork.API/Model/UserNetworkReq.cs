@@ -15,4 +15,10 @@
         public string? Photo { get; set; }
         public string? PhoneNumber { get; set; }
     }
+
+    public class DeviceTokenReq
+    {
+        public string Token { get; set; }
+		public string Type { get; set; }
+	}
 }

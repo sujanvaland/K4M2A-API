@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpiritualNetwork.API.AppContext;
 
@@ -11,9 +12,11 @@ using SpiritualNetwork.API.AppContext;
 namespace SpiritualNetwork.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241002105831_UpdateDeviceTokenTB")]
+    partial class UpdateDeviceTokenTB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1234,6 +1237,15 @@ namespace SpiritualNetwork.API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsEmail")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPush")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSMS")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2357,16 +2369,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsEmail")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPush")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSMS")
                         .HasColumnType("bit");
 
                     b.Property<int>("ModifiedBy")

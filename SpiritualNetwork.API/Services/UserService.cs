@@ -38,6 +38,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserAttribute> _userAttributeRepository;
         private readonly IRepository<Invitation> _InvitationRepository;
 		private readonly IRepository<Tags> _tagsRepository;
+		private readonly IRepository<DeviceToken> _deviceTokenRepository;
+
 
 		public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -56,7 +58,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<UserAttribute> userAttributeRepository,
             IRepository<Invitation> invitationRepository,
 			IRepository<EmailVerificationRequest> emailVerificationRequestRepository,
-			IRepository<Tags> tagsRepository)
+			IRepository<Tags> tagsRepository,
+			IRepository<DeviceToken> deviceTokenRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -75,6 +78,7 @@ namespace SpiritualNetwork.API.Services
             _InvitationRepository = invitationRepository;
             _emailVerificationRequestRepository = emailVerificationRequestRepository;
             _tagsRepository = tagsRepository;
+            _deviceTokenRepository = deviceTokenRepository;
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId)
@@ -107,7 +111,38 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        private async Task<User> Authenticate(string username, string password)
+		public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
+		{
+			try
+			{
+				var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
+
+				if (Type == "save")
+                {
+                    if (check != null)
+                    {
+                        DeviceToken deviceToken = new DeviceToken();
+                        deviceToken.UserId = UserId;
+                        deviceToken.Token = Token;
+                        await _deviceTokenRepository.InsertAsync(deviceToken);
+                    }
+                }else
+                {
+                    if (check != null) 
+                    { 
+                        await _deviceTokenRepository.DeleteAsync(check);
+                    }
+
+                }
+				return new JsonResponse(200, true, "Success", null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		private async Task<User> Authenticate(string username, string password)
         {
             try
             {
@@ -555,7 +590,10 @@ namespace SpiritualNetwork.API.Services
                 notification.RefId1 = userId.ToString();
                 notification.RefId2 = "";
                 notification.Message = "";
-                _notificationService.SaveNotification(notification);
+                notification.PushAttribute = "pushfollowyou";
+				notification.EmailAttribute = "emailfollowyou";
+
+				_notificationService.SaveNotification(notification);
             }
             else
             {

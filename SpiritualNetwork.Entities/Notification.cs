@@ -19,5 +19,6 @@ namespace SpiritualNetwork.Entities
         public string RefId2 { get; set; }
         [MaxLength(100)]
         public string Message { get; set; }
-    }
+
+	}
 }

@@ -15,6 +15,8 @@ namespace SpiritualNetwork.API.Model
         public string RefId1 { get; set; }
         public string RefId2 { get; set; }
         public string Message { get; set; }
+        public string PushAttribute { get; set; }
+        public string EmailAttribute { get; set; }
         public List<string> connectionIds { get; set; }
     }
 

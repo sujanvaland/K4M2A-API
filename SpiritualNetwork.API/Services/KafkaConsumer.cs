@@ -4,6 +4,7 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
+using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -45,18 +46,26 @@ namespace SpiritualNetwork.API.Services
 						var messageObject = JsonConvert.DeserializeObject<dynamic>(consumeResult.Message.Value);
 						using (var scope = _serviceScopeFactory.CreateScope())
 						{
-							
-							if(messageObject.Topic == "like")
+							var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+							if (messageObject.Topic == "like")
 							{
 								var reactionService = scope.ServiceProvider.GetRequiredService<IReactionService>();
 								int postId = messageObject.PostId;
 								int userUniqueId = messageObject.UserUniqueId;
 								// Call ToggleLike with the deserialized values
 								var result = await reactionService.ToggleLike(postId, userUniqueId);
+
 								if (result != null && result.Success)
 								{
 									// Manually commit the offset after successful processing
 									consumer.Commit(consumeResult);
+								}
+								if (result != null && result.Result != null)
+								{
+									// Manually commit the offset after successful processing
+									var notification = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(result.Result));
+									await notificationService.SendNotification(notification);
 								}
 							}
 							if (messageObject.Topic == "post")
