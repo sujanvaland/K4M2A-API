@@ -119,7 +119,7 @@ namespace SpiritualNetwork.API.Services
 
 				if (Type == "save")
                 {
-                    if (check != null)
+                    if (check == null)
                     {
                         DeviceToken deviceToken = new DeviceToken();
                         deviceToken.UserId = UserId;
