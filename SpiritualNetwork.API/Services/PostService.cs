@@ -740,23 +740,25 @@ namespace SpiritualNetwork.API.Services
 					uploadPostResponse.Files = new List<Entities.File>();
 				}
 
-				//try
-				//{
-				//    NotificationRes notification = new NotificationRes();
-				//    notification.PostId = postData.id;
-				//    notification.ActionByUserId = UserId;
-				//    notification.ActionType = postData.type;
-				//    notification.RefId1 = postData.parentId.ToString();
-				//    notification.RefId2 = "";
-				//    notification.Message = "";
-				//    await _notificationService.SaveNotification(notification);
-				//}
-				//catch (Exception ex)
-				//{
-				//    //log to db
-				//}
+                try
+                {
+                    NotificationRes notification = new NotificationRes();
+                    notification.PostId = postData.id;
+                    notification.ActionByUserId = user.Id;
+                    notification.ActionType = postData.type;
+                    notification.RefId1 = postData.parentId.ToString();
+                    notification.RefId2 = "";
+                    notification.Message = "";
+                    notification.PushAttribute = postData.type == "post" ? "pushpostfollowing" : "pushcommentpost";
+                    notification.EmailAttribute = postData.type == "post" ? "emailpostfollowing" : "emailcommentpost";
+                    await _notificationService.SaveNotification(notification);
+                }
+                catch (Exception ex)
+                {
+                    //log to db
+                }
 
-				return new JsonResponse(200, true, "Success", uploadPostResponse);
+                return new JsonResponse(200, true, "Success", uploadPostResponse);
 
             }
             catch (Exception ex)

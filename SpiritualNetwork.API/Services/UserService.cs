@@ -81,31 +81,37 @@ namespace SpiritualNetwork.API.Services
             _deviceTokenRepository = deviceTokenRepository;
         }
 
-        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId)
+        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId, string Type)
         {
             try
             {
 
                var data = await _onlineUsers.Table
-                    .Where(x => x.IsDeleted == false && x.UserId == UserId)
+                    .Where(x => x.IsDeleted == false && x.UserId == UserId && x.ConnectionId == ConnectionId)
                     .FirstOrDefaultAsync();
-
-                if(!ConnectionId.IsNullOrEmpty() && data != null)
+                if (Type == "save")
                 {
-                    data.ConnectionId = ConnectionId;
-                    await _onlineUsers.UpdateAsync(data);
-                    return new JsonResponse(200, true, "Success", data);
+                    if(data == null)
+                    {
+						OnlineUsers onlineUsers = new OnlineUsers();
+						onlineUsers.UserId = UserId;
+						onlineUsers.ConnectionId = ConnectionId;
+						await _onlineUsers.InsertAsync(onlineUsers);
+						return new JsonResponse(200, true, "Success", onlineUsers);
+					}
+				}
+                else
+                {
+                    if(data != null)
+                    {
+						 _onlineUsers.DeleteHard(data);
+					}
                 }
+				return new JsonResponse(200, true, "Success", null);
 
-                OnlineUsers onlineUsers = new OnlineUsers();
-                onlineUsers.UserId = UserId;
-                onlineUsers.ConnectionId = ConnectionId;
 
-                await _onlineUsers.InsertAsync(onlineUsers);
-
-                return new JsonResponse(200, true, "Success", onlineUsers);
-            }
-            catch (Exception ex)
+			}
+			catch (Exception ex)
             {
                 throw ex;
             }
@@ -573,7 +579,7 @@ namespace SpiritualNetwork.API.Services
             return new JsonResponse(200, true, "Something went wrong", null);
         }
     
-        public void FollowUnFollowUser(int userId,int loginUserId)
+        public async Task FollowUnFollowUser(int userId,int loginUserId)
         {
             var exists = _userFollowersRepository.Table.Where(x => x.UserId == loginUserId && x.FollowToUserId == userId).FirstOrDefault();
             if (exists == null)
@@ -593,7 +599,7 @@ namespace SpiritualNetwork.API.Services
                 notification.PushAttribute = "pushfollowyou";
 				notification.EmailAttribute = "emailfollowyou";
 
-				_notificationService.SaveNotification(notification);
+				await _notificationService.SaveNotification(notification);
             }
             else
             {

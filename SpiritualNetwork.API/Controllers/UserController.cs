@@ -169,11 +169,11 @@ namespace SpiritualNetwork.API.Controllers
         }
 
         [HttpGet(Name = "FollowUnFollowUser")]
-        public JsonResponse FollowUnFollowUser(int userId)
+        public async Task<JsonResponse> FollowUnFollowUser(int userId)
         {
             try
             {
-                _userService.FollowUnFollowUser(userId, user_unique_id);
+                await _userService.FollowUnFollowUser(userId, user_unique_id);
                 return new JsonResponse(200, true, "Success", null);
             }
             catch (Exception ex)
@@ -196,12 +196,12 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpGet(Name = "OnlineOfflineUsers")]
-        public async Task<JsonResponse> OnlineOfflineUsers(string? connectionid)
+        [HttpPost(Name = "OnlineOfflineUsers")]
+        public async Task<JsonResponse> OnlineOfflineUsers(ConnectionIdReq Req)
         {
             try
             {
-                return await _userService.OnlineOfflineUsers(user_unique_id,connectionid);
+                return await _userService.OnlineOfflineUsers(user_unique_id,Req.ConnectionId, Req.Type);
             }
             catch (Exception ex)
             {

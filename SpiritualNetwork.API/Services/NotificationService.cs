@@ -183,16 +183,27 @@ namespace SpiritualNetwork.API.Services
             _notificationRepository.Insert(notification);
 
             if (notification.ActionType == "repost" || notification.ActionType == "inviteattendee" || notification.ActionType == "like" || notification.ActionType == "makespeaker"
-                || notification.ActionType == "follow" || notification.ActionType == "addattendees" || notification.ActionType == "makehost" )
+                || notification.ActionType == "addattendees" || notification.ActionType == "makehost" || notification.ActionType == "follow")
             {
                 UserNotification userNotification = new UserNotification();
                 userNotification.NotificationId = notification.Id;
                 userNotification.UserId = int.Parse(notification.RefId1);
+                userNotification.IsEmail = await GetNotificationPrefrence(int.Parse(notification.RefId1), Res.EmailAttribute, Res.ActionByUserId);
                 userNotification.IsPush = await GetNotificationPrefrence(int.Parse(notification.RefId1), Res.PushAttribute, Res.ActionByUserId);
-				userNotification.IsEmail = await GetNotificationPrefrence(int.Parse(notification.RefId1), Res.EmailAttribute, Res.ActionByUserId);
 				await _userNotificationRepository.InsertAsync(userNotification);
             }
-            if(notification.ActionType == "eventattend")
+
+			//if (notification.ActionType == "follow")
+			//{
+			//	UserNotification userNotification = new UserNotification();
+			//	userNotification.NotificationId = notification.Id;
+			//	userNotification.UserId = int.Parse(notification.RefId1);
+			//	userNotification.IsEmail = await GetNotificationPrefrence(int.Parse(notification.RefId1), Res.EmailAttribute, Res.ActionByUserId);
+			//	userNotification.IsPush = await GetNotificationPrefrence(int.Parse(notification.RefId1), Res.PushAttribute, Res.ActionByUserId);
+			//	await _userNotificationRepository.InsertAsync(userNotification);
+			//}
+
+			if (notification.ActionType == "eventattend")
             {
                 UserNotification userNotification = new UserNotification();
                 userNotification.NotificationId = notification.Id;

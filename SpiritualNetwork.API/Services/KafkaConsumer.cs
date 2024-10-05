@@ -61,12 +61,12 @@ namespace SpiritualNetwork.API.Services
 									// Manually commit the offset after successful processing
 									consumer.Commit(consumeResult);
 								}
-								if (result != null && result.Result != null)
-								{
-									// Manually commit the offset after successful processing
-									var notification = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(result.Result));
-									await notificationService.SendNotification(notification);
-								}
+								//if (result != null && result.Result != null)
+								//{
+								//	// Manually commit the offset after successful processing
+								//	var notification = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(result.Result));
+								//	await notificationService.SendNotification(notification);
+								//}
 							}
 							if (messageObject.Topic == "post")
 							{

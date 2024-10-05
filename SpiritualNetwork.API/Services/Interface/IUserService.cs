@@ -15,10 +15,9 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<PreRegisteredUser> PreSignUp(PreSignupRequest req);
         public Task<JsonResponse> CheckUsername(string username);
         Task<JsonResponse> VerifyEmail(string encryptedotp, string encrypteduserid);
-        void FollowUnFollowUser(int userId, int loginUserId);
         void BlockMuteUser(int userId, int loginUserId, string type);
         public Task<User> GetUserByName(string Username);
-        public Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId);
+        public Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId, string Type);
         public Task<JsonResponse> GetOnlineUsers(int Id);
         public Task<JsonResponse> StoreUserNetwork(UserNetworkReq req, int inviterId);
         public Task<bool> SendInvitationMail(string Emailreq, int UserId, int Id);
@@ -32,6 +31,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req);
         public Task<JsonResponse> getTagsList();
         public Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type);
+        public Task FollowUnFollowUser(int userId, int loginUserId);
 
 
 	}

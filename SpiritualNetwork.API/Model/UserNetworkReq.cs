@@ -21,4 +21,10 @@
         public string Token { get; set; }
 		public string Type { get; set; }
 	}
+
+	public class ConnectionIdReq
+	{
+		public string ConnectionId { get; set; }
+		public string Type { get; set; }
+	}
 }
