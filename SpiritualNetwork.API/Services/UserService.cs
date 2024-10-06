@@ -646,14 +646,20 @@ namespace SpiritualNetwork.API.Services
         
         public async Task<User> GetUserByName(string Username)
         {
-            var data = await _userRepository.Table.Where(x => x.IsDeleted ==  false 
-            && (x.UserName == Username || x.Email == Username))
-                .FirstOrDefaultAsync();
+			var data = await _userRepository.Table
+	            .Where(x => x.IsDeleted == false && x.UserName == Username)
+	            .FirstOrDefaultAsync();
 
-            return data;
-        }
+			if (data == null)
+			{
+				data = await _userRepository.Table
+					.Where(x => x.IsDeleted == false && x.Email == Username)
+					.FirstOrDefaultAsync();
+			}
+			return data;
+		}
 
-        public async Task<JsonResponse> GetOnlineUsers(int Id)
+		public async Task<JsonResponse> GetOnlineUsers(int Id)
         {
             try
             {
