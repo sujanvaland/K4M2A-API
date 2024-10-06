@@ -81,7 +81,7 @@ namespace SpiritualNetwork.API.Services
             _deviceTokenRepository = deviceTokenRepository;
         }
 
-        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId, string Type)
+        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
         {
             try
             {
