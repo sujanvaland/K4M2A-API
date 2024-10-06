@@ -87,8 +87,9 @@ namespace SpiritualNetwork.API.Services
             {
 
                var data = await _onlineUsers.Table
-                    .Where(x => x.IsDeleted == false && x.UserId == UserId && x.ConnectionId == ConnectionId)
+                    .Where(x => x.IsDeleted == false && x.UserId == UserId)
                     .FirstOrDefaultAsync();
+
                 if (Type == "save")
                 {
                     if(data == null)
@@ -98,6 +99,12 @@ namespace SpiritualNetwork.API.Services
 						onlineUsers.ConnectionId = ConnectionId;
 						await _onlineUsers.InsertAsync(onlineUsers);
 						return new JsonResponse(200, true, "Success", onlineUsers);
+                    }
+                    else
+                    {
+						data.ConnectionId = ConnectionId;
+						await _onlineUsers.UpdateAsync(data);
+						return new JsonResponse(200, true, "Success", data);
 					}
 				}
                 else
