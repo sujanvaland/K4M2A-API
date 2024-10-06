@@ -456,32 +456,41 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-               
-                var list = await (from cm in _communityMemberRepository.Table.Where(x => x.UserId == UserId && x.IsDeleted == false && x.Isjoin == false)
-                                  join c in _communityRepository.Table on cm.CommunityId equals c.Id
-                                  join crp in _communityReportRepository.Table on c.Id equals crp.CommunityId into crpGroup
-                                  from crp in crpGroup.DefaultIfEmpty()
-                                  join cmr in _communityMemberRepository.Table on c.Id equals cmr.CommunityId into cmrGroup
-                                  from cmr in cmrGroup.DefaultIfEmpty()
-                                  where c.IsDeleted == false && cmr.Isjoin == true && cmr.IsDeleted == true
-                                  select new CommunityModels
-                                  {
-                                      Id = c.Id,
-                                      Name = c.Name,
-                                      Purpose = c.Purpose,
-                                      BackgroundImgUrl = c.BackgroundImgUrl,
-                                      ParentId = c.ParentId,
-                                      ProfileImgUrl = c.ProfileImgUrl,
-                                      Question = c.Question,
-                                      Type = c.Type,
-                                      IsJoined = true,
-                                      IsPending = false,
-                                      CreatedDate = c.CreatedDate,
-                                      IsModerator = cm.IsModerator,
-                                      IsNotification = cm.IsModerator && (crpGroup.Count() > 0 || cmrGroup.Count() > 0),
-                                  }).ToListAsync();
 
-                return new JsonResponse(200, true, "Success", list);
+				var list = await (from cm in _communityMemberRepository.Table.Where(x => x.UserId == UserId && !x.IsDeleted && !x.Isjoin)
+								  join c in _communityRepository.Table on cm.CommunityId equals c.Id
+								  join crp in _communityReportRepository.Table on c.Id equals crp.CommunityId into crpGroup
+								  from crp in crpGroup.DefaultIfEmpty()
+								  join cmr in _communityMemberRepository.Table on c.Id equals cmr.CommunityId into cmrGroup
+								  from cmr in cmrGroup.DefaultIfEmpty()
+								  where !c.IsDeleted && cmr.Isjoin && cmr.IsDeleted
+								  select new
+								  {
+									  Community = c,
+									  CommunityMember = cm,
+									  CrpGroup = crpGroup,
+									  CmrGroup = cmrGroup
+								  }).ToListAsync();
+
+				// Process the result on the client side
+				var result = list.Select(x => new CommunityModels
+				{
+					Id = x.Community.Id,
+					Name = x.Community.Name,
+					Purpose = x.Community.Purpose,
+					BackgroundImgUrl = x.Community.BackgroundImgUrl,
+					ParentId = x.Community.ParentId,
+					ProfileImgUrl = x.Community.ProfileImgUrl,
+					Question = x.Community.Question,
+					Type = x.Community.Type,
+					IsJoined = true,
+					IsPending = false,
+					CreatedDate = x.Community.CreatedDate,
+					IsModerator = x.CommunityMember.IsModerator,
+					IsNotification = x.CommunityMember.IsModerator && (x.CrpGroup.Count() > 0 || x.CmrGroup.Count() > 0)
+				}).ToList();
+
+				return new JsonResponse(200, true, "Success", list);
             }
             catch (Exception ex)
             {
