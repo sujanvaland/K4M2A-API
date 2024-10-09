@@ -53,4 +53,9 @@ namespace SpiritualNetwork.API.Model
         public int Notification { get; set; }
     }
 
+    public class NodeAddPost
+    {
+        public int Id { get; set; }
+    }
+
 }

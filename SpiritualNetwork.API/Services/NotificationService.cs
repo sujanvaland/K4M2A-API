@@ -235,6 +235,11 @@ namespace SpiritualNetwork.API.Services
 
             if (notification.ActionType == "post")
             {
+                NodeAddPost NodePostId = new NodeAddPost();
+                NodePostId.Id = notification.PostId;
+
+                await SendPostToNode(NodePostId);
+
                 UserNotification userNotifications = new UserNotification();
                 userNotifications.NotificationId = notification.Id;
                 userNotifications.UserId = Res.ActionByUserId;
@@ -468,7 +473,25 @@ namespace SpiritualNetwork.API.Services
 			RestResponse response = await client.ExecuteAsync(requests);
 			Console.WriteLine(response.Content);
 		}
-		public async Task<JsonResponse> UserNotification(int userId, int PageNo, int Size)
+
+        public async Task SendPostToNode(NodeAddPost request)
+        {
+            var options = new RestClientOptions(GlobalVariables.NotificationAPIUrl)
+            {
+                MaxTimeout = -1,
+            };
+            var client = new RestClient(options);
+            var requests = new RestRequest("/elastic/addpost", Method.Post);
+            requests.AddHeader("Content-Type", "application/json");
+            //requests.AddHeader("Authorization", GlobalVariables.Token);
+
+            var body = JsonSerializer.Serialize(request);
+            requests.AddStringBody(body, DataFormat.Json);
+            RestResponse response = await client.ExecuteAsync(requests);
+            Console.WriteLine(response.Content);
+        }
+
+        public async Task<JsonResponse> UserNotification(int userId, int PageNo, int Size)
         {
             var allNotification = from UN in _userNotificationRepository.Table
                                   join N in _notificationRepository.Table on UN.NotificationId equals N.Id into noti
