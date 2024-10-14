@@ -7,6 +7,7 @@
         public static string LoginUserEmail { get; set; } = "";
         public static string Token { get; set; } = "";
         public static string NotificationAPIUrl { get; set;}
+        public static string ElasticPostNodeUrl { get; set; }
     }
     
 }

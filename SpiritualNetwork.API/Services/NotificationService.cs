@@ -180,7 +180,7 @@ namespace SpiritualNetwork.API.Services
         public async Task<JsonResponse> SaveNotification(NotificationRes Res)
         {
             Notification notification = _mapper.Map<Notification>(Res); 
-            _notificationRepository.Insert(notification);
+            await _notificationRepository.InsertAsync(notification);
 
             if (notification.ActionType == "repost" || notification.ActionType == "inviteattendee" || notification.ActionType == "like" || notification.ActionType == "makespeaker"
                 || notification.ActionType == "addattendees" || notification.ActionType == "makehost" || notification.ActionType == "follow")
@@ -235,10 +235,8 @@ namespace SpiritualNetwork.API.Services
 
             if (notification.ActionType == "post")
             {
-                NodeAddPost NodePostId = new NodeAddPost();
-                NodePostId.Id = notification.PostId;
+                
 
-                await SendPostToNode(NodePostId);
 
                 UserNotification userNotifications = new UserNotification();
                 userNotifications.NotificationId = notification.Id;
@@ -334,7 +332,15 @@ namespace SpiritualNetwork.API.Services
 				}
 
             }
-			await SendNotification(notification);
+
+            if (notification.ActionType == "like" || notification.ActionType == "comment" || notification.ActionType == "post")
+            {
+                NodeAddPost NodePostId = new NodeAddPost();
+                NodePostId.Id = notification.PostId;
+                await SendPostToNode(NodePostId);
+            }
+
+            await SendNotification(notification);
 
 
 			//if (notification.ActionType == "newchatmessage" || notification.ActionType == "newgroupmessage" || notification.ActionType == "eventapprovdeny"
@@ -476,7 +482,7 @@ namespace SpiritualNetwork.API.Services
 
         public async Task SendPostToNode(NodeAddPost request)
         {
-            var options = new RestClientOptions(GlobalVariables.NotificationAPIUrl)
+            var options = new RestClientOptions(GlobalVariables.ElasticPostNodeUrl)
             {
                 MaxTimeout = -1,
             };
