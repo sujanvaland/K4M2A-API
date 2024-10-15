@@ -40,7 +40,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                var profile = await _profileService.GetUserProfileByUsername(username);
+                var profile = await _profileService.GetUserInfoBox(username,user_unique_id);
                 return new JsonResponse(200, true, "Success", profile);
             }
             catch (Exception ex)

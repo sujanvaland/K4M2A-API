@@ -235,16 +235,6 @@ namespace SpiritualNetwork.API.Services
 
             if (notification.ActionType == "post")
             {
-                
-
-
-                UserNotification userNotifications = new UserNotification();
-                userNotifications.NotificationId = notification.Id;
-                userNotifications.UserId = Res.ActionByUserId;
-                userNotifications.IsPush = true;
-                userNotifications.IsEmail = true;
-                await _userNotificationRepository.InsertAsync(userNotifications);
-
                 var followerConnection = (from uf in _userFollowers.Table
                                           join u in _userRepository.Table on uf.UserId equals u.Id
                                           where uf.FollowToUserId == notification.ActionByUserId
