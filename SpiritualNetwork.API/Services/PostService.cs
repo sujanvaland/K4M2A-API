@@ -663,9 +663,12 @@ namespace SpiritualNetwork.API.Services
 							var stream = new MemoryStream(fileBytes);
 
 							// Create an IFormFile instance
-							var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName);
-							// Set the correct content type based on the file extension
-							formFile.ContentType = GetContentType(item.FileName);
+							var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName)
+                            {
+                                Headers = new HeaderDictionary()
+                            };
+                            // Set the correct content type based on the file extension
+                            formFile.ContentType = GetContentType(item.FileName);
 							formFiles.Add(formFile);
 						}
 					}
