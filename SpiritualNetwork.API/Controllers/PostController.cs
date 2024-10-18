@@ -65,8 +65,8 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.UserUniqueId = user_unique_id;
                 postDataDto.Username = username;
 				// Produce a message
-				await KafkaProducer.ProduceMessage("post", postDataDto);
-				//var response = await _postService.InsertPost(postDataDto);
+				//await KafkaProducer.ProduceMessage("post", postDataDto);
+				var response = await _postService.InsertPost(postDataDto);
 				return new JsonResponse(200,true,"Success");
             }
             catch (Exception ex)
