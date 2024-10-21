@@ -7,6 +7,7 @@ namespace SpiritualNetwork.API.Model
         public int GroupId { get; set; }
         public string? Name { get; set; }
         public List<int> userId { get; set; }
+        public string? ProfileImgUrl { get; set; }
     }
 
     public class UpdateGroupDetails
