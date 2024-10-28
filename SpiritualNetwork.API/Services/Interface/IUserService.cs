@@ -32,7 +32,8 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> getTagsList();
         public Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type);
         public Task FollowUnFollowUser(int userId, int loginUserId);
+        public Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req);
+        public Task<JsonResponse> PhoneEmailReq(VerifiedPhone req);
 
-
-	}
+    }
 }
