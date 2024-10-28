@@ -990,7 +990,7 @@ namespace SpiritualNetwork.API.Services
                     await _emailVerificationRequestRepository.UpdateAsync(check);
 			    	return new JsonResponse(200, true, "Email Verified", null);
 				}
-				return new JsonResponse(200, true, "Invalid OTP", null);
+				return new JsonResponse(200, false, "Invalid OTP", null);
 			}
 			catch (Exception ex)
 			{
