@@ -934,12 +934,12 @@ namespace SpiritualNetwork.API.Services
 		public async Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req)
 		{
             var check = await _emailVerificationRequestRepository.Table.Where(x=> x.Email ==  req.Email && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
-			if (req.Email == null || req.FirstName == null || req.LastName == null)
-			{
-				return new JsonResponse(200, false, "Bad Request", null);
-			}
+            if (req.Email == null)
+            {
+                return new JsonResponse(200, false, "Bad Request", null);
+            }
 
-			EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
+            EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
 			EmailRequest.Email = req.Email;
 			//EmailRequest.OTP = StringHelper.GenerateRandomNumber;
             EmailRequest.OTP = "123456";
@@ -1002,7 +1002,7 @@ namespace SpiritualNetwork.API.Services
         public async Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req)
         {
             var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
-            if (req.Phone == null || req.FirstName == null || req.LastName == null)
+            if (req.Phone == null)
             {
                 return new JsonResponse(200, false, "Bad Request", null);
             }
@@ -1030,7 +1030,7 @@ namespace SpiritualNetwork.API.Services
         }
 
 
-        public async Task<JsonResponse> PhoneEmailReq(VerifiedPhone req)
+        public async Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req)
         {
             try
             {
