@@ -1039,9 +1039,15 @@ namespace SpiritualNetwork.API.Services
                 {
                     check.IsUsed = true;
                     await _phoneVerificationRequestRepository.UpdateAsync(check);
+
+                    if (DateTime.Now > check.ExpirtionDate)
+                    {
+                        return new JsonResponse(200, false, "OTP has expired", null);
+                    }
+                    
                     return new JsonResponse(200, true, "Phone Number Verified", null);
                 }
-                return new JsonResponse(200, true, "Invalid OTP", null);
+                return new JsonResponse(200, false, "Invalid OTP", null);
             }
             catch (Exception ex)
             {
