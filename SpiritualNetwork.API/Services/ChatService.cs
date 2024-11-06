@@ -470,7 +470,7 @@ namespace SpiritualNetwork.API.Services
             {
                 MessageGroupDetails details = new MessageGroupDetails();
                 details.GroupName = res.Name ?? "";
-                details.ProfileImgUrl = "";
+                details.ProfileImgUrl = res.ProfileImgUrl ?? "";
                 await _messageGroupDetailsRepository.InsertAsync(details);
 
                 var newAdmin = new GroupMember

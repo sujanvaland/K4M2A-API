@@ -395,7 +395,36 @@ namespace SpiritualNetwork.API.Controllers
 			}
 		}
 
-		[AllowAnonymous]
+        [AllowAnonymous]
+        [HttpPost(Name = "PhoneVerification")]
+        public async Task<JsonResponse> PhoneVerification(PhoneVerificationReq req)
+        {
+            try
+            {
+                var response = await _userService.PhoneVerificationReq(req);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost(Name = "VerifiedPhoneReq")]
+        public async Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req)
+        {
+            try
+            {
+                var response = await _userService.VerifiedPhoneReq(req);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
 		[HttpGet(Name = "GetTagsList")]
 		public async Task<JsonResponse> GetTagsList()
 		{

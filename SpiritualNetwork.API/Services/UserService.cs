@@ -25,8 +25,9 @@ namespace SpiritualNetwork.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRepository<PasswordResetRequest> _passwordResetRequestRepository;
-		private readonly IRepository<EmailVerificationRequest> _emailVerificationRequestRepository;
-		private readonly INotificationService _notificationService;
+        private readonly IRepository<EmailVerificationRequest> _emailVerificationRequestRepository;
+        private readonly IRepository<PhoneVerificationRequest> _phoneVerificationRequestRepository;
+        private readonly INotificationService _notificationService;
         private readonly IGlobalSettingService _globalSettingService;
         private readonly IRepository<PreRegisteredUser> _preRegisteredUserRepository;
         private readonly IRepository<UserFollowers> _userFollowersRepository;
@@ -59,7 +60,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<Invitation> invitationRepository,
 			IRepository<EmailVerificationRequest> emailVerificationRequestRepository,
 			IRepository<Tags> tagsRepository,
-			IRepository<DeviceToken> deviceTokenRepository)
+			IRepository<DeviceToken> deviceTokenRepository,
+            IRepository<PhoneVerificationRequest> phoneVerificationRequest)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -79,6 +81,7 @@ namespace SpiritualNetwork.API.Services
             _emailVerificationRequestRepository = emailVerificationRequestRepository;
             _tagsRepository = tagsRepository;
             _deviceTokenRepository = deviceTokenRepository;
+            _phoneVerificationRequestRepository = phoneVerificationRequest;
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
@@ -931,15 +934,16 @@ namespace SpiritualNetwork.API.Services
 		public async Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req)
 		{
             var check = await _emailVerificationRequestRepository.Table.Where(x=> x.Email ==  req.Email && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
-			if (req.Email == null || req.FirstName == null || req.LastName == null)
-			{
-				return new JsonResponse(200, false, "Bad Request", null);
-			}
+            if (req.Email == null)
+            {
+                return new JsonResponse(200, false, "Bad Request", null);
+            }
 
-			EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
+            EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
 			EmailRequest.Email = req.Email;
-			EmailRequest.OTP = StringHelper.GenerateRandomNumber;
-			EmailRequest.ActivationDate = DateTime.Now;
+			//EmailRequest.OTP = StringHelper.GenerateRandomNumber;
+            EmailRequest.OTP = "123456";
+            EmailRequest.ActivationDate = DateTime.Now;
 			EmailRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
 			EmailRequest.IsUsed = false;
 			if (check != null)
@@ -986,7 +990,7 @@ namespace SpiritualNetwork.API.Services
                     await _emailVerificationRequestRepository.UpdateAsync(check);
 			    	return new JsonResponse(200, true, "Email Verified", null);
 				}
-				return new JsonResponse(200, true, "Invalid OTP", null);
+				return new JsonResponse(200, false, "Invalid OTP", null);
 			}
 			catch (Exception ex)
 			{
@@ -994,7 +998,66 @@ namespace SpiritualNetwork.API.Services
 			}
 		}
 
-		public async Task<JsonResponse> getTagsList()
+
+        public async Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req)
+        {
+            var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+            if (req.Phone == null)
+            {
+                return new JsonResponse(200, false, "Bad Request", null);
+            }
+
+            PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
+            phoneRequest.PhoneNumber = req.Phone;
+            //phoneRequest.OTP = StringHelper.GenerateRandomNumber;
+            phoneRequest.OTP = "123456";
+            phoneRequest.ActivationDate = DateTime.Now;
+            phoneRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+            phoneRequest.IsUsed = false;
+            if (check != null)
+            {
+                check.OTP = phoneRequest.OTP;
+                check.ActivationDate = phoneRequest.ActivationDate;
+                check.ExpirtionDate = phoneRequest.ExpirtionDate;
+                await _phoneVerificationRequestRepository.UpdateAsync(check);
+            }
+            else
+            {
+                await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
+            }
+           
+            return new JsonResponse(200, true, "Success", null);
+        }
+
+
+        public async Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req)
+        {
+            try
+            {
+                var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.OTP == req.OTP && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+                if (check != null)
+                {
+                    check.IsUsed = true;
+                    await _phoneVerificationRequestRepository.UpdateAsync(check);
+
+                    if (DateTime.Now > check.ExpirtionDate)
+                    {
+                        return new JsonResponse(200, false, "OTP has expired", null);
+                    }
+                    
+                    return new JsonResponse(200, true, "Phone Number Verified", null);
+                }
+                return new JsonResponse(200, false, "Invalid OTP", null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public async Task<JsonResponse> getTagsList()
 		{
 			try
 			{

@@ -106,6 +106,8 @@ namespace SpiritualNetwork.API.Model
         public int Period { get; set; }
         public string? EventFormat { get; set; }
         public string? Search { get; set; } = string.Empty;
+        public DateTime? Date { get; set; }
+        public string? Location { get; set; }
     }
 
     public class AddRemoveEventMember
