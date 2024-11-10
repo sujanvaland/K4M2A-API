@@ -158,6 +158,20 @@ namespace SpiritualNetwork.API.Services
 			}
 		}
 
+		private async Task<User> AuthenticateWithMobile(string username)
+		{
+			try
+			{
+				var data = await _userRepository.Table
+					.Where(x => x.PhoneNumber.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+                return data;
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+
 		private async Task<User> Authenticate(string username, string password)
         {
             try
@@ -188,62 +202,81 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        private async Task<bool> IsUserExist(string username)
+        private async Task<User> IsUserExist(string username)
         {
-            var data = await _userRepository.Table.Where(x => x.UserName == username || x.Email.ToLower() == username.ToLower()).FirstOrDefaultAsync();
-            return (data != null) ? true : false;
+            var data = await _userRepository.Table.Where(x => x.UserName == username 
+            || x.Email.ToLower() == username.ToLower()
+			|| x.PhoneNumber.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+            return data;
         }
 
-        public async Task<JsonResponse> SignIn(string username, string password)
-        {
-            if (!await IsUserExist(username))
-            {
-                return new JsonResponse(204, true, "Not Exist", null);
-            }
-            else
-            {
-                User user = await Authenticate(username, password);
-                if (user != null)
-                {
-                    var profileModal = _profileService.GetUserProfile(user);
-                    var authClaims = new List<Claim>
-                    {
-                        new Claim("Username", username),
-                        new Claim("Id", user.Id.ToString()),
-                        new Claim("Exp",DateTime.Now.AddMinutes(1).ToString())
-                    };
-                    var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
+		public async Task<JsonResponse> SignIn(string username, string password, int isMobile)
+		{
+			User user = await IsUserExist(username);
+			if (user == null)
+			{
+				return new JsonResponse(204, true, "Not Exist", null);
+			}
 
-                    var token = new JwtSecurityToken(
-                        issuer: _configuration["JWT:ValidIssuer"],
-                        audience: _configuration["JWT:ValidAudience"],
-                        expires: DateTime.Now.AddDays(1),
-                        claims: authClaims,
-                        signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
-                        );
+			bool isAuthenticated = false;
 
-                    LoginResponse loginResponse = new LoginResponse()
-                    {
-                        Token = new JwtSecurityTokenHandler().WriteToken(token),
-                        Profile = profileModal
-                    };
-                    
-                    return new JsonResponse(200, true, "Success", loginResponse);
-                }
-                else
-                {
-                    LoginResponse loginResponse = new LoginResponse()
-                    {
-                        Token = "",
-                        Profile = null
-                    };
+			// Handle mobile login
+			if (isMobile > 0)
+			{
+				var response = await VerifiedPhoneReq(new VerifiedPhone { OTP = password, Phone = username });
+				if (response.Success && response.Message == "Phone Number Verified")
+				{
+					isAuthenticated = true;
+				}
+				else
+				{
+					return new JsonResponse(200, true, "InvalidPhone", new LoginResponse());
+				}
+			}
+			// Handle non-mobile login
+			else
+			{
+				user = await Authenticate(username, password);
+				if (user != null)
+				{
+					isAuthenticated = true;
+				}
+				else
+				{
+					return new JsonResponse(200, true, "UnAuthenticated", new LoginResponse());
+				}
+			}
 
-                    return new JsonResponse(200, true, "UnAuthenticated", loginResponse);
-                }
-            }
-        }
+			if (isAuthenticated)
+			{
+				var profileModal = _profileService.GetUserProfile(user);
+				var authClaims = new List<Claim>
+		        {
+			        new Claim("Username", username),
+			        new Claim("Id", user.Id.ToString()),
+			        new Claim("Exp", DateTime.Now.AddMinutes(1).ToString())
+		        };
+				var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
 
-        string GenerateRandomPassword(int length)
+				var token = new JwtSecurityToken(
+					issuer: _configuration["JWT:ValidIssuer"],
+					audience: _configuration["JWT:ValidAudience"],
+					expires: DateTime.Now.AddDays(1),
+					claims: authClaims,
+					signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
+				);
+
+				return new JsonResponse(200, true, "Success", new LoginResponse
+				{
+					Token = new JwtSecurityTokenHandler().WriteToken(token),
+					Profile = profileModal
+				});
+			}
+
+			return new JsonResponse(200, true, "UnAuthenticated", new LoginResponse());
+		}
+
+		string GenerateRandomPassword(int length)
         {
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -1001,7 +1034,9 @@ namespace SpiritualNetwork.API.Services
 
         public async Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req)
         {
-            var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+            var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.IsUsed == false 
+            && x.IsDeleted == false).FirstOrDefaultAsync();
+
             if (req.Phone == null)
             {
                 return new JsonResponse(200, false, "Bad Request", null);
@@ -1034,7 +1069,8 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.OTP == req.OTP && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+                var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && 
+                x.OTP == req.OTP && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
                 if (check != null)
                 {
                     check.IsUsed = true;

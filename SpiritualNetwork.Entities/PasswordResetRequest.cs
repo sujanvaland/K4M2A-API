@@ -26,7 +26,7 @@ namespace SpiritualNetwork.Entities
 	}
     public class PhoneVerificationRequest : BaseEntity
     {
-        public long PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
         public string OTP { get; set; }
         public DateTime ActivationDate { get; set; }
         public DateTime ExpirtionDate { get; set; }
