@@ -442,7 +442,7 @@ namespace SpiritualNetwork.API.Services
                     User user = _mapper.Map<User>(signupRequest);
                     user.InviterId = 0;
                     user.Password = PasswordHelper.EncryptPassword(signupRequest.Password);
-
+                    user.ProfileImg = signupRequest.ProfileImg;
                     user.PaymentStatus = "";
                     user.PaymentRef1 = "";
                     user.PaymentRef2 = "";

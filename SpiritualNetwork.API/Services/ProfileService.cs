@@ -118,8 +118,8 @@ namespace SpiritualNetwork.API.Services
                 }
                 else { profileModel.IsPremium = false; }
                 profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
-                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
+                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 return profileModel;
             }
             catch (Exception ex)
@@ -213,8 +213,8 @@ namespace SpiritualNetwork.API.Services
                 profileModel.Password = "";
 				profileModel.IsPremium = false;
                 profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                profileModel.NoOfFollowers = _userFollowers.Table.Where(x=>x.UserId == profileModel.Id).Count();
-                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                profileModel.NoOfFollowing = _userFollowers.Table.Where(x=>x.UserId == profileModel.Id).Count();
+                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
 
                 return profileModel;
             }
@@ -234,8 +234,8 @@ namespace SpiritualNetwork.API.Services
 					profileModel.Password = "";
 					profileModel.IsPremium = false;
                     profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                    profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
-                    profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                    profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
+                    profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == LoginUserId && x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowingLoginUser = _userFollowers.Table.Where(x => x.FollowToUserId == LoginUserId && x.UserId == profileModel.Id).Count();
                     profiles.Add(profileModel);
