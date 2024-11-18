@@ -19,13 +19,13 @@ namespace SpiritualNetwork.API.Model
 
     public class PhoneVerificationReq
     {
-        public long Phone { get; set; }
+        public string Phone { get; set; }
     }
 
     public class VerifiedPhone
     {
         public string OTP { get; set; }
-        public long Phone { get; set; }
+        public string Phone { get; set; }
 
     }
 

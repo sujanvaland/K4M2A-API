@@ -112,8 +112,9 @@ namespace SpiritualNetwork.API.Services
             {
                 var profileData = await _userRepository.Table.Where(x => x.Id == UserId 
                                     && x.IsDeleted == false).FirstOrDefaultAsync();
-                //profileData = _mapper.Map<User>(profileData);
-                profileData.About = profileReq.About;
+				//profileData = _mapper.Map<User>(profileData);
+
+				profileData.About = profileReq.About;
                 profileData.DOB = profileReq.DOB;
                 profileData.Gender = profileReq.Gender;
                 profileData.Location = profileReq.Location;
@@ -128,8 +129,8 @@ namespace SpiritualNetwork.API.Services
                 profileData.Tags = profileReq.Tags;
 
                 await _userRepository.UpdateAsync(profileData);
-
-                return new JsonResponse(200, true, "Profile Updated Successfully", profileData);
+				profileData.Password = "";
+				return new JsonResponse(200, true, "Profile Updated Successfully", profileData);
 
             }
             catch(Exception ex)
@@ -145,14 +146,15 @@ namespace SpiritualNetwork.API.Services
                 var permiumcheck = await _userSubcriptionRepo.Table.Where(x => x.UserId == Id &&
                                     x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                if (permiumcheck != null)
+				profileModel.Password = "";
+				if (permiumcheck != null)
                 {
                     profileModel.IsPremium = true;
                 }
                 else { profileModel.IsPremium = false; }
                 profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
-                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
+                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 return profileModel;
             }
             catch (Exception ex)
@@ -169,7 +171,8 @@ namespace SpiritualNetwork.API.Services
                                     x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
                
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                if (permiumcheck != null)
+				profileModel.Password = "";
+				if (permiumcheck != null)
                 {
                     profileModel.IsPremium = true;
                 }
@@ -193,7 +196,8 @@ namespace SpiritualNetwork.API.Services
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
 
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                if (permiumcheck != null)
+				profileModel.Password = "";
+				if (permiumcheck != null)
                 {
                     profileModel.IsPremium = true;
                 }
@@ -215,7 +219,8 @@ namespace SpiritualNetwork.API.Services
             {
                 var user = await _userRepository.Table.Where(x => x.Id == UserId).FirstOrDefaultAsync();
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                var permiumcheck = await _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
+				profileModel.Password = "";
+				var permiumcheck = await _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
                 if (permiumcheck != null)
                 {
@@ -240,10 +245,11 @@ namespace SpiritualNetwork.API.Services
             {
                 
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                profileModel.IsPremium = false;
+                profileModel.Password = "";
+				profileModel.IsPremium = false;
                 profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                profileModel.NoOfFollowers = _userFollowers.Table.Where(x=>x.UserId == profileModel.Id).Count();
-                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                profileModel.NoOfFollowing = _userFollowers.Table.Where(x=>x.UserId == profileModel.Id).Count();
+                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
 
                 return profileModel;
             }
@@ -260,10 +266,11 @@ namespace SpiritualNetwork.API.Services
                 foreach ( var user in users)
                 {
                     ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-                    profileModel.IsPremium = false;
+					profileModel.Password = "";
+					profileModel.IsPremium = false;
                     profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                    profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
-                    profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+                    profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
+                    profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == LoginUserId && x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowingLoginUser = _userFollowers.Table.Where(x => x.FollowToUserId == LoginUserId && x.UserId == profileModel.Id).Count();
                     profiles.Add(profileModel);

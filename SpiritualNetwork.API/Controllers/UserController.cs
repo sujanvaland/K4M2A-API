@@ -85,11 +85,12 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-				
-
-				// _rabbitMQService.PublishMessage("newposts", "received new post");
-				return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
-            }
+                if (!String.IsNullOrEmpty(loginRequest.Mobile))
+                {
+					return await _userService.SignIn(loginRequest.Mobile, loginRequest.Password, 1);
+				}
+				return await _userService.SignIn(loginRequest.Username, loginRequest.Password, 0);
+			}
             catch (Exception ex)
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);
