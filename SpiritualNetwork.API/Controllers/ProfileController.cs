@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
+using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 
 namespace SpiritualNetwork.API.Controllers
@@ -113,7 +114,21 @@ namespace SpiritualNetwork.API.Controllers
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
+        }
+        [AllowAnonymous]
 
+        [HttpGet(Name = "GetBook")]
+        public async Task<JsonResponse> GetBook(string search)
+        {
+           
+            try
+            {
+                return await _profileService.GetBooksAsync(search);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
         }
 
         [HttpGet(Name = "GetExperienceSuggestion")]

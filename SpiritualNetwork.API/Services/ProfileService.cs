@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using GreenDonut;
 using Microsoft.EntityFrameworkCore;
+using RestSharp;
 using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -62,6 +65,38 @@ namespace SpiritualNetwork.API.Services
                 list[n] = value;
             }
             return list;
+        }
+
+        public async Task<JsonResponse> GetBooksAsync(string search)
+        {
+            var options = new RestClientOptions(GlobalVariables.BookLibrary)
+            {
+                MaxTimeout = -1,
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest($"/search.json?q={search}&limit=20&offset=0", Method.Get);
+            RestResponse response = await client.ExecuteAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonSerializer.Deserialize<JsonElement>(response.Content);
+                var books = result.GetProperty("docs").EnumerateArray().Select(book => new SuggestRes
+                {
+                    Id = 0, 
+                    Img = book.TryGetProperty("cover_i", out var coverProperty)
+                            ? $"https://covers.openlibrary.org/b/id/{coverProperty.GetInt32()}-L.jpg"
+                            : "default_cover_url.jpg", 
+                    Name = book.TryGetProperty("title", out var titleProperty)
+                            ? titleProperty.GetString()
+                            : "Unknown",
+                    Author = book.TryGetProperty("author_name", out var authorName) && authorName.ValueKind == JsonValueKind.Array
+                            ? authorName.EnumerateArray().FirstOrDefault().GetString() ?? "Unknown" 
+                            : "Unknown" 
+                }).ToList();
+
+
+                return new JsonResponse(200, true, "success", books);
+            }
+            throw new HttpRequestException($"Failed to fetch data: {response.StatusCode}");
         }
 
         private List<User> SeededShuffle(List<User> list, int seed)
@@ -390,17 +425,13 @@ namespace SpiritualNetwork.API.Services
             {
                 if (req.Type == "book")
                 {
-                    var book = await _bookRepository.Table.Where(x => x.Author.Contains(req.Name) || 
-                                x.BookName.Contains(req.Name) && x.IsDeleted == false).
-                                Select(x=>  new SuggestRes
-                                {
-                                   Id = x.Id,
-                                   Img = x.BookImg,
-                                   Name = x.BookName,
-                                   Author = x.Author
 
-                                }).ToListAsync();
-                    return new JsonResponse(200, true, "success", book);
+                    var Books = await GetBooksAsync(req.Name);
+                    if (Books.Success)
+                    {
+                        return new JsonResponse(200, true, "success", Books.Result);
+
+                    }
                 }
                 if (req.Type == "movie")
                 {
@@ -493,7 +524,6 @@ namespace SpiritualNetwork.API.Services
                 list.IsRead = false;
                 await _profilesuggestionRepo.InsertAsync(list);
                 return new JsonResponse(200, true, "Saved Success", null);
-
             }
             catch (Exception ex)
             {

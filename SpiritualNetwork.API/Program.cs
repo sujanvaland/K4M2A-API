@@ -23,7 +23,7 @@ builder.Services.AddSignalR();
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
 GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElasticPostUrlLive").Value;
-
+GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value;
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {

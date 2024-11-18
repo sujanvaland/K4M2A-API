@@ -25,7 +25,6 @@ namespace SpiritualNetwork.API.Services.Interface
         Task<HashSet<Mentions>> GetConnectionsMentions(int UserId);
         Task<List<ProfileModel>> GetUsersProfile(List<User> users, int LoginUserId);
         public Task<JsonResponse> GetWhoToFollow(int UserId, int page);
-
-
+        public Task<JsonResponse> GetBooksAsync(string search);
     }
 }
