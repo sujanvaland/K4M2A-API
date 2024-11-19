@@ -441,14 +441,14 @@ namespace SpiritualNetwork.API.Services
 						existingUser.ProfileImg = request.ProfileImg;
 						existingUser.SecondaryPassword = PasswordHelper.EncryptPassword(request.Password);
 						await _userRepository.UpdateAsync(existingUser);
-						return new JsonResponse(200, false, "Account linked to social login successfully", null);
+						return new JsonResponse(200, true, "Account linked to social login successfully", null);
 					}
 					else if (request.LoginMethod != "google" && !String.IsNullOrEmpty(existingUser.GoogleId))
 					{
 						// Existing social signup, allow linking with manual account
 						existingUser.Password = PasswordHelper.EncryptPassword(request.Password);
 						await _userRepository.UpdateAsync(existingUser);
-						return new JsonResponse(200, false, "Account linked to manual login successfully", null);
+						return new JsonResponse(200, true, "Account linked to manual login successfully", null);
 					}
 					else
 					{
