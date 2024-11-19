@@ -471,7 +471,10 @@ namespace SpiritualNetwork.API.Services
 			// Create a new user
 			var user = _mapper.Map<User>(request);
 			user.InviterId = 0;
-            user.UserName = GenerateUniqueUsername(request.FirstName ,request.LastName);
+            if (!String.IsNullOrEmpty(request.FirstName))
+            {
+				user.UserName = GenerateUniqueUsername(request.FirstName, request.LastName);
+			}
 			user.Password = PasswordHelper.EncryptPassword(request.Password);
 			user.ProfileImg = request.ProfileImg;
 			user.PaymentStatus = "";
@@ -1201,7 +1204,14 @@ namespace SpiritualNetwork.API.Services
             {
                 await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
             }
-           
+
+            var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
+            if(user == null)
+            {
+                SignupRequest request = new SignupRequest();
+                request.PhoneNumber = phoneRequest.PhoneNumber;
+                await SignUpNew(request);
+            }
             return new JsonResponse(200, true, "Success", null);
         }
 
