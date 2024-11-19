@@ -64,5 +64,7 @@ namespace SpiritualNetwork.Entities
         [MaxLength(200)]
         public string? Longitude { get; set; }
         public bool? IsBusinessAccount { get; set; }
-    }
+        public string? SecondaryPassword { get; set; }
+		public string? GoogleId { get; set; }
+	}
 }

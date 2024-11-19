@@ -2,6 +2,7 @@
 using SpiritualNetwork.Common;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using System.Threading.Tasks;
 
 namespace SpiritualNetwork.API.Services.Interface
 {
@@ -9,7 +10,8 @@ namespace SpiritualNetwork.API.Services.Interface
     {
         Task<JsonResponse> Invitation(string name);
         public Task<JsonResponse> SignUp(SignupRequest signupRequest);
-        public Task<JsonResponse> SignIn(string username, string password,int IsMobile);
+        public Task<JsonResponse> SignUpNew(SignupRequest request);
+		public Task<JsonResponse> SignIn(string username, string password,string LoginMethod,int IsMobile);
         public Task<JsonResponse> ForgotPasswordRequest(string email);
         public Task<JsonResponse> ValidateOTP(string encryptedotp, string encrypteduserid);
         public Task<PreRegisteredUser> PreSignUp(PreSignupRequest req);

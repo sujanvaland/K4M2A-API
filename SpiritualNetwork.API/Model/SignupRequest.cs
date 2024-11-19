@@ -11,7 +11,6 @@
         public string Email { get; set; }
         public bool? IsBusinessAccount { get; set; }
         public string? ProfileImg { get; set; }
-        public List<AnswerModel>? Answers { get; set; }
         public string? LoginMethod { get; set; }
 		public int? IsEmailVerified { get; set; } = 0;
 	}

@@ -70,7 +70,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                var response = await _userService.SignUp(signupRequest);
+                var response = await _userService.SignUpNew(signupRequest);
                 return response;
             }
             catch (Exception ex)
@@ -87,9 +87,9 @@ namespace SpiritualNetwork.API.Controllers
             {
                 if (!String.IsNullOrEmpty(loginRequest.Mobile))
                 {
-					return await _userService.SignIn(loginRequest.Mobile, loginRequest.Password, 1);
+					return await _userService.SignIn(loginRequest.Mobile, loginRequest.Password,loginRequest.LoginMethod, 1);
 				}
-				return await _userService.SignIn(loginRequest.Username, loginRequest.Password, 0);
+				return await _userService.SignIn(loginRequest.Username, loginRequest.Password, loginRequest.LoginMethod, 0);
 			}
             catch (Exception ex)
             {

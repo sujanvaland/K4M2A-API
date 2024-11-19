@@ -172,7 +172,7 @@ namespace SpiritualNetwork.API.Services
 			}
 		}
 
-		private async Task<User> Authenticate(string username, string password)
+		private async Task<User> Authenticate(string username,string LoginMethod, string password)
         {
             try
             {
@@ -182,7 +182,16 @@ namespace SpiritualNetwork.API.Services
 
                 if (data != null)
                 {
-                    if (PasswordHelper.VerifyPassword(password, data.Password))
+                    var passwordMatch = false;
+                    if(LoginMethod == "google" || LoginMethod == "facebook")
+                    {
+						passwordMatch = PasswordHelper.VerifyPassword(password, data.SecondaryPassword);
+                    }
+                    else
+                    {
+						passwordMatch = PasswordHelper.VerifyPassword(password, data.Password);
+					}
+					if (passwordMatch)
                     {
                         return data;
                     }
@@ -210,7 +219,7 @@ namespace SpiritualNetwork.API.Services
             return data;
         }
 
-		public async Task<JsonResponse> SignIn(string username, string password, int isMobile)
+		public async Task<JsonResponse> SignIn(string username, string password,string LoginMethod, int isMobile)
 		{
 			User user = await IsUserExist(username);
 			if (user == null)
@@ -236,7 +245,7 @@ namespace SpiritualNetwork.API.Services
 			// Handle non-mobile login
 			else
 			{
-				user = await Authenticate(username, password);
+				user = await Authenticate(username, LoginMethod, password);
 				if (user != null)
 				{
 					isAuthenticated = true;
@@ -411,83 +420,193 @@ namespace SpiritualNetwork.API.Services
             return new JsonResponse(200, true, "Something went wrong", null);
         }
 
-        public async Task<JsonResponse> SignUp(SignupRequest signupRequest)
+        public async Task<JsonResponse> SignUpNew(SignupRequest request)
         {
-            try
+			request.Email = request.Email.TrimEnd().TrimStart().ToLower();
+            if(!String.IsNullOrEmpty(request.Email))
             {
-                signupRequest.UserName = signupRequest.UserName.TrimEnd().TrimStart().ToLower();
-                if (signupRequest.UserName.Contains(" "))
+				if (request.Email.Contains(" "))
+				{
+					return new JsonResponse(200, false, "Space not allowed in Email", null);
+				}
+
+				var existingUser = _userRepository.Table.FirstOrDefault(u => u.Email == request.Email);
+
+				if (existingUser != null)
+				{
+					if (request.LoginMethod == "google" && String.IsNullOrEmpty(existingUser.GoogleId))
+					{
+						// Existing manual signup, allow linking with social account
+						existingUser.GoogleId = request.Password;
+						existingUser.ProfileImg = request.ProfileImg;
+						existingUser.SecondaryPassword = PasswordHelper.EncryptPassword(request.Password);
+						await _userRepository.UpdateAsync(existingUser);
+						return new JsonResponse(200, false, "Account linked to social login successfully", null);
+					}
+					else if (request.LoginMethod != "google" && !String.IsNullOrEmpty(existingUser.GoogleId))
+					{
+						// Existing social signup, allow linking with manual account
+						existingUser.Password = PasswordHelper.EncryptPassword(request.Password);
+						await _userRepository.UpdateAsync(existingUser);
+						return new JsonResponse(200, false, "Account linked to manual login successfully", null);
+					}
+					else
+					{
+						return new JsonResponse(200, false, "Account already exists", null);
+					}
+
+				}
+			}
+
+            // Validate unique mobile number
+            if (!String.IsNullOrEmpty(request.PhoneNumber))
+            {
+                var existingUserByMobile = _userRepository.Table.FirstOrDefault(u => u.PhoneNumber == request.PhoneNumber);
+                if (existingUserByMobile != null)
                 {
-                    return new JsonResponse(200, false, "Space not allowed in username", null);
+                    return new JsonResponse(200, false, "Phone number already registered.", null);
                 }
+            }
 
-                var query = _userRepository.Table;
-                if (!String.IsNullOrEmpty(signupRequest.PhoneNumber))
-                {
-                    query = query.Where(x=>x.PhoneNumber == signupRequest.PhoneNumber);
-                }
+			// Create a new user
+			var user = _mapper.Map<User>(request);
+			user.InviterId = 0;
+			user.Password = PasswordHelper.EncryptPassword(request.Password);
+			user.ProfileImg = request.ProfileImg;
+			user.PaymentStatus = "";
+			user.PaymentRef1 = "";
+			user.PaymentRef2 = "";
+			user.Status = "";
+			await _userRepository.InsertAsync(user);
 
-                var data = await query.Where(x => x.IsDeleted == false &&
-                (x.UserName.ToLower().Trim() == signupRequest.UserName.ToLower().Trim()
-                || x.Email.ToLower().Trim() == signupRequest.Email.ToLower().Trim()
-                )).FirstOrDefaultAsync();
-                
-                if (data != null)
-                {
-                    return new JsonResponse(200, false, "Username or Email already exists", null);
-                }
+			PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
+			passwordResetRequest.UserId = user.Id;
+			passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
+			passwordResetRequest.ActivationDate = DateTime.Now;
+			passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+			passwordResetRequest.IsUsed = false;
+			await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
 
-                if (data == null)
-                {
-                    User user = _mapper.Map<User>(signupRequest);
-                    user.InviterId = 0;
-                    user.Password = PasswordHelper.EncryptPassword(signupRequest.Password);
-                    user.ProfileImg = signupRequest.ProfileImg;
-                    user.PaymentStatus = "";
-                    user.PaymentRef1 = "";
-                    user.PaymentRef2 = "";
-                    user.Status = "";
+			// string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
+			// string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
+			try
+			{
+				var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
+				string encryptedotp = Convert.ToBase64String(byteotp);
+				var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
+				string encrypteduserid = Convert.ToBase64String(byteuserid);
 
-                    await _userRepository.InsertAsync(user);
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.USERNAME = request.UserName;
+				emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+				emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
+				emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+				emailRequest.CTATEXT = "Verify Email";
+				emailRequest.ToEmail = request.Email;
+				emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
 
-                    var qresponse = await _question.InsertAnswerAsync(user.Id, signupRequest.Answers);
+				SMTPDetails smtpDetails = new SMTPDetails();
+				smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
+				smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
+				smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
+				smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
+				smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
 
-                    PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
-                    passwordResetRequest.UserId = user.Id;
-                    passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
-                    passwordResetRequest.ActivationDate = DateTime.Now;
-                    passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
-                    passwordResetRequest.IsUsed = false;
-                    await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
+				var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
-                    // string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
-                    // string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
-                    try 
-                    { 
-                        var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
-                        string encryptedotp = Convert.ToBase64String(byteotp);
-                        var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
-                        string encrypteduserid = Convert.ToBase64String(byteuserid);
+				/* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
+						 .FirstOrDefaultAsync();
 
-                        EmailRequest emailRequest = new EmailRequest();
-                        emailRequest.USERNAME = signupRequest.UserName;
-                        emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
-                        emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
-                        emailRequest.CTATEXT = "Verify Email";
-                        emailRequest.ToEmail = signupRequest.Email;
-                        emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+				 var totalCount = await _userRepository.Table
+								 .Where(x => x.InviterId == Inviter_User.Id && x.IsDeleted == false)
+								 .CountAsync();
 
-                        SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+				 await _notificationService.SendEmailNotification("newreferral", Inviter_User);*/
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, true, "Success", user);
+			}
 
-                        var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+			return new JsonResponse(200, true, "Success", user);
+		}
+		public async Task<JsonResponse> SignUp(SignupRequest signupRequest)
+		{
+			try
+			{
+				signupRequest.UserName = signupRequest.UserName.TrimEnd().TrimStart().ToLower();
+				if (signupRequest.UserName.Contains(" "))
+				{
+					return new JsonResponse(200, false, "Space not allowed in username", null);
+				}
 
-                        /* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
+				var query = _userRepository.Table;
+				if (!String.IsNullOrEmpty(signupRequest.PhoneNumber))
+				{
+					query = query.Where(x => x.PhoneNumber == signupRequest.PhoneNumber);
+				}
+
+				var data = await query.Where(x => x.IsDeleted == false &&
+				(x.UserName.ToLower().Trim() == signupRequest.UserName.ToLower().Trim()
+				|| x.Email.ToLower().Trim() == signupRequest.Email.ToLower().Trim()
+				)).FirstOrDefaultAsync();
+
+				if (data != null)
+				{
+					return new JsonResponse(200, false, "Username or Email already exists", null);
+				}
+
+				if (data == null)
+				{
+					User user = _mapper.Map<User>(signupRequest);
+					user.InviterId = 0;
+					user.Password = PasswordHelper.EncryptPassword(signupRequest.Password);
+					user.ProfileImg = signupRequest.ProfileImg;
+					user.PaymentStatus = "";
+					user.PaymentRef1 = "";
+					user.PaymentRef2 = "";
+					user.Status = "";
+
+					await _userRepository.InsertAsync(user);
+
+					//var qresponse = await _question.InsertAnswerAsync(user.Id, signupRequest.Answers);
+
+					PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
+					passwordResetRequest.UserId = user.Id;
+					passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
+					passwordResetRequest.ActivationDate = DateTime.Now;
+					passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+					passwordResetRequest.IsUsed = false;
+					await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
+
+					// string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
+					// string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
+					try
+					{
+						var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
+						string encryptedotp = Convert.ToBase64String(byteotp);
+						var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
+						string encrypteduserid = Convert.ToBase64String(byteuserid);
+
+						EmailRequest emailRequest = new EmailRequest();
+						emailRequest.USERNAME = signupRequest.UserName;
+						emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+						emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
+						emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+						emailRequest.CTATEXT = "Verify Email";
+						emailRequest.ToEmail = signupRequest.Email;
+						emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+
+						SMTPDetails smtpDetails = new SMTPDetails();
+						smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
+						smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
+						smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
+						smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
+						smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+
+						var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+
+						/* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
                                  .FirstOrDefaultAsync();
 
                          var totalCount = await _userRepository.Table
@@ -495,28 +614,28 @@ namespace SpiritualNetwork.API.Services
                                          .CountAsync();
 
                          await _notificationService.SendEmailNotification("newreferral", Inviter_User);*/
-                    }
-                    catch (Exception ex)
-                    {
-                        return new JsonResponse(200, true, "Success", user);
-                    }
+					}
+					catch (Exception ex)
+					{
+						return new JsonResponse(200, true, "Success", user);
+					}
 
-                    return new JsonResponse(200, true, "Success", user);
-                    
-                }
-                else
-                {
-                    return null;
-                }
+					return new JsonResponse(200, true, "Success", user);
 
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+				}
+				else
+				{
+					return null;
+				}
 
-        public async Task<PreRegisteredUser> PreSignUp(PreSignupRequest req)
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public async Task<PreRegisteredUser> PreSignUp(PreSignupRequest req)
         {
             try
             {
