@@ -471,6 +471,7 @@ namespace SpiritualNetwork.API.Services
 			// Create a new user
 			var user = _mapper.Map<User>(request);
 			user.InviterId = 0;
+            user.UserName = GenerateUniqueUsername(request.FirstName ,request.LastName);
 			user.Password = PasswordHelper.EncryptPassword(request.Password);
 			user.ProfileImg = request.ProfileImg;
 			user.PaymentStatus = "";
@@ -529,6 +530,27 @@ namespace SpiritualNetwork.API.Services
 			}
 
 			return new JsonResponse(200, true, "Success", user);
+		}
+
+		public  string GenerateUniqueUsername(string firstName, string lastName)
+		{
+			// Generate initial username by concatenating first and last name
+			string baseUsername = $"{firstName.ToLower()}.{lastName.ToLower()}".Replace(" ", "");
+			string username = baseUsername;
+			int suffix = 1;
+
+			List<string> existingUsernames = _userRepository.Table
+	        .Where(x => x.FirstName == firstName && x.LastName == lastName)
+	        .Select(x => x.UserName)
+	        .ToList() ?? new List<string>();
+			// Ensure the username is unique
+			while (existingUsernames.Contains(username))
+			{
+				username = $"{baseUsername}{suffix}";
+				suffix++;
+			}
+
+			return username;
 		}
 		public async Task<JsonResponse> SignUp(SignupRequest signupRequest)
 		{
