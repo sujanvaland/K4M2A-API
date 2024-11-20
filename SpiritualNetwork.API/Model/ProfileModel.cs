@@ -39,6 +39,7 @@ namespace SpiritualNetwork.API.Model
         public string? BackgroundImg { get; set; }
         [MaxLength(1000)]
         public string? Tags { get; set; }
+        public int ModifiedBy { get; set; }
     }
 
     public class UserFollowersModel

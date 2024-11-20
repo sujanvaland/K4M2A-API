@@ -127,6 +127,7 @@ namespace SpiritualNetwork.API.Services
                 profileData.ProfileImg = profileReq.ProfileImg;
                 profileData.BackgroundImg = profileReq.BackgroundImg;
                 profileData.Tags = profileReq.Tags;
+                profileData.ModifiedBy = profileReq.ModifiedBy;
 
                 await _userRepository.UpdateAsync(profileData);
 				profileData.Password = "";
