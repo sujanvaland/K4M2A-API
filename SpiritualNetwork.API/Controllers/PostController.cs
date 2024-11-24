@@ -7,6 +7,7 @@ using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using System.Text;
 using Twilio.TwiML.Messaging;
 
 
@@ -25,6 +26,40 @@ namespace SpiritualNetwork.API.Controllers
             _rabbitMQService = rabbitMQService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ExtractHashTag(string content) {
+			var endpoint = "https://k4m2aai.openai.azure.com/";
+			var apiKey = "6337e7d4335f4180af5f6ae968f89602";
+			var apiVersion = "2024-08-01-preview";
+			var model = "gpt-4";
+			//https://k4m2aai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview
+			var userPost = content;
+            //"Exploring mindfulness through meditation has changed my life.";
+
+			var prompt = $@"
+            You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
+
+            Text: {userPost}";
+
+			var payload = new
+			{
+				prompt = prompt,
+				max_tokens = 50,
+				temperature = 0.7
+			};
+
+			var client = new HttpClient();
+			client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+			var response = await client.PostAsync(
+				"https://k4m2aai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview",
+				//$"{endpoint}openai/deployments/{model}/completions?api-version={apiVersion}",
+				new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
+			);
+
+			var result = await response.Content.ReadAsStringAsync();
+            return Ok(result);
+		}
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
         {

@@ -5,6 +5,7 @@ using RestSharp;
 using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
+using SpiritualNetwork.Common;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 using System.Runtime.CompilerServices;
@@ -112,8 +113,24 @@ namespace SpiritualNetwork.API.Services
             {
                 var profileData = await _userRepository.Table.Where(x => x.Id == UserId 
                                     && x.IsDeleted == false).FirstOrDefaultAsync();
-				//profileData = _mapper.Map<User>(profileData);
-
+                //profileData = _mapper.Map<User>(profileData);
+                var splitName = profileReq.Name.Split(" ");
+                if(splitName.Length > 0)
+                {
+					profileData.FirstName = splitName[0];
+				}
+				if (splitName.Length > 0)
+				{
+					profileData.LastName = splitName[1];
+				}
+				if (!String.IsNullOrEmpty(profileData.FirstName) && String.IsNullOrEmpty(profileData.UserName))
+				{
+					profileData.UserName = GenerateUniqueUsername(profileData.FirstName, profileData.LastName);
+				}
+				if (!String.IsNullOrEmpty(profileReq.Password))
+                {
+					profileData.Password = PasswordHelper.EncryptPassword(profileReq.Password);
+				}
 				profileData.About = profileReq.About;
                 profileData.DOB = profileReq.DOB;
                 profileData.Gender = profileReq.Gender;
@@ -138,7 +155,29 @@ namespace SpiritualNetwork.API.Services
                 throw ex;
             }
         }
-        public async Task<ProfileModel> GetUserProfileById(int Id)
+
+		public string GenerateUniqueUsername(string firstName, string lastName)
+		{
+			// Generate initial username by concatenating first and last name
+			string baseUsername = $"{firstName.ToLower()}.{lastName.ToLower()}".Replace(" ", "");
+			string username = baseUsername;
+			int suffix = 1;
+
+			List<string> existingUsernames = _userRepository.Table
+			.Where(x => x.FirstName == firstName && x.LastName == lastName)
+			.Select(x => x.UserName)
+			.ToList() ?? new List<string>();
+			// Ensure the username is unique
+			while (existingUsernames.Contains(username))
+			{
+				username = $"{baseUsername}{suffix}";
+				suffix++;
+			}
+
+			return username;
+		}
+
+		public async Task<ProfileModel> GetUserProfileById(int Id)
         {
             try
             {
