@@ -1210,6 +1210,12 @@ namespace SpiritualNetwork.API.Services
             {
                 SignupRequest request = new SignupRequest();
                 request.PhoneNumber = phoneRequest.PhoneNumber;
+                request.InviterName = "";
+                request.FirstName = "";
+                request.LastName = "";
+                request.Email = "";
+                request.UserName = "";
+                request.Password = "";
                 await SignUpNew(request);
             }
             return new JsonResponse(200, true, "Success", null);
