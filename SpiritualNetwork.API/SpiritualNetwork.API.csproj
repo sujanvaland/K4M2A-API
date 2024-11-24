@@ -55,6 +55,15 @@
     <None Update="Certificates\service.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="emailtemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="k4m2a.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="logo.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

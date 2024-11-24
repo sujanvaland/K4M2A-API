@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RestSharp;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
@@ -27,39 +28,48 @@ namespace SpiritualNetwork.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExtractHashTag(string content) {
-			var endpoint = "https://k4m2aai.openai.azure.com/";
-			var apiKey = "6337e7d4335f4180af5f6ae968f89602";
-			var apiVersion = "2024-08-01-preview";
-			var model = "gpt-4";
-			//https://k4m2aai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview
-			var userPost = content;
-            //"Exploring mindfulness through meditation has changed my life.";
-
-			var prompt = $@"
-            You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
-
-            Text: {userPost}";
-
-			var payload = new
+        public async Task<IActionResult> ExtractHashTag(string text) {
+			var options = new RestClientOptions("https://k4m2aai.openai.azure.com")
 			{
-				prompt = prompt,
-				max_tokens = 50,
-				temperature = 0.7
+				MaxTimeout = -1,
 			};
+			var client = new RestClient(options);
+			var request = new RestRequest("/openai/deployments/gpt-4/chat/completions?api-version=2024-02-15-preview", Method.Post);
+			request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
+			request.AddHeader("Content-Type", "application/json");
+            PromptRequest promptRequest = new PromptRequest();
+            promptRequest.messages = new List<PromptMessage>();
+            PromptMessage promptMessage = new PromptMessage();
+            promptMessage.content = new List<Content>();
+            var content = new Content();
+            content.text = "";
+            content.type =  $@"You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
 
-			var client = new HttpClient();
-			client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-			var response = await client.PostAsync(
-				"https://k4m2aai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview",
-				//$"{endpoint}openai/deployments/{model}/completions?api-version={apiVersion}",
-				new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
-			);
-
-			var result = await response.Content.ReadAsStringAsync();
-            return Ok(result);
+			Text: {text}";
+            promptMessage.content.Add(content);
+            promptMessage.role = "user";
+			promptRequest.messages.Add(promptMessage);
+            promptRequest.temperature = 0.7;
+			promptRequest.top_p = 0.95;
+			promptRequest.max_tokens = 800;
+			request.AddStringBody(JsonConvert.SerializeObject(promptRequest), DataFormat.Json);
+			var response = await client.ExecuteAsync(request);
+            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+				var result = JsonConvert.DeserializeObject<PromptResponse>(response.Content);
+				if (result != null && result.choices != null && result.choices.Count > 0)
+				{
+					var hashtags = result.choices[0].message.content;
+					return Ok(hashtags);
+				}
+				else
+				{
+					Console.WriteLine("No valid response from the API.");
+				}
+			}
+            return Ok();
 		}
+
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
         {
