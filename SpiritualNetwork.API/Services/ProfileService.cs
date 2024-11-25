@@ -144,7 +144,7 @@ namespace SpiritualNetwork.API.Services
                 profileData.ModifiedBy = profileReq.ModifiedBy;
 
                 await _userRepository.UpdateAsync(profileData);
-				profileData.Password = "";
+				//profileData.Password = "";
 				return new JsonResponse(200, true, "Profile Updated Successfully", profileData);
 
             }
@@ -184,7 +184,7 @@ namespace SpiritualNetwork.API.Services
                                     x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
 				profileModel.Password = "";
-				if (permiumcheck != null)
+                if (permiumcheck != null)
                 {
                     profileModel.IsPremium = true;
                 }
@@ -233,7 +233,7 @@ namespace SpiritualNetwork.API.Services
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
 
                 ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
-				profileModel.Password = "";
+				//profileModel.Password = "";
 				if (permiumcheck != null)
                 {
                     profileModel.IsPremium = true;
