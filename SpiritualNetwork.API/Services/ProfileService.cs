@@ -324,22 +324,8 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var result = await (from u in _profilesuggestionRepo.Table
-                                    join b in _bookRepository.Table
-                                    on u.SuggestedId equals b.Id
-                                    where u.UserId == userId && u.IsDeleted == false 
-                                    && b.IsDeleted == false  && u.Type == "book"
-                                    select new
-                                    {
-                                        u.Id,
-                                        u.SuggestedId,
-                                        b.Author,
-                                        b.BookImg,
-                                        b.BookName,
-                                        u.IsRead
-                                    }).ToListAsync();
-
-                return new JsonResponse(200, true, "success", result);
+                var results = await _bookRepository.Table.Where(x => x.UserId == userId && x.IsDeleted == false).ToListAsync();
+                return new JsonResponse(200, true, "success", results);
 
             }
             catch (Exception ex)
