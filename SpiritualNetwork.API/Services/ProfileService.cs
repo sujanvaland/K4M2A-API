@@ -111,19 +111,16 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var profileData = await _userRepository.Table.Where(x => x.Id == UserId 
+                var profileData = await _userRepository.Table.Where(x => x.Id == UserId
                                     && x.IsDeleted == false).FirstOrDefaultAsync();
                 //profileData = _mapper.Map<User>(profileData);
                 var splitName = profileReq.Name.Split(" ");
-                if(splitName.Length > 0)
+                if (splitName?.Length > 0)
                 {
-					profileData.FirstName = splitName[0];
-				}
-				if (splitName.Length > 0)
-				{
-					profileData.LastName = splitName[1];
-				}
-				if (!String.IsNullOrEmpty(profileData.FirstName) && String.IsNullOrEmpty(profileData.UserName))
+                    profileData.FirstName = splitName[0];
+                    profileData.LastName = splitName.Length > 1 ? splitName[1] : "";
+                }
+                if (!String.IsNullOrEmpty(profileData.FirstName) && String.IsNullOrEmpty(profileData.UserName))
 				{
 					profileData.UserName = GenerateUniqueUsername(profileData.FirstName, profileData.LastName);
 				}
@@ -231,7 +228,7 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var user = await _userRepository.Table.Where(x => x.UserName == username).FirstOrDefaultAsync();
+                var user = await _userRepository.Table.Where(x => x.UserName == username || x.PhoneNumber == username).FirstOrDefaultAsync();
                 var permiumcheck = await _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
 
@@ -545,6 +542,38 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
+                if(res.Type == "book")
+                {
+                    var checkBook = await _bookRepository.Table.Where(x => x.UserId == UserId && 
+                    x.BookImg == res.Img && x.BookName == res.Title && x.Author == res.Author).FirstOrDefaultAsync();
+
+
+                    if (checkBook != null)
+                    {
+                        if (checkBook.IsDeleted)
+                        {
+                            checkBook.IsRead = false;
+                            checkBook.IsDeleted = false;
+                            _bookRepository.Update(checkBook);
+                            return new JsonResponse(200, true, "Saved Success", null);
+                        }
+                        else
+                        {
+                            return new JsonResponse(200, false, "You Have Already Saved this " + res.Type, null);
+                        }
+
+                    }
+
+                    Books book = new Books();
+                    book.BookName = res.Title;
+                    book.Author = res.Author;
+                    book.BookImg = res.Img;
+                    book.UserId = UserId;
+                    await _bookRepository.InsertAsync(book);
+
+                    return new JsonResponse(200, true, "Saved Success", null);
+                   
+                }
                 var check = await _profilesuggestionRepo.Table.Where(x => x.Type == res.Type
                             && x.UserId == UserId && x.SuggestedId == res.Id).FirstOrDefaultAsync();
 
@@ -559,7 +588,7 @@ namespace SpiritualNetwork.API.Services
                     }
                     else
                     {
-                        return new JsonResponse(200, true, "You Have Already Saved this "+check.Type, null);
+                        return new JsonResponse(200, false, "You Have Already Saved this "+check.Type, null);
                     }
 
                 }
