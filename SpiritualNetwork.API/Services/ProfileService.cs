@@ -533,19 +533,17 @@ namespace SpiritualNetwork.API.Services
                     var checkBook = await _bookRepository.Table.Where(x => x.UserId == UserId && 
                     x.BookImg == res.Img && x.BookName == res.Title && x.Author == res.Author).FirstOrDefaultAsync();
 
-
                     if (checkBook != null)
                     {
                         if (checkBook.IsDeleted)
                         {
-                            checkBook.IsRead = false;
                             checkBook.IsDeleted = false;
                             _bookRepository.Update(checkBook);
                             return new JsonResponse(200, true, "Saved Success", null);
                         }
                         else
                         {
-                            return new JsonResponse(200, false, "You Have Already Saved this " + res.Type, null);
+                            return new JsonResponse(200, false, "You have already saved this " + res.Type, null);
                         }
 
                     }
@@ -555,11 +553,12 @@ namespace SpiritualNetwork.API.Services
                     book.Author = res.Author;
                     book.BookImg = res.Img;
                     book.UserId = UserId;
+                    book.BookId = res.BookId;
                     await _bookRepository.InsertAsync(book);
-
                     return new JsonResponse(200, true, "Saved Success", null);
                    
                 }
+                
                 var check = await _profilesuggestionRepo.Table.Where(x => x.Type == res.Type
                             && x.UserId == UserId && x.SuggestedId == res.Id).FirstOrDefaultAsync();
 

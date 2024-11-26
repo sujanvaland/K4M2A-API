@@ -33,7 +33,8 @@
         public string? Title { get; set; }
         public string? Author { get;  set; }
         public string? Img { get; set; }
-    }
+		public string? BookId { get; set; }
+	}
 
     public class SuggestRes
     {

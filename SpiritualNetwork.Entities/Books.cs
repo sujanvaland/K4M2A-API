@@ -11,8 +11,8 @@ namespace SpiritualNetwork.Entities
         public string BookImg { get; set; }
         public string BookName { get; set; }
         public string Author{ get; set; }
-        public int UserId { get; set; }
-        public bool IsRead { get; set; }
+		public string BookId { get; set; }
+		public int UserId { get; set; }
 
     }
 
