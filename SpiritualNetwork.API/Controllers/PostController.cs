@@ -21,58 +21,93 @@ namespace SpiritualNetwork.API.Controllers
     {
         private readonly IPostService _postService;
         private readonly RabbitMQService _rabbitMQService;
-        public PostController(IPostService postService, RabbitMQService rabbitMQService)
+        private readonly IHastTagService _hashtagService;
+        public PostController(IPostService postService, RabbitMQService rabbitMQService, IHastTagService hashtagService)
         {
             _postService = postService;
             _rabbitMQService = rabbitMQService;
+            _hashtagService = hashtagService;
+        }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ExtractHashTag(string text)
+        {
+            var options = new RestClientOptions("https://k4m2aai.openai.azure.com")
+            {
+                MaxTimeout = -1,
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest("/openai/deployments/gpt-4/chat/completions?api-version=2024-02-15-preview", Method.Post);
+            request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
+            request.AddHeader("Content-Type", "application/json");
+
+            // Construct the prompt
+            string prompt = $@"You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
+
+Text: {text}";
+
+            // Build the message payload
+            var promptRequest = new
+            {
+                messages = new[]
+                {
+            new
+            {
+                role = "user",
+                content = prompt
+            }
+        },
+                temperature = 0.7,
+                top_p = 0.95,
+                max_tokens = 800
+            };
+
+            // Add the serialized body
+            request.AddStringBody(JsonConvert.SerializeObject(promptRequest), DataFormat.Json);
+
+            // Send the request
+            var response = await client.ExecuteAsync(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var result = JsonConvert.DeserializeObject<PromptResponse>(response.Content);
+                if (result != null && result.choices != null && result.choices.Count > 0)
+                {
+                    var hashtags = result.choices[0].message.content;
+                    return Ok(hashtags);
+                }
+                else
+                {
+                    Console.WriteLine("No valid response from the API.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"API call failed: {response.Content}");
+            }
+
+            return Ok();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ExtractHashTag(string text) {
-			var options = new RestClientOptions("https://k4m2aai.openai.azure.com")
-			{
-				MaxTimeout = -1,
-			};
-			var client = new RestClient(options);
-			var request = new RestRequest("/openai/deployments/gpt-4/chat/completions?api-version=2024-02-15-preview", Method.Post);
-			request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
-			request.AddHeader("Content-Type", "application/json");
-            PromptRequest promptRequest = new PromptRequest();
-            promptRequest.messages = new List<PromptMessage>();
-            PromptMessage promptMessage = new PromptMessage();
-            promptMessage.content = new List<Content>();
-            var content = new Content();
-            content.text = "";
-            content.type =  $@"You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
-
-			Text: {text}";
-            promptMessage.content.Add(content);
-            promptMessage.role = "user";
-			promptRequest.messages.Add(promptMessage);
-            promptRequest.temperature = 0.7;
-			promptRequest.top_p = 0.95;
-			promptRequest.max_tokens = 800;
-			request.AddStringBody(JsonConvert.SerializeObject(promptRequest), DataFormat.Json);
-			var response = await client.ExecuteAsync(request);
-            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+        [AllowAnonymous]
+        [HttpGet(Name = "hastTag")]
+        public async Task<JsonResponse> ExtractPostHashTag(int postId)
+        {
+            try
             {
-				var result = JsonConvert.DeserializeObject<PromptResponse>(response.Content);
-				if (result != null && result.choices != null && result.choices.Count > 0)
-				{
-					var hashtags = result.choices[0].message.content;
-					return Ok(hashtags);
-				}
-				else
-				{
-					Console.WriteLine("No valid response from the API.");
-				}
-			}
-            return Ok();
-		}
+                return await _hashtagService.ExtractPostHashTag(postId);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
 
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
         {
+
             try
             {
 				// Validate if files were uploaded
@@ -110,8 +145,8 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.UserUniqueId = user_unique_id;
                 postDataDto.Username = username;
 				// Produce a message
-				//await KafkaProducer.ProduceMessage("post", postDataDto);
-				var response = await _postService.InsertPost(postDataDto);
+				await KafkaProducer.ProduceMessage("post", postDataDto);
+				//var response = await _postService.InsertPost(postDataDto);
 				return new JsonResponse(200,true,"Success");
             }
             catch (Exception ex)

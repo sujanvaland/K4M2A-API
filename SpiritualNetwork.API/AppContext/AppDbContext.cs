@@ -66,7 +66,8 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<ServiceImages> ServicesImages { get; set; }
 		public DbSet<ReportEntity> Reports { get; set; }
 		public DbSet<Tags> Tags { get; set; }
-		public DbSet<DeviceToken> DeviceToken { get; set; }
+        public DbSet<HashTag> HashTag { get; set; }
+        public DbSet<DeviceToken> DeviceToken { get; set; }
 
 		//public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 		public AppDbContext(IConfiguration configuration)
