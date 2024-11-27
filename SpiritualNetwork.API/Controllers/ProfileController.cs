@@ -188,7 +188,7 @@ namespace SpiritualNetwork.API.Controllers
 		{
 			try
 			{
-				return await _profileService.DeleteBook(id);
+				return await _profileService.DeleteBook(id,user_unique_id);
 			}
 			catch (Exception ex)
 			{
