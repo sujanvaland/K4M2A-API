@@ -11,6 +11,8 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> UserNotification(int userId, int PageNo, int Size);
         public Task<JsonResponse> GetAllNotificationCount(int User);
         public Task SendNotification(Notification request);
+        public Task SendPostToNode(NodeAddPost request);
 
-	}
+
+    }
 }

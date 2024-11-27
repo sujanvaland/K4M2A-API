@@ -761,6 +761,17 @@ namespace SpiritualNetwork.API.Services
                     //log to db
                 }
 
+                var message = (new
+                {
+                    PostId = uploadPostResponse.Post.Id,
+                    UserUniqueId = postDataDto.UserUniqueId,
+                    Topic = "hashtag"
+                });
+                
+                await KafkaProducer.ProduceMessage("hashtag", message);
+
+                //await KafkaProducer.ProduceMessage("hashtag", uploadPostResponse);
+
                 return new JsonResponse(200, true, "Success", uploadPostResponse);
 
             }
@@ -953,6 +964,32 @@ namespace SpiritualNetwork.API.Services
             }
             _userPostRepository.DeleteHardRange(list);
         }
+
+        public void UpdatePost(List<string> hasttag, int postId)
+        {
+            var data = _userPostRepository.Table.ToList();
+            List<UserPost> posts = new List<UserPost>();
+            foreach (var postItem in data)
+            {
+                var user = _userRepository.GetById(postItem.UserId);
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == postItem.UserId &&
+                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
+                var postMessage = JsonSerializer.Deserialize<Post>(postItem.PostMessage);
+                postMessage.createdBy = user.FirstName + " " + user.LastName;
+                postMessage.userName = user.UserName;
+                postMessage.profileImg = user.ProfileImg;
+                postMessage.type = postItem.Type;
+                if (permiumcheck != null)
+                {
+                    postMessage.isPaid = true;
+                }
+                else { postMessage.isPaid = false; }
+                postItem.PostMessage = JsonSerializer.Serialize(postMessage);
+                posts.Add(postItem);
+            }
+            _userPostRepository.UpdateRange(posts);
+        }
+
 
         public async Task ReportPost(Report req,int UserId)
         {
