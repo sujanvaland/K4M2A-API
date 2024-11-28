@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.2" />
     <PackageReference Include="BCrypt" Version="1.0.0" />
     <PackageReference Include="Confluent.Kafka" Version="2.5.3" />
     <PackageReference Include="EntityGraphQL.AspNet" Version="5.2.1" />

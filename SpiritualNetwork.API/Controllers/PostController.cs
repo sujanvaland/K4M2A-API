@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,9 +9,16 @@ using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using System.Net;
 using System.Text;
 using Twilio.TwiML.Messaging;
-
+using Azure;
+using Azure.AI.OpenAI;
+using Azure.AI.OpenAI.Images;
+using Azure.Identity;
+using OpenAI.Images;
+using System.ClientModel;
+using System.Text.RegularExpressions;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -42,21 +50,19 @@ namespace SpiritualNetwork.API.Controllers
             request.AddHeader("Content-Type", "application/json");
 
             // Construct the prompt
-            string prompt = $@"You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list.
-
-Text: {text}";
+            string prompt = text; //$@"Generate a social media post with image on Shambhavi mudra meditation";
 
             // Build the message payload
             var promptRequest = new
             {
                 messages = new[]
                 {
-            new
-            {
-                role = "user",
-                content = prompt
-            }
-        },
+                    new
+                    {
+                        role = "user",
+                        content = prompt
+                    }
+                },
                 temperature = 0.7,
                 top_p = 0.95,
                 max_tokens = 800
@@ -67,26 +73,67 @@ Text: {text}";
 
             // Send the request
             var response = await client.ExecuteAsync(request);
-
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            AIPost aIPost = new AIPost();
+			if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var result = JsonConvert.DeserializeObject<PromptResponse>(response.Content);
                 if (result != null && result.choices != null && result.choices.Count > 0)
                 {
-                    var hashtags = result.choices[0].message.content;
-                    return Ok(hashtags);
-                }
+					aIPost.Content = result.choices[0].message.content;
+				}
                 else
                 {
                     Console.WriteLine("No valid response from the API.");
                 }
-            }
+
+				string pattern = @"\[Image: (.*?)\]";
+				Match match = Regex.Match(aIPost.Content, pattern);
+
+				if (match.Success)
+				{
+					string imageDescription = match.Groups[1].Value;
+					options = new RestClientOptions("https://k4m2aai.openai.azure.com")
+				{
+					MaxTimeout = -1,
+				};
+				client = new RestClient(options);
+				request = new RestRequest("/openai/deployments/dall-e-3/images/generations?api-version=2024-02-01", Method.Post);
+				request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
+				request.AddHeader("Content-Type", "application/json");
+					var body = $@"{{
+                        ""prompt"": ""{imageDescription}"",
+                        ""size"": ""1024x1024"",
+                        ""n"": 1
+                    }}";
+					request.AddStringBody(body, DataFormat.Json);
+				response = await client.ExecuteAsync(request);
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var imgresult = JsonConvert.DeserializeObject<ImageResponse>(response.Content);
+                    if (imgresult != null && imgresult.Data != null)
+                    {
+                        var url = imgresult.Data.FirstOrDefault()?.Url;
+						aIPost.Url = url;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No valid response from the API.");
+                    }
+                }
+				}
+				else
+				{
+					Console.WriteLine("No image description found.");
+				}
+				
+			}
             else
             {
                 Console.WriteLine($"API call failed: {response.Content}");
             }
 
-            return Ok();
+            return Ok(aIPost);
         }
 
         [AllowAnonymous]
