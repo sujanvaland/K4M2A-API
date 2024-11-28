@@ -23,8 +23,10 @@ builder.Services.AddSignalR();
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
 GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElasticPostUrlLive").Value;
-GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value;
+GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value; 
 GlobalVariables.OpenAPIKey = builder.Configuration.GetSection("OpenAPIKey").Value;
+GlobalVariables.OpenAIapiURL = builder.Configuration.GetSection("OpenAIURL").Value;
+
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
     var ConnectionString = builder.Configuration.GetConnectionString("Default");
