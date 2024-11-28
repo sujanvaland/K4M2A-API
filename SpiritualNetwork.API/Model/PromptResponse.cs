@@ -1,4 +1,6 @@
-﻿namespace SpiritualNetwork.API.Model
+﻿using Newtonsoft.Json;
+
+namespace SpiritualNetwork.API.Model
 {
 	
 	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
@@ -95,5 +97,22 @@
 		public string severity { get; set; }
 	}
 
+	// Define classes to map the JSON response
+	public class ImageResponse
+	{
+		[JsonProperty("data")]
+		public ImageData[] Data { get; set; }
+	}
 
+	public class ImageData
+	{
+		[JsonProperty("url")]
+		public string Url { get; set; }
+	}
+
+	public class AIPost
+	{
+		public string Content { get; set; }
+		public string Url { get; set; }
+	}
 }

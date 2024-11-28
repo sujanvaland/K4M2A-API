@@ -183,7 +183,20 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpPost(Name = "DeleteProfileSuggestion")]
+		[HttpPost(Name = "DeleteBook")]
+		public async Task<JsonResponse> DeleteBook(string id)
+		{
+			try
+			{
+				return await _profileService.DeleteBook(id,user_unique_id);
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+		[HttpPost(Name = "DeleteProfileSuggestion")]
         public async Task<JsonResponse> DeleteProfileSuggestion(DeleteUpdateProfileSuggestion req)
         {
             try

@@ -592,7 +592,21 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        public async Task<JsonResponse> DeleteProfileSuggestion(int Id)
+		public async Task<JsonResponse> DeleteBook(string Id,int userid)
+		{
+			try
+			{
+				var data = _bookRepository.Table.Where(x => x.BookId == Id
+                && x.UserId == userid).FirstOrDefault();
+				await _bookRepository.DeleteAsync(data);
+				return new JsonResponse(200, true, "Success", null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public async Task<JsonResponse> DeleteProfileSuggestion(int Id)
         {
             try
             {
