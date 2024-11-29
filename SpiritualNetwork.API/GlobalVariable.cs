@@ -10,6 +10,7 @@
         public static string ElasticPostNodeUrl { get; set; }
         public static string BookLibrary { get; set; }
         public static string OpenAPIKey { get; set; }
+        public static string OpenAIapiURL { get; set; }
 
     }
     

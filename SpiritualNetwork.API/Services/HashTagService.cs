@@ -33,7 +33,7 @@ namespace SpiritualNetwork.API.Services
 
                 PostMessageContent postMessageContent = JsonConvert.DeserializeObject<PostMessageContent>(post.PostMessage);
 
-                var options = new RestClientOptions("https://k4m2aai.openai.azure.com")
+                var options = new RestClientOptions(GlobalVariables.OpenAIapiURL)
                 {
                     MaxTimeout = -1,
                 };
