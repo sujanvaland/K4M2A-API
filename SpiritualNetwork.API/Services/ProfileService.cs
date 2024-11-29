@@ -143,10 +143,10 @@ namespace SpiritualNetwork.API.Services
                 profileData.BackgroundImg = profileReq.BackgroundImg;
                 profileData.Tags = profileReq.Tags;
                 profileData.ModifiedBy = profileReq.ModifiedBy;
-
                 await _userRepository.UpdateAsync(profileData);
-				//profileData.Password = "";
-				return new JsonResponse(200, true, "Profile Updated Successfully", profileData);
+                //profileData.Password = "";
+                var profile = GetUserProfile(profileData);
+				return new JsonResponse(200, true, "Profile Updated Successfully", profile);
 
             }
             catch(Exception ex)
@@ -243,8 +243,8 @@ namespace SpiritualNetwork.API.Services
                 }
                 else { profileModel.IsPremium = false; }
                 profileModel.ConnectionDetail = _onlineUsers.GetById(user.Id);
-                profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
-                profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
+				profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
+				profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == UserId && x.FollowToUserId == profileModel.Id).Count();
                 return profileModel;
             }
