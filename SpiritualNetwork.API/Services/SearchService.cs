@@ -5,6 +5,7 @@ using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 using Twilio.TwiML.Voice;
+using static HotChocolate.ErrorCodes;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -13,14 +14,17 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<OnlineUsers> _onlineuserRepository;
         private readonly IRepository<UserNetwork> _userNetworkRepository;
+        private readonly IRepository<HashTag> _hashTagRepository;
 
         public SearchService(IRepository<User> userRepository, 
             IRepository<OnlineUsers> onlineuserRepository,
-            IRepository<UserNetwork> userNetworkRepository)
+            IRepository<UserNetwork> userNetworkRepository,
+            IRepository<HashTag> hashTagRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _userRepository = userRepository;
             _onlineuserRepository = onlineuserRepository;
+            _hashTagRepository = hashTagRepository;
 
         }
 
@@ -94,6 +98,22 @@ namespace SpiritualNetwork.API.Services
 
                 return new JsonResponse(200, true, "No User Found", null);
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<JsonResponse> GetSearchHashTag(string Name)
+        {
+            try
+            {
+                var hashTag = await _hashTagRepository.Table.Where(x => x.Name.ToLower().Contains(Name.ToLower()))
+                                    .OrderByDescending(x => x.Count)    
+                                    .Take(30)                           
+                                    .ToListAsync();
+                return new JsonResponse(200, true, "Success", hashTag);
             }
             catch (Exception ex)
             {
