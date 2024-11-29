@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HotChocolate.Types;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RestSharp;
 using SpiritualNetwork.API.Migrations;
@@ -30,6 +31,32 @@ namespace SpiritualNetwork.API.Services
 
             if (post != null)
             {
+                var postMessage = JsonConvert.DeserializeObject<Post>(post.PostMessage);
+
+                if (postMessage.hashtag != null && postMessage.hashtag?.Count > 0)
+                {
+
+                    foreach (var tag in postMessage.hashtag)
+                    {
+                        var checkHashTag = await _hashTagRepository.Table.Where(x => x.Name.ToLower() == tag.ToLower()).FirstOrDefaultAsync();
+
+                        if (checkHashTag == null)
+                        {
+                            HashTag NewhashTag = new HashTag();
+                            NewhashTag.Name = tag.ToLower();
+                            NewhashTag.Count = 1;
+                            await _hashTagRepository.InsertAsync(NewhashTag);
+                        }
+                        else
+                        {
+                            checkHashTag.Count++;
+                            await _hashTagRepository.UpdateAsync(checkHashTag);
+                        }
+                    }
+
+                    return new JsonResponse(200, true, "Success", postMessage.hashtag);
+
+                }
 
                 PostMessageContent postMessageContent = JsonConvert.DeserializeObject<PostMessageContent>(post.PostMessage);
 
@@ -89,19 +116,21 @@ namespace SpiritualNetwork.API.Services
                     {
                         var hashtags = result.choices[0].message.content;
 
-                        var hashtagList = hashtags.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        string[] tags = hashtags.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                        var cleanTags = tags.Select(tag => tag.Replace("#", "").Replace(",", "").Trim());
 
                         List<string> postHashtags = new List<string>();
 
-                        foreach( var tag in hashtagList)
+                        foreach( var tag in cleanTags)
                         {
                             postHashtags.Add(tag);
-                            var checkHashTag = await _hashTagRepository.Table.Where(x => x.Name == tag).FirstOrDefaultAsync();
+                            var checkHashTag = await _hashTagRepository.Table.Where(x => x.Name.ToLower() == tag.ToLower()).FirstOrDefaultAsync();
 
                             if(checkHashTag == null)
                             {
                                 HashTag NewhashTag = new HashTag();
-                                NewhashTag.Name = tag;
+                                NewhashTag.Name = tag.ToLower();
                                 NewhashTag.Count = 1;
                                 await _hashTagRepository.InsertAsync(NewhashTag);
                             }
@@ -111,7 +140,6 @@ namespace SpiritualNetwork.API.Services
                                 await _hashTagRepository.UpdateAsync(checkHashTag);
                             }
                         }
-                        var postMessage = JsonConvert.DeserializeObject<Post>(post.PostMessage);
                         postMessage.hashtag = postHashtags;
                         post.PostMessage = JsonConvert.SerializeObject(postMessage);
                         await _userPostRepository.UpdateAsync(post);
