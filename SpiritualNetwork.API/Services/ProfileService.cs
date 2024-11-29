@@ -130,6 +130,7 @@ namespace SpiritualNetwork.API.Services
 				}
 				profileData.About = profileReq.About;
                 profileData.DOB = profileReq.DOB;
+                profileData.Email = profileReq.Email;
                 profileData.Gender = profileReq.Gender;
                 profileData.Location = profileReq.Location;
                 profileData.Profession = profileReq.Profession;
@@ -228,7 +229,9 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var user = await _userRepository.Table.Where(x => x.UserName == username || x.PhoneNumber == username).FirstOrDefaultAsync();
+                var user = await _userRepository.Table.Where(x => x.UserName == username 
+                || x.PhoneNumber == username).FirstOrDefaultAsync();
+
                 var permiumcheck = await _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefaultAsync();
 
