@@ -138,7 +138,8 @@ namespace SpiritualNetwork.API.Services
                                           avatar = (user.ProfileImg == null || user.ProfileImg == "") ? "https://www.k4m2a.com/images/img_userpic.jpg" : user.ProfileImg,
                                           link = "/profile/" + user.UserName,
                                           userId = user.Id,
-                                          IsBusinessAccount = user.IsBusinessAccount
+                                          IsBusinessAccount = user.IsBusinessAccount,
+                                          userName = user.UserName,
                                       })
                                     .Skip((PageNo - 1) * Record)
                                     .Take(Record)

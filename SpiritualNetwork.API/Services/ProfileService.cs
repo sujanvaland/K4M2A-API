@@ -732,8 +732,9 @@ namespace SpiritualNetwork.API.Services
                 Mentions followersModel = new Mentions();
                 followersModel.name = item.FirstName + " " + item.LastName;
                 followersModel.avatar = (item.ProfileImg == null || item.ProfileImg == "") ? "https://www.k4m2a.com/images/img_userpic.jpg" : item.ProfileImg;
-                followersModel.link = "/profile/" + item.UserName;
+                followersModel.link = "/" + item.UserName;
                 followersModel.userId = item.Id;
+                followersModel.userName = item.UserName;
                 listofMentions.Add(followersModel);
             }
             var following = await GetUsersProfile(Following, UserId);
