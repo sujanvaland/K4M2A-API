@@ -31,6 +31,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IEventService _eventService;
         private readonly IGlobalSettingService _globalSettingService;
         private readonly IRepository<ReportEntity> _reportRepository;
+        private readonly IRepository<UserInterest> _userInterestRepo;
 
         public PostService(IAttachmentService attachmentService,
             IRepository<UserSubcription> userSubcriptionRepo,
@@ -46,7 +47,8 @@ namespace SpiritualNetwork.API.Services
             IProfileService profileService,
             IEventService eventService,
             IGlobalSettingService globalSettingService,
-            IRepository<ReportEntity> reportRepository)
+            IRepository<ReportEntity> reportRepository,
+            IRepository<UserInterest> userInterestRepo)
         {
             _blockedPost = blockedPostRepository;
             _userSubcriptionRepo = userSubcriptionRepo;
@@ -64,6 +66,7 @@ namespace SpiritualNetwork.API.Services
             _eventService = eventService;
             _globalSettingService = globalSettingService;
             _reportRepository = reportRepository;
+            _userInterestRepo = userInterestRepo;
         }
 
         public async Task<UserPost> GetUserPostByPostId(int PostId)
@@ -851,6 +854,44 @@ namespace SpiritualNetwork.API.Services
                 return new JsonResponse(200,true,"Success",data);
             }
         }
+
+        public async Task<JsonResponse> UserPostInterest(PostInterestModel req, int LoginUserId)
+        {
+            var data = await _userInterestRepo.Table.Where(x=> x.PostId == req.PostId
+                        && x.UserId == LoginUserId && x.PostUserId == req.PostUserId).FirstOrDefaultAsync();
+
+            if (data == null)
+            {
+                var post = await _userPostRepository.Table.Where(x=> x.Id == req.PostId).FirstOrDefaultAsync();
+                if (post == null)
+                {
+                    return new JsonResponse(200, false, "Post not found");
+                }
+
+                var postMessage = JsonSerializer.Deserialize<Post>(post.PostMessage);
+
+                if (postMessage == null)
+                {
+                    return new JsonResponse(200, false, "PostMessage deserialization failed ");
+                }
+
+                UserInterest userInterest = new UserInterest();
+                userInterest.PostUserId = req.PostUserId;
+                userInterest.UserId = LoginUserId;
+                userInterest.PostId = req.PostId;
+                userInterest.ActionType = req.ActionType;
+                userInterest.PostHashTag = postMessage.hashtag.Count > 0 ? JsonSerializer.Serialize(postMessage.hashtag) : " "; 
+                await _userInterestRepo.InsertAsync(userInterest);
+                return new JsonResponse(200, true, "Success", userInterest);
+            }
+            else
+            {
+                data.ActionType = req.ActionType;
+                await _userInterestRepo.UpdateAsync(data);
+                return new JsonResponse(200, true, "Success", data);
+            }
+        }
+
 
         public void UpdatePost()
         {

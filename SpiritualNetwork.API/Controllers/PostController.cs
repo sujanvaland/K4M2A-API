@@ -317,6 +317,20 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+        [HttpPost(Name = "UserPostInterest")]
+        public async Task<JsonResponse> UserPostInterest(PostInterestModel req)
+        {
+            try
+            {
+                return await _postService.UserPostInterest(req, user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex.Message);
+            }
+        }
+
+
         [AllowAnonymous]
         [HttpPost(Name = "UpdatePost")]
         public JsonResponse UpdatePost()
