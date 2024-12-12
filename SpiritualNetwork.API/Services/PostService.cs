@@ -880,7 +880,7 @@ namespace SpiritualNetwork.API.Services
                 userInterest.UserId = LoginUserId;
                 userInterest.PostId = req.PostId;
                 userInterest.ActionType = req.ActionType;
-                userInterest.PostHashTag = postMessage.hashtag.Count > 0 ? JsonSerializer.Serialize(postMessage.hashtag) : " "; 
+                userInterest.PostHashTag = (postMessage.hashtag != null && postMessage.hashtag.Count > 0) ? JsonSerializer.Serialize(postMessage.hashtag) : " "; 
                 await _userInterestRepo.InsertAsync(userInterest);
                 return new JsonResponse(200, true, "Success", userInterest);
             }
