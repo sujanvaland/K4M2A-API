@@ -93,9 +93,15 @@ namespace SpiritualNetwork.API.Services
                     x.PostId == postid)
                     .FirstOrDefaultAsync();
 
-                if(data != null)
+                NodeAddPost NodePostId = new NodeAddPost();
+
+                if (data != null)
                 {
                     _reaction.DeleteHard(data);
+
+                    NodePostId.Id = postid;
+                    await _notificationService.SendPostToNode(NodePostId);
+
                     return new JsonResponse(200, true, "Success", data);
                 }
 
@@ -105,6 +111,9 @@ namespace SpiritualNetwork.API.Services
                 reaction.Type = "bookmark";
 
                 await _reaction.InsertAsync(reaction);
+
+                NodePostId.Id = postid;
+                await _notificationService.SendPostToNode(NodePostId);
 
                 return new JsonResponse(200,true,"Success",reaction);
             }

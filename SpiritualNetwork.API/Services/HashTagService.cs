@@ -54,6 +54,10 @@ namespace SpiritualNetwork.API.Services
                         }
                     }
 
+                    NodeAddPost NodePostId = new NodeAddPost();
+                    NodePostId.Id = postId;
+                    await _notificationService.SendPostToNode(NodePostId);
+
                     return new JsonResponse(200, true, "Success", postMessage.hashtag);
 
                 }
