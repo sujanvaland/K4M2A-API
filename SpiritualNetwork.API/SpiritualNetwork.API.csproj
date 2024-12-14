@@ -47,6 +47,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\logo.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Certificates\ca.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -60,9 +66,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="k4m2a.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="logo.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
