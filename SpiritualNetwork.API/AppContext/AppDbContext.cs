@@ -69,10 +69,12 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<HashTag> HashTag { get; set; }
         public DbSet<DeviceToken> DeviceToken { get; set; }
         public DbSet<UserInterest> UserInterest { get; set; }
+		public DbSet<InviteRequest> InviteRequest { get; set; }
 
+		
 
-        //public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        public AppDbContext(IConfiguration configuration)
+		//public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+		public AppDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

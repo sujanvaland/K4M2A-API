@@ -122,11 +122,11 @@ namespace SpiritualNetwork.API.Services
             emailRequest.SUPPORTEMAIL = await _globalSettingService.GetValue("SupportEmail");
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
             EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
         }
 
@@ -409,17 +409,17 @@ namespace SpiritualNetwork.API.Services
                 emailRequest.Subject = " You received message from " + ActionByName;
             }
             //emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-            //emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
+            //emailRequest.CTALINK = GlobalVariables.SiteUrl + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
             //emailRequest.CTATEXT = "Click here to reset your password";
             emailRequest.ToEmail = user.Email;
            
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
            var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
         }
 

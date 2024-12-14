@@ -1053,7 +1053,7 @@ namespace SpiritualNetwork.API.Services
                 emailRequest.CONTENT2 = "Reason: " + req.ReportPost.Value + "<br/>" + req.Content + "<br/>" + req.ReportPost.PostURl;
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Post Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Post Reported " + GlobalVariables.SiteName;
             }
             if(req.Type == "conversation")
             {
@@ -1063,7 +1063,7 @@ namespace SpiritualNetwork.API.Services
                                         "IsGroup "+ req.ReportConversation.IsGroup + " <br/>" + req.Content + "<br/>";
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Conversation Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Conversation Reported " + GlobalVariables.SiteName;
             }
 
             if (req.Type == "event")
@@ -1074,15 +1074,15 @@ namespace SpiritualNetwork.API.Services
                                         " <br/>" + req.Content + "<br/>";
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Event Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Event Reported " + GlobalVariables.SiteName;
             }
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
             var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
         }

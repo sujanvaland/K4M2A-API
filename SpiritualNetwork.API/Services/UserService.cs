@@ -40,7 +40,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<Invitation> _InvitationRepository;
 		private readonly IRepository<Tags> _tagsRepository;
 		private readonly IRepository<DeviceToken> _deviceTokenRepository;
-
+        private readonly IRepository<InviteRequest> _inviteRequest;
 
 		public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -61,7 +61,8 @@ namespace SpiritualNetwork.API.Services
 			IRepository<EmailVerificationRequest> emailVerificationRequestRepository,
 			IRepository<Tags> tagsRepository,
 			IRepository<DeviceToken> deviceTokenRepository,
-            IRepository<PhoneVerificationRequest> phoneVerificationRequest)
+            IRepository<PhoneVerificationRequest> phoneVerificationRequest,
+			IRepository<InviteRequest> inviteRequest)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -82,7 +83,9 @@ namespace SpiritualNetwork.API.Services
             _tagsRepository = tagsRepository;
             _deviceTokenRepository = deviceTokenRepository;
             _phoneVerificationRequestRepository = phoneVerificationRequest;
-        }
+            _inviteRequest = inviteRequest;
+
+		}
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
         {
@@ -325,19 +328,19 @@ namespace SpiritualNetwork.API.Services
 
             EmailRequest emailRequest = new EmailRequest();
             emailRequest.USERNAME = user.UserName;
-            emailRequest.CONTENT1 = "Oops, it happens to the best of us! If you've forgotten your password, don't worry. We're here to help you regain access to your " + await _globalSettingService.GetValue("SiteName") + " account.";
+            emailRequest.CONTENT1 = "Oops, it happens to the best of us! If you've forgotten your password, don't worry. We're here to help you regain access to your " + GlobalVariables.SiteName + " account.";
             emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-            emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
+            emailRequest.CTALINK = GlobalVariables.SiteUrl + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
             emailRequest.CTATEXT = "Click here to reset your password";
             emailRequest.ToEmail = user.Email;
-            emailRequest.Subject = "Password Reset Request : " + await _globalSettingService.GetValue("SiteName");
+            emailRequest.Subject = "Password Reset Request : " + GlobalVariables.SiteName;
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
             var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
             return new JsonResponse(200, true, "Success", null);
         }
@@ -396,19 +399,19 @@ namespace SpiritualNetwork.API.Services
 
                         EmailRequest emailRequest = new EmailRequest();
                         emailRequest.USERNAME = user.UserName;
-                        emailRequest.CONTENT1 = "Your new password, please use below pasword to login to " + await _globalSettingService.GetValue("SiteName") + " account.";
+                        emailRequest.CONTENT1 = "Your new password, please use below pasword to login to " + GlobalVariables.SiteName + " account.";
                         emailRequest.CONTENT2 = "New Password: " + newpassword;
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Login";
+                        emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Login";
                         emailRequest.CTATEXT = "Click here to login";
                         emailRequest.ToEmail = user.Email;
-                        emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+                        emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
                         SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+                        smtpDetails.Username = GlobalVariables.SMTPUsername;
+                        smtpDetails.Host = GlobalVariables.SMTPHost;
+                        smtpDetails.Password = GlobalVariables.SMTPPassword;
+                        smtpDetails.Port = GlobalVariables.SMTPPort;
+                        smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
                         var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
                         return new JsonResponse(200, true, "Success", null);
@@ -502,19 +505,19 @@ namespace SpiritualNetwork.API.Services
 
 				EmailRequest emailRequest = new EmailRequest();
 				emailRequest.USERNAME = request.UserName;
-				emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+				emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
 				emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-				emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+				emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
 				emailRequest.CTATEXT = "Verify Email";
 				emailRequest.ToEmail = request.Email;
-				emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+				emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
 				SMTPDetails smtpDetails = new SMTPDetails();
-				smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-				smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-				smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-				smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-				smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+				smtpDetails.Username = GlobalVariables.SMTPUsername;
+				smtpDetails.Host = GlobalVariables.SMTPHost;
+				smtpDetails.Password = GlobalVariables.SMTPPassword;
+				smtpDetails.Port = GlobalVariables.SMTPPort;
+				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 
 				var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
@@ -615,19 +618,19 @@ namespace SpiritualNetwork.API.Services
 
 						EmailRequest emailRequest = new EmailRequest();
 						emailRequest.USERNAME = signupRequest.UserName;
-						emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+						emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
 						emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-						emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+						emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
 						emailRequest.CTATEXT = "Verify Email";
 						emailRequest.ToEmail = signupRequest.Email;
-						emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+						emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
 						SMTPDetails smtpDetails = new SMTPDetails();
-						smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-						smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-						smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-						smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-						smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+						smtpDetails.Username = GlobalVariables.SMTPUsername;
+						smtpDetails.Host = GlobalVariables.SMTPHost;
+						smtpDetails.Password = GlobalVariables.SMTPPassword;
+						smtpDetails.Port = GlobalVariables.SMTPPort;
+						smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 
 						var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
@@ -742,19 +745,19 @@ namespace SpiritualNetwork.API.Services
 
                         EmailRequest emailRequest = new EmailRequest();
                         emailRequest.USERNAME = user.UserName;
-                        emailRequest.CONTENT1 = "Thankyou for verifying your Email with " + await _globalSettingService.GetValue("SiteName") + " account.";
+                        emailRequest.CONTENT1 = "Thankyou for verifying your Email with " + GlobalVariables.SiteName + " account.";
                         emailRequest.CONTENT2 = "We wish you good luck in your spirtual journey";
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Login";
+                        emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Login";
                         emailRequest.CTATEXT = "Click here to login";
                         emailRequest.ToEmail = user.Email;
-                        emailRequest.Subject = "Email Verified " + await _globalSettingService.GetValue("SiteName");
+                        emailRequest.Subject = "Email Verified " + GlobalVariables.SiteName;
 
                         SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+                        smtpDetails.Username = GlobalVariables.SMTPUsername;
+                        smtpDetails.Host = GlobalVariables.SMTPHost;
+                        smtpDetails.Password = GlobalVariables.SMTPPassword;
+                        smtpDetails.Port = GlobalVariables.SMTPPort;
+                        smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
                         var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
                         return new JsonResponse(200, true, "Success", true);
@@ -942,19 +945,19 @@ namespace SpiritualNetwork.API.Services
 
                 EmailRequest emailRequest = new EmailRequest();
                 emailRequest.USERNAME = User.FullName;
-                emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+                emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
                 emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
                 emailRequest.CTALINK = "This is invitation";
                 emailRequest.CTATEXT = "Verify Email";
                 emailRequest.ToEmail = Emailreq;
-                emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
                 SMTPDetails smtpDetails = new SMTPDetails();
-                /*smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");*/
+                /*smtpDetails.Username = GlobalVariables.SMTPUsername;
+                smtpDetails.Host = GlobalVariables.SMTPHost;
+                smtpDetails.Password = GlobalVariables.SMTPPassword;
+                smtpDetails.Port = GlobalVariables.SMTPPort;
+                smtpDetails.SSLEnable = GlobalVariables.SSLEnable;*/
 
                 smtpDetails.Username = "support@generositymatrix.net";
                 smtpDetails.Host = "mail.generositymatrix.net";
@@ -1138,19 +1141,19 @@ namespace SpiritualNetwork.API.Services
 
 			EmailRequest emailRequest = new EmailRequest();
 			emailRequest.USERNAME = "Dear "+ req.FirstName + " " +req.LastName +",";
-			emailRequest.CONTENT1 = "Welcome to " + await _globalSettingService.GetValue("SiteName") + " ! We're excited to have you as part of our community. To complete the registration process and activate your account, please verify your email address.";
+			emailRequest.CONTENT1 = "Welcome to " + GlobalVariables.SiteName + " ! We're excited to have you as part of our community. To complete the registration process and activate your account, please verify your email address.";
 			emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
 			emailRequest.CTALINK = EmailRequest.OTP;
 			emailRequest.CTATEXT = "Please enter this OTP on the verification page in the app to confirm your email address, This code is valid for 15 minutes ";
 			emailRequest.ToEmail = req.Email;
-			emailRequest.Subject = " Verify Your Account: Your OTP for " + await _globalSettingService.GetValue("SiteName");
+			emailRequest.Subject = " Verify Your Account: Your OTP for " + GlobalVariables.SiteName;
 
 			SMTPDetails smtpDetails = new SMTPDetails();
-			smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-			smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-			smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-			smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-			smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+			smtpDetails.Username = GlobalVariables.SMTPUsername;
+			smtpDetails.Host = GlobalVariables.SMTPHost;
+			smtpDetails.Password = GlobalVariables.SMTPPassword;
+			smtpDetails.Port = GlobalVariables.SMTPPort;
+			smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 			var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 			return new JsonResponse(200, true, "Success", null);
 		}
@@ -1261,6 +1264,42 @@ namespace SpiritualNetwork.API.Services
 			{
 				throw ex;
 			}
+		}
+
+		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
+		{
+            var user = new InviteRequest();
+			if (!String.IsNullOrEmpty(request.inviter))
+            {
+				byte[] decodedBytes = Convert.FromBase64String(request.inviter);
+				int originalUserId = Convert.ToInt16(System.Text.Encoding.UTF8.GetString(decodedBytes));
+				user.InviterId = originalUserId;
+			}
+            user.Email = request.email;
+            user.CreatedDate = DateTime.UtcNow;
+			_inviteRequest.Insert(user);
+
+			var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(user.Id));
+			string encrypteduserid = Convert.ToBase64String(byteuserid);
+			EmailRequest emailRequest = new EmailRequest();
+			emailRequest.USERNAME = "Seeker";
+			emailRequest.CONTENT1 = "Welcome to " + GlobalVariables.SiteName + " ! We're excited to have you as part of our community.";
+			emailRequest.CONTENT2 = "We're thrilled that you've requested an invite to join K4M2A. Your interest in our platform for personalized spiritual growth means a lot to us." +
+				"We're currently in the process of reviewing applications and will be sending out invites soon. We'll notify you as soon as your account is ready.";
+			emailRequest.CTALINK = GlobalVariables.SiteUrl + "/" + encrypteduserid;
+			emailRequest.CTATEXT = "Your Invite Code";
+			emailRequest.ToEmail = request.email;
+			emailRequest.Subject = " Thank You for Your Interest in " + GlobalVariables.SiteName;
+            emailRequest.SITETITLE = GlobalVariables.SiteName;
+            SMTPDetails smtpDetails = new SMTPDetails();
+			smtpDetails.Username = GlobalVariables.SMTPUsername;
+			smtpDetails.Host = GlobalVariables.SMTPHost;
+			smtpDetails.Password = GlobalVariables.SMTPPassword;
+			smtpDetails.Port = GlobalVariables.SMTPPort;
+			smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
+			var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+
+            return new JsonResponse(200, true, "Success", null);
 		}
 	}
 }

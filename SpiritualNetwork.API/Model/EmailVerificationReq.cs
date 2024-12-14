@@ -29,4 +29,10 @@ namespace SpiritualNetwork.API.Model
 
     }
 
+	public class RequestInviteRequest
+	{
+		public string email { get; set; }
+		public string inviter { get; set; }
+	}
+
 }

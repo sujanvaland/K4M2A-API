@@ -37,5 +37,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req);
         public Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req);
 
-    }
+		public Task<JsonResponse> RequestInvite(RequestInviteRequest request);
+
+	}
 }

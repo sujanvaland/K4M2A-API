@@ -439,5 +439,20 @@ namespace SpiritualNetwork.API.Controllers
 				return new JsonResponse(200, false, "Fail", ex.Message);
 			}
 		}
+
+		[AllowAnonymous]
+		[HttpPost(Name = "RequestInvite")]
+		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
+		{
+			try
+			{
+				var response = await _userService.RequestInvite(request);
+				return response;
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
 	}
 }
