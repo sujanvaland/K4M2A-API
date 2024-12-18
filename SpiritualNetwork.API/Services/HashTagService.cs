@@ -172,5 +172,22 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
+        public async Task<JsonResponse> GetTrendingHashTag()
+        {
+
+           var data = await _hashTagRepository.Table
+                .OrderByDescending(h => h.Count).Take(20)                       
+                .Select(h => new
+                {
+                    h.Name,
+                    h.Count
+                })                                
+                .ToListAsync();
+
+            return new JsonResponse(200, true, "Success", data);
+
+
+        }
+
     }
 }
