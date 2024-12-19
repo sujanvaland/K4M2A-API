@@ -818,6 +818,27 @@ namespace SpiritualNetwork.API.Services
 
                 if (userpost != null)
                 {
+                    if (userpost.Type == "comment" && userpost.ParentId > 0)
+                    {
+                        var parentPost = _userPostRepository.GetById(userpost.ParentId);
+                        var postMessage = JsonSerializer.Deserialize<Post>(parentPost.PostMessage);
+                        //postMessage.noOfComment -= 1;
+                        if (postMessage.noOfComment.HasValue && postMessage.noOfComment > 0)
+                        {
+                            postMessage.noOfComment -= 1;
+                        }
+                        var postMessageStr = JsonSerializer.Serialize(postMessage);
+                        parentPost.PostMessage = postMessageStr;
+                        _userPostRepository.Update(parentPost);
+
+                        if (userpost.ParentId.HasValue)
+                        {
+                            NodeAddPost NodePostId = new NodeAddPost();
+                            NodePostId.Id = userpost.ParentId.Value;
+                            await _notificationService.SendPostToNode(NodePostId);
+                        }
+                    }
+
                     await _userPostRepository.DeleteAsync(userpost);
                     _postFiles.DeleteHardRange(postfile);
                     _reactionRepository.DeleteHardRange(reactions);
