@@ -141,6 +141,10 @@ namespace SpiritualNetwork.API.Services
                 {
                     _reaction.DeleteHard(like);
                     await _postService.UpdateCount(PostId,"like",0);
+
+                    NodeAddPost NodePostId = new NodeAddPost();
+                    NodePostId.Id = PostId;
+                    await _notificationService.SendPostToNode(NodePostId);
                 }
 
                 if (like == null)

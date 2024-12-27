@@ -745,6 +745,7 @@ namespace SpiritualNetwork.API.Services
                 followersModel.name = item.FirstName + " " + item.LastName;
                 followersModel.avatar = (item.ProfileImg == null || item.ProfileImg == "") ? "https://www.k4m2a.com/images/img_userpic.jpg" : item.ProfileImg;
                 followersModel.link = "/profile/" + item.UserName;
+                followersModel.userName = item.UserName;
                 followersModel.userId = item.Id;
                 listofMentions.Add(followersModel);
             }

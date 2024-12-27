@@ -230,6 +230,13 @@ namespace SpiritualNetwork.API.Services
 				userNotification.IsPush = await GetNotificationPrefrence(parentPost.UserId, Res.PushAttribute, Res.ActionByUserId);
 				userNotification.IsEmail = await GetNotificationPrefrence(parentPost.UserId, Res.EmailAttribute, Res.ActionByUserId);
 				await _userNotificationRepository.InsertAsync(userNotification);
+
+                UserNotification userNotifications = new UserNotification();
+                userNotifications.NotificationId = notification.Id;
+                userNotifications.UserId = notification.ActionByUserId;
+                userNotifications.IsPush = await GetNotificationPrefrence(parentPost.UserId, Res.PushAttribute, Res.ActionByUserId);
+                userNotifications.IsEmail = await GetNotificationPrefrence(parentPost.UserId, Res.EmailAttribute, Res.ActionByUserId);
+                await _userNotificationRepository.InsertAsync(userNotifications);
             }
 
 

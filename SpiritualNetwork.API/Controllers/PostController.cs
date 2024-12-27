@@ -151,6 +151,22 @@ namespace SpiritualNetwork.API.Controllers
         }
 
 
+        [AllowAnonymous]
+        [HttpGet(Name = "GetTrendingHashTag")]
+        public async Task<JsonResponse> GetTrendingHashTag()
+        {
+            try
+            {
+                return await _hashtagService.GetTrendingHashTag();
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
+
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
         {
