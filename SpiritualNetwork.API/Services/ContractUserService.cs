@@ -17,12 +17,12 @@ namespace SpiritualNetwork.API.Services
 
 		public UserContract CreateUpdateUserContract(UserContractRequest userContract)
 		{
-			var contract = _userContractRepo.Table.Where(x => x.Address == userContract.Address).FirstOrDefault();
+			var contract = _userContractRepo.Table.Where(x => x.Address == userContract.WalletAddress).FirstOrDefault();
 			if(contract == null)
 			{
 				contract = new UserContract();
-				contract.Address = userContract.Address;
-				contract.UserId = userContract.UserId;
+				contract.Address = userContract.WalletAddress;
+				contract.UserId = 0;
 				contract.AmountPaid = userContract.AmountPaid;
 				contract.CoinPaid = userContract.CoinPaid;
 				contract.ChainId = userContract.ChainId;
@@ -31,8 +31,8 @@ namespace SpiritualNetwork.API.Services
 			}
 			else
 			{
-				contract.Address = userContract.Address;
-				contract.UserId = userContract.UserId;
+				contract.Address = userContract.WalletAddress;
+				contract.UserId = 0;
 				contract.AmountPaid = userContract.AmountPaid;
 				contract.CoinPaid = userContract.CoinPaid;
 				contract.ChainId = userContract.ChainId;

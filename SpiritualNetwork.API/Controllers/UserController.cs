@@ -7,6 +7,8 @@ using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 using System.Net;
 using System.Net.Http;
+using Nethereum.Web3;
+using Nethereum.Signer;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -97,7 +99,51 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [AllowAnonymous]
+		[HttpPost("SignInICO")]
+		public async Task<IActionResult> SignInICO([FromBody] ICOLoginRequest request)
+		{
+			try
+			{
+				// Ensure the wallet address and signature are provided
+				if (string.IsNullOrEmpty(request.WalletAddress) || string.IsNullOrEmpty(request.Signature))
+				{
+					return BadRequest("Wallet address or signature is missing");
+				}
+
+				// Verify the signature
+				if (VerifySignature(request.WalletAddress, request.Signature, request.Message))
+				{
+					return Ok(new { Message = "Authentication successful" });
+				}
+				else
+				{
+					return Unauthorized("Invalid signature");
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { Message = ex.Message });
+			}
+		}
+
+		private bool VerifySignature(string walletAddress, string signature, string message)
+		{
+			try
+			{
+				// Recover address from the signed message
+				var signer = new EthereumMessageSigner();
+				var recoveredAddress = signer.EncodeUTF8AndEcRecover(message, signature);
+
+				// Check if the recovered address matches the provided wallet address
+				return string.Equals(recoveredAddress, walletAddress, StringComparison.OrdinalIgnoreCase);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		[AllowAnonymous]
         [HttpPost(Name = "GetUserByName")]
         public async Task<JsonResponse> GetUserByName(GetUserByNameReq getUserByNameReq)
         {

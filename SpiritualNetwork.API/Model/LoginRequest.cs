@@ -8,4 +8,11 @@
 		public string? Mobile { get; set; }
         public string? LoginMethod { get; set; }
 	}
+
+	public class ICOLoginRequest
+	{
+		public string WalletAddress { get; set; }
+		public string Signature { get; set; }
+		public string Message { get; set; }
+	}
 }

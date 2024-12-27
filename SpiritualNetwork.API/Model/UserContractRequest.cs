@@ -5,14 +5,13 @@ namespace SpiritualNetwork.API.Model
 {
 	public class UserContractRequest
 	{
-		[MaxLength(200)]
-		public string Address { get; set; }
 		public int UserId { get; set; }
 		public decimal AmountPaid { get; set; }
-		[MaxLength(20)]
 		public string CoinPaid { get; set; }
-		[MaxLength(20)]
 		public string ChainId { get; set; }
 		public decimal NoOfCoins { get; set; }
+		public string WalletAddress { get; set; }
+		public string Signature { get; set; }
+		public string Message { get; set; }
 	}
 }
