@@ -70,10 +70,8 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<DeviceToken> DeviceToken { get; set; }
         public DbSet<UserInterest> UserInterest { get; set; }
 		public DbSet<InviteRequest> InviteRequest { get; set; }
-
+		public DbSet<UserContract> UserContract { get; set; }
 		
-
-		//public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 		public AppDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
