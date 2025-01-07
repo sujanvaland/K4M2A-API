@@ -1,5 +1,7 @@
-﻿using SpiritualNetwork.API.Services.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
+using SpiritualNetwork.Entities.CommonModel;
 using System.Net;
 
 namespace SpiritualNetwork.API.Services
@@ -175,6 +177,26 @@ namespace SpiritualNetwork.API.Services
             {
                 throw ex;
             }
+        }
+
+        public async Task<JsonResponse> DeleteUploadedFile(int Id, string Url)
+        {
+            try
+            {
+                var data = await _fileRepository.Table.Where(x => x.Id == Id && x.ActualUrl == Url && x.IsDeleted == false).FirstOrDefaultAsync();
+
+                if(data != null)
+                {
+                    await _fileRepository.DeleteAsync(data);
+                    return new JsonResponse(200, true, "file deleted", null);
+                }
+                return new JsonResponse(200, true, "file not found", null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
     }
