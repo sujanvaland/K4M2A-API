@@ -11,6 +11,14 @@ namespace SpiritualNetwork.Entities
 	{
 		[MaxLength(100)]
 		public string Email { get; set; }
+		[MaxLength(100)]
+		public string? Name { get; set; }
+		[MaxLength(100)]
+		public string? Phone { get; set; }
+		[MaxLength(100)]
+		public string? City { get; set; }
+		[MaxLength(500)]
+		public string? Journey { get; set; }
 		public int? InviterId { get; set; }
 	}
 }

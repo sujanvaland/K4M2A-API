@@ -31,7 +31,12 @@ namespace SpiritualNetwork.API.Model
 
 	public class RequestInviteRequest
 	{
+		public int id { get; set; }
 		public string email { get; set; }
+		public string name { get; set; }
+		public string phone { get; set; }
+		public string city { get; set; }
+		public string journey { get; set; }
 		public string inviter { get; set; }
 	}
 

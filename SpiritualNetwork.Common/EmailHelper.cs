@@ -65,7 +65,24 @@ namespace SpiritualNetwork.Common
             return result;
         }
 
-        public static bool SendEmail(MailMessage mailMessage, SMTPDetails sMTPDetails)
+		public static bool SendEmailRequestWithtemplate(EmailRequest emailRequest, SMTPDetails sMTPDetails,string template)
+		{
+			var body = ReadLocalTemplate(template);
+			MailMessage mailMessage = new MailMessage();
+			mailMessage.Subject = emailRequest.Subject;
+			mailMessage.Body = body;
+			mailMessage.IsBodyHtml = true;
+			mailMessage.To.Add(new MailAddress(emailRequest.ToEmail));
+			mailMessage.From = new MailAddress("support@k4m2a.com", emailRequest.SITETITLE);
+			if (!String.IsNullOrEmpty(emailRequest.BCCEMAIL))
+			{
+				mailMessage.Bcc.Add(new MailAddress(emailRequest.BCCEMAIL));
+			}
+			var result = SendEmail(mailMessage, sMTPDetails);
+			return result;
+		}
+
+		public static bool SendEmail(MailMessage mailMessage, SMTPDetails sMTPDetails)
         {
             int port = Convert.ToInt32(sMTPDetails.Port);
             bool SSLEnable = Convert.ToBoolean(sMTPDetails.SSLEnable);

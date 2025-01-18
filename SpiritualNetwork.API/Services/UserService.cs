@@ -1268,36 +1268,43 @@ namespace SpiritualNetwork.API.Services
 
 		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
 		{
-            var user = new InviteRequest();
-			if (!String.IsNullOrEmpty(request.inviter))
+            if(request.id == 0)
             {
-				byte[] decodedBytes = Convert.FromBase64String(request.inviter);
-				int originalUserId = Convert.ToInt16(System.Text.Encoding.UTF8.GetString(decodedBytes));
-				user.InviterId = originalUserId;
-			}
-            user.Email = request.email;
-            user.CreatedDate = DateTime.UtcNow;
-			_inviteRequest.Insert(user);
+				var user = new InviteRequest();
+				if (!String.IsNullOrEmpty(request.inviter))
+				{
+					byte[] decodedBytes = Convert.FromBase64String(request.inviter);
+					int originalUserId = Convert.ToInt16(System.Text.Encoding.UTF8.GetString(decodedBytes));
+					user.InviterId = originalUserId;
+				}
+				user.Email = request.email;
+				user.CreatedDate = DateTime.UtcNow;
+				_inviteRequest.Insert(user);
 
-			var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(user.Id));
-			string encrypteduserid = Convert.ToBase64String(byteuserid);
-			EmailRequest emailRequest = new EmailRequest();
-			emailRequest.USERNAME = "Seeker";
-			emailRequest.CONTENT1 = "Welcome to " + GlobalVariables.SiteName + " ! We're excited to have you as part of our community.";
-			emailRequest.CONTENT2 = "We're thrilled that you've requested an invite to join K4M2A. Your interest in our platform for personalized spiritual growth means a lot to us." +
-				"We're currently in the process of reviewing applications and will be sending out invites soon. We'll notify you as soon as your account is ready.";
-			emailRequest.CTALINK = GlobalVariables.SiteUrl + "/" + encrypteduserid;
-			emailRequest.CTATEXT = "Your Invite Code";
-			emailRequest.ToEmail = request.email;
-			emailRequest.Subject = " Thank You for Your Interest in " + GlobalVariables.SiteName;
-            emailRequest.SITETITLE = GlobalVariables.SiteName;
-            SMTPDetails smtpDetails = new SMTPDetails();
-			smtpDetails.Username = GlobalVariables.SMTPUsername;
-			smtpDetails.Host = GlobalVariables.SMTPHost;
-			smtpDetails.Password = GlobalVariables.SMTPPassword;
-			smtpDetails.Port = GlobalVariables.SMTPPort;
-			smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
-			var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+				var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(user.Id));
+				string encrypteduserid = Convert.ToBase64String(byteuserid);
+
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.ToEmail = request.email;
+				emailRequest.Subject = " Thank You for Your Interest in " + GlobalVariables.SiteName;
+				emailRequest.SITETITLE = GlobalVariables.SiteName;
+				SMTPDetails smtpDetails = new SMTPDetails();
+				smtpDetails.Username = GlobalVariables.SMTPUsername;
+				smtpDetails.Host = GlobalVariables.SMTPHost;
+				smtpDetails.Password = GlobalVariables.SMTPPassword;
+				smtpDetails.Port = GlobalVariables.SMTPPort;
+				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
+				var body = EmailHelper.SendEmailRequestWithtemplate(emailRequest, smtpDetails,"requestInvite.html");
+			}
+            else
+            {
+                var user = _inviteRequest.GetById(request.id);
+                user.Name = request.name;
+                user.Phone = request.phone;
+                user.City = request.city;
+                user.Journey = request.journey;
+                _inviteRequest.Update(user);
+			}
 
             return new JsonResponse(200, true, "Success", null);
 		}
