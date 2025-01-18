@@ -78,7 +78,7 @@ namespace SpiritualNetwork.API.Services
                 string videos = string.Join(", ", postMessageContent.VideoUrl);
 
                 // Construct the prompt
-                string prompt = $@"You are a hashtag generator for social media posts. Extract hashtags from the following text based on its content, key phrases, and context. Provide the hashtags as a comma-separated list. ";
+                string prompt = $@"You are a hashtag generator for social media posts. Extract only important hashtags from the following text based on its content that can be used for content recommendation, key phrases, and context. Provide the hashtags as a comma-separated list. ";
                 if (!string.IsNullOrEmpty(description))
                 {prompt += $"\n\nDescription: {description}";
                 }

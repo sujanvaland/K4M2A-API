@@ -118,9 +118,9 @@ builder.Services.AddScoped<IK4M2AService, K4M2AService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IHastTagService, HashTagService>();
-builder.Services.AddSingleton<RabbitMQService>();
-builder.Services.AddSingleton<RabbitMQConsumerService>();
-builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
+//builder.Services.AddSingleton<RabbitMQService>();
+//builder.Services.AddSingleton<RabbitMQConsumerService>();
+//builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
 builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
