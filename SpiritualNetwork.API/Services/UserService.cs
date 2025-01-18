@@ -1295,6 +1295,8 @@ namespace SpiritualNetwork.API.Services
 				smtpDetails.Port = GlobalVariables.SMTPPort;
 				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 				var body = EmailHelper.SendEmailRequestWithtemplate(emailRequest, smtpDetails,"requestInvite.html");
+
+				return new JsonResponse(200, true, "Success", user);
 			}
             else
             {
@@ -1304,9 +1306,11 @@ namespace SpiritualNetwork.API.Services
                 user.City = request.city;
                 user.Journey = request.journey;
                 _inviteRequest.Update(user);
+
+				return new JsonResponse(200, true, "Success", user);
 			}
 
-            return new JsonResponse(200, true, "Success", null);
+           
 		}
 	}
 }
