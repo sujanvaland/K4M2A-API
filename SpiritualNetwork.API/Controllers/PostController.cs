@@ -28,12 +28,10 @@ namespace SpiritualNetwork.API.Controllers
     public class PostController : ApiBaseController
     {
         private readonly IPostService _postService;
-        private readonly RabbitMQService _rabbitMQService;
         private readonly IHastTagService _hashtagService;
-        public PostController(IPostService postService, RabbitMQService rabbitMQService, IHastTagService hashtagService)
+        public PostController(IPostService postService,IHastTagService hashtagService)
         {
             _postService = postService;
-            _rabbitMQService = rabbitMQService;
             _hashtagService = hashtagService;
         }
         [AllowAnonymous]

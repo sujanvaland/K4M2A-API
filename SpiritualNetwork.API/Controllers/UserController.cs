@@ -19,15 +19,13 @@ namespace SpiritualNetwork.API.Controllers
         private readonly ILogger<UserController> logger;
         private IUserService _userService;
         private IQuestion _question;
-        private readonly RabbitMQService _rabbitMQService;
 
         public UserController(ILogger<UserController> logger, 
-            IUserService userService, IQuestion question, RabbitMQService rabbitMQService)
+            IUserService userService, IQuestion question)
         {
             this.logger = logger;
             this._userService = userService;
             _question = question;
-            _rabbitMQService = rabbitMQService;
         }
 
         [AllowAnonymous]
