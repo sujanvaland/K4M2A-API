@@ -3,7 +3,7 @@ name: Publish 🚀
 on:
   push:
     branches:
-    - main
+    - postgresdb
 
 env:
   AZURE_WEBAPP_NAME: k4m2a-api
