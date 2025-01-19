@@ -183,11 +183,11 @@ namespace SpiritualNetwork.API.Services
 						};
 
             string sql = @"
-                            UPDATE ChatMessages
-                            SET IsRead = 1
-                            WHERE ReceiverId = {0}
-                            AND SenderId = {1}
-                            AND IsRead = 0";
+                            UPDATE ""dbo"".""ChatMessages""
+                            SET ""IsRead"" = true
+                            WHERE ""ReceiverId"" = {0}
+                            AND ""SenderId"" = {1}
+                            AND ""IsRead"" = false";
 
             _context.Database.ExecuteSqlRaw(sql, LoginUserId, req.UserId);
 

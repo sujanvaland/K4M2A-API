@@ -23,6 +23,8 @@ using Event = SpiritualNetwork.Entities.Event;
 using Community = SpiritualNetwork.Entities.Community;
 using System.IO.Hashing;
 using SpiritualNetwork.API.AppContext;
+using Org.BouncyCastle.Utilities.Collections;
+using static Antlr4.Runtime.Atn.SemanticContext;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -527,15 +529,15 @@ namespace SpiritualNetwork.API.Services
                                       Message =N.Message
                                   };
 
-            string sql = @"
-                            UPDATE UserNotification
-                            SET IsRead = 1
-                            WHERE UserId = {0}
-                            AND IsRead = 0";
+			string sql = @"
+                 UPDATE ""dbo"".""UserNotification""
+                 SET ""IsRead"" = true
+                 WHERE ""UserId"" = {0}
+                 AND ""IsRead"" = false";
 
-            _context.Database.ExecuteSqlRaw(sql, userId);
+			_context.Database.ExecuteSqlRaw(sql, userId);
 
-            var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
+			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
             return new JsonResponse(200, true, " Success", chatHistory);
         }
 
