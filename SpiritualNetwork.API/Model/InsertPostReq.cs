@@ -35,6 +35,7 @@ namespace SpiritualNetwork.API.Model
         public string eventDetail { get; set; }
         public List<Mentions> mentions { get;set; }
         public List<TagUser> tagUser { get; set; }
+        public List<string>? hashtag { get; set; }
         public int? whoCanReply { get; set; }
         public int? isPinPost { get; set; }
         public string? latitude { get; set; }
@@ -79,4 +80,19 @@ namespace SpiritualNetwork.API.Model
         public string eventCoverImage { get; set; }
 
     }
+
+    public class PostMessageContent
+    {
+        public string TextMsg { get; set; }  
+        public List<string> ImgUrl { get; set; }  
+        public List<string> VideoUrl { get; set; }  
+
+        public PostMessageContent()
+        {
+            ImgUrl = new List<string>();
+            VideoUrl = new List<string>();
+        }
+    }
+
+
 }

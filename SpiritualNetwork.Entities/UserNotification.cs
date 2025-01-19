@@ -11,5 +11,8 @@ namespace SpiritualNetwork.Entities
         public int NotificationId { get;set; }
         public int UserId { get;set; }
         public bool IsRead { get; set; }
-    }
+		public bool IsPush { get; set; }
+		public bool IsEmail { get; set; }
+		public bool IsSMS { get; set; }
+	}
 }

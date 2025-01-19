@@ -61,6 +61,22 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost(Name = "SearchedHashTag")]
+        public async Task<JsonResponse> SearchedHashTag(SearchReq searchreq)
+        {
+            try
+            {
+                var response = await _searchService.GetSearchHashTag(searchreq.Name);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
         [HttpGet(Name = "GetMyGoogleContactList")]
         public async Task<JsonResponse> GetMyGoogleContactList(int UserId)
         {

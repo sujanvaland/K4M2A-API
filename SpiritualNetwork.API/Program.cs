@@ -21,10 +21,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
-
+var ConnectionString = builder.Configuration.GetConnectionString("Default");
+var configRepository = new ConfigurationRepository(ConnectionString);
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
+GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElasticPostUrlLive").Value;
+GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value; 
+GlobalVariables.OpenAPIKey = builder.Configuration.GetSection("OpenAPIKey").Value;
+GlobalVariables.OpenAIapiURL = builder.Configuration.GetSection("OpenAIURL").Value;
+GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
+GlobalVariables.SiteUrl = await configRepository.GetConfigurationValueAsync("SiteUrl");
+GlobalVariables.SMTPHost = await configRepository.GetConfigurationValueAsync("SMTPHost");
+GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync("SMTPUsername");
+GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
+GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
+GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
 
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
+{
+    
+    dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+});
 //builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 //{
 //	var ConnectionString = builder.Configuration.GetConnectionString("Default");
@@ -111,9 +128,10 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IK4M2AService, K4M2AService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddSingleton<RabbitMQService>();
-builder.Services.AddSingleton<RabbitMQConsumerService>();
-builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
+builder.Services.AddScoped<IHastTagService, HashTagService>();
+//builder.Services.AddSingleton<RabbitMQService>();
+//builder.Services.AddSingleton<RabbitMQConsumerService>();
+//builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
 builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {

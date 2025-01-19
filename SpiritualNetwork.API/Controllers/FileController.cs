@@ -78,5 +78,19 @@ namespace SpiritualNetwork.API.Controllers
                 return File(pdfBytes, "application/pdf", "downloaded_file.pdf");
             }
         }
+
+        [HttpPost(Name = "DeleteUploadedFile")]
+        public async Task<JsonResponse> DeleteUploadedFile(deleteFileReq req)
+        {
+            try
+            {
+                return await _fileService.DeleteUploadedFile(req.Id, req.Url);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
     }
 }

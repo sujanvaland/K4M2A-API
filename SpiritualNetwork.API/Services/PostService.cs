@@ -31,6 +31,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IEventService _eventService;
         private readonly IGlobalSettingService _globalSettingService;
         private readonly IRepository<ReportEntity> _reportRepository;
+        private readonly IRepository<UserInterest> _userInterestRepo;
 
         public PostService(IAttachmentService attachmentService,
             IRepository<UserSubcription> userSubcriptionRepo,
@@ -46,7 +47,8 @@ namespace SpiritualNetwork.API.Services
             IProfileService profileService,
             IEventService eventService,
             IGlobalSettingService globalSettingService,
-            IRepository<ReportEntity> reportRepository)
+            IRepository<ReportEntity> reportRepository,
+            IRepository<UserInterest> userInterestRepo)
         {
             _blockedPost = blockedPostRepository;
             _userSubcriptionRepo = userSubcriptionRepo;
@@ -64,6 +66,7 @@ namespace SpiritualNetwork.API.Services
             _eventService = eventService;
             _globalSettingService = globalSettingService;
             _reportRepository = reportRepository;
+            _userInterestRepo = userInterestRepo;
         }
 
         public async Task<UserPost> GetUserPostByPostId(int PostId)
@@ -663,9 +666,12 @@ namespace SpiritualNetwork.API.Services
 							var stream = new MemoryStream(fileBytes);
 
 							// Create an IFormFile instance
-							var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName);
-							// Set the correct content type based on the file extension
-							formFile.ContentType = GetContentType(item.FileName);
+							var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName)
+                            {
+                                Headers = new HeaderDictionary()
+                            };
+                            // Set the correct content type based on the file extension
+                            formFile.ContentType = GetContentType(item.FileName);
 							formFiles.Add(formFile);
 						}
 					}
@@ -740,23 +746,36 @@ namespace SpiritualNetwork.API.Services
 					uploadPostResponse.Files = new List<Entities.File>();
 				}
 
-				//try
-				//{
-				//    NotificationRes notification = new NotificationRes();
-				//    notification.PostId = postData.id;
-				//    notification.ActionByUserId = UserId;
-				//    notification.ActionType = postData.type;
-				//    notification.RefId1 = postData.parentId.ToString();
-				//    notification.RefId2 = "";
-				//    notification.Message = "";
-				//    await _notificationService.SaveNotification(notification);
-				//}
-				//catch (Exception ex)
-				//{
-				//    //log to db
-				//}
+                try
+                {
+                    NotificationRes notification = new NotificationRes();
+                    notification.PostId = postData.id;
+                    notification.ActionByUserId = user.Id;
+                    notification.ActionType = postData.type;
+                    notification.RefId1 = postData.parentId.ToString();
+                    notification.RefId2 = "";
+                    notification.Message = "";
+                    notification.PushAttribute = postData.type == "post" ? "pushpostfollowing" : "pushcommentpost";
+                    notification.EmailAttribute = postData.type == "post" ? "emailpostfollowing" : "emailcommentpost";
+                    await _notificationService.SaveNotification(notification);
+                }
+                catch (Exception ex)
+                {
+                    //log to db
+                }
 
-				return new JsonResponse(200, true, "Success", uploadPostResponse);
+                var message = (new
+                {
+                    PostId = uploadPostResponse.Post.Id,
+                    UserUniqueId = postDataDto.UserUniqueId,
+                    Topic = "hashtag"
+                });
+                
+                await KafkaProducer.ProduceMessage("hashtag", message);
+
+                //await KafkaProducer.ProduceMessage("hashtag", uploadPostResponse);
+
+                return new JsonResponse(200, true, "Success", uploadPostResponse);
 
             }
             catch (Exception ex)
@@ -799,6 +818,18 @@ namespace SpiritualNetwork.API.Services
 
                 if (userpost != null)
                 {
+                    if (userpost.Type == "comment" && userpost.ParentId > 0 && userpost.ParentId.HasValue)
+                    {
+                        await UpdateCount(userpost.ParentId.Value, "comment", 0);
+                       
+                        if (userpost.ParentId.HasValue)
+                        {
+                            NodeAddPost NodePostId = new NodeAddPost();
+                            NodePostId.Id = userpost.ParentId.Value;
+                            await _notificationService.SendPostToNode(NodePostId);
+                        }
+                    }
+
                     await _userPostRepository.DeleteAsync(userpost);
                     _postFiles.DeleteHardRange(postfile);
                     _reactionRepository.DeleteHardRange(reactions);
@@ -835,6 +866,44 @@ namespace SpiritualNetwork.API.Services
                 return new JsonResponse(200,true,"Success",data);
             }
         }
+
+        public async Task<JsonResponse> UserPostInterest(PostInterestModel req, int LoginUserId)
+        {
+            var data = await _userInterestRepo.Table.Where(x=> x.PostId == req.PostId
+                        && x.UserId == LoginUserId && x.PostUserId == req.PostUserId).FirstOrDefaultAsync();
+
+            if (data == null)
+            {
+                var post = await _userPostRepository.Table.Where(x=> x.Id == req.PostId).FirstOrDefaultAsync();
+                if (post == null)
+                {
+                    return new JsonResponse(200, false, "Post not found");
+                }
+
+                var postMessage = JsonSerializer.Deserialize<Post>(post.PostMessage);
+
+                if (postMessage == null)
+                {
+                    return new JsonResponse(200, false, "PostMessage deserialization failed ");
+                }
+
+                UserInterest userInterest = new UserInterest();
+                userInterest.PostUserId = req.PostUserId;
+                userInterest.UserId = LoginUserId;
+                userInterest.PostId = req.PostId;
+                userInterest.ActionType = req.ActionType;
+                userInterest.PostHashTag = (postMessage.hashtag != null && postMessage.hashtag.Count > 0) ? JsonSerializer.Serialize(postMessage.hashtag) : " "; 
+                await _userInterestRepo.InsertAsync(userInterest);
+                return new JsonResponse(200, true, "Success", userInterest);
+            }
+            else
+            {
+                data.ActionType = req.ActionType;
+                await _userInterestRepo.UpdateAsync(data);
+                return new JsonResponse(200, true, "Success", data);
+            }
+        }
+
 
         public void UpdatePost()
         {
@@ -949,6 +1018,32 @@ namespace SpiritualNetwork.API.Services
             _userPostRepository.DeleteHardRange(list);
         }
 
+        public void UpdatePost(List<string> hasttag, int postId)
+        {
+            var data = _userPostRepository.Table.ToList();
+            List<UserPost> posts = new List<UserPost>();
+            foreach (var postItem in data)
+            {
+                var user = _userRepository.GetById(postItem.UserId);
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == postItem.UserId &&
+                                    x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
+                var postMessage = JsonSerializer.Deserialize<Post>(postItem.PostMessage);
+                postMessage.createdBy = user.FirstName + " " + user.LastName;
+                postMessage.userName = user.UserName;
+                postMessage.profileImg = user.ProfileImg;
+                postMessage.type = postItem.Type;
+                if (permiumcheck != null)
+                {
+                    postMessage.isPaid = true;
+                }
+                else { postMessage.isPaid = false; }
+                postItem.PostMessage = JsonSerializer.Serialize(postMessage);
+                posts.Add(postItem);
+            }
+            _userPostRepository.UpdateRange(posts);
+        }
+
+
         public async Task ReportPost(Report req,int UserId)
         {
             var user = _userRepository.Table.Where(x => x.Id == UserId).FirstOrDefault();
@@ -970,7 +1065,7 @@ namespace SpiritualNetwork.API.Services
                 emailRequest.CONTENT2 = "Reason: " + req.ReportPost.Value + "<br/>" + req.Content + "<br/>" + req.ReportPost.PostURl;
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Post Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Post Reported " + GlobalVariables.SiteName;
             }
             if(req.Type == "conversation")
             {
@@ -980,7 +1075,7 @@ namespace SpiritualNetwork.API.Services
                                         "IsGroup "+ req.ReportConversation.IsGroup + " <br/>" + req.Content + "<br/>";
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Conversation Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Conversation Reported " + GlobalVariables.SiteName;
             }
 
             if (req.Type == "event")
@@ -991,15 +1086,15 @@ namespace SpiritualNetwork.API.Services
                                         " <br/>" + req.Content + "<br/>";
                 emailRequest.CTATEXT = "";
                 emailRequest.ToEmail = "anktkania2703@gmail.com";
-                emailRequest.Subject = "Event Reported " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Event Reported " + GlobalVariables.SiteName;
             }
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
             var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
         }

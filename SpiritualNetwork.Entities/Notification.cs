@@ -19,9 +19,11 @@ namespace SpiritualNetwork.Entities
         public string RefId2 { get; set; }
         [MaxLength(100)]
         public string Message { get; set; }
-        public bool IsPush { get; set; }
-		public bool IsEmail { get; set; }
-		public bool IsSMS { get; set; }
 
 	}
+
+    public class NodeNotificationRes
+    {
+        public int NotificationId { get; set; }
+    }
 }

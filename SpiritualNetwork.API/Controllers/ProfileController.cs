@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
+using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 
 namespace SpiritualNetwork.API.Controllers
@@ -40,7 +41,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                var profile = await _profileService.GetUserProfileByUsername(username);
+                var profile = await _profileService.GetUserInfoBox(username,user_unique_id);
                 return new JsonResponse(200, true, "Success", profile);
             }
             catch (Exception ex)
@@ -113,7 +114,21 @@ namespace SpiritualNetwork.API.Controllers
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
+        }
+        [AllowAnonymous]
 
+        [HttpGet(Name = "GetBook")]
+        public async Task<JsonResponse> GetBook(string search)
+        {
+           
+            try
+            {
+                return await _profileService.GetBooksAsync(search);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
         }
 
         [HttpGet(Name = "GetExperienceSuggestion")]
@@ -168,7 +183,20 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpPost(Name = "DeleteProfileSuggestion")]
+		[HttpPost(Name = "DeleteBook")]
+		public async Task<JsonResponse> DeleteBook(string id)
+		{
+			try
+			{
+				return await _profileService.DeleteBook(id,user_unique_id);
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+		[HttpPost(Name = "DeleteProfileSuggestion")]
         public async Task<JsonResponse> DeleteProfileSuggestion(DeleteUpdateProfileSuggestion req)
         {
             try

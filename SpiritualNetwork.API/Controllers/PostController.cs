@@ -1,14 +1,24 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RestSharp;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using System.Net;
+using System.Text;
 using Twilio.TwiML.Messaging;
-
+using Azure;
+using Azure.AI.OpenAI;
+using Azure.AI.OpenAI.Images;
+using Azure.Identity;
+using OpenAI.Images;
+using System.ClientModel;
+using System.Text.RegularExpressions;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -18,16 +28,147 @@ namespace SpiritualNetwork.API.Controllers
     public class PostController : ApiBaseController
     {
         private readonly IPostService _postService;
-        private readonly RabbitMQService _rabbitMQService;
-        public PostController(IPostService postService, RabbitMQService rabbitMQService)
+        private readonly IHastTagService _hashtagService;
+        public PostController(IPostService postService,IHastTagService hashtagService)
         {
             _postService = postService;
-            _rabbitMQService = rabbitMQService;
+            _hashtagService = hashtagService;
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ExtractHashTag(string text)
+        {
+            var options = new RestClientOptions("https://k4m2aai.openai.azure.com")
+            {
+                MaxTimeout = -1,
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest("/openai/deployments/gpt-4/chat/completions?api-version=2024-02-15-preview", Method.Post);
+            request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
+            request.AddHeader("Content-Type", "application/json");
+
+            // Construct the prompt
+            string prompt = text; //$@"Generate a social media post with image on Shambhavi mudra meditation";
+
+            // Build the message payload
+            var promptRequest = new
+            {
+                messages = new[]
+                {
+                    new
+                    {
+                        role = "user",
+                        content = prompt
+                    }
+                },
+                temperature = 0.7,
+                top_p = 0.95,
+                max_tokens = 800
+            };
+
+            // Add the serialized body
+            request.AddStringBody(JsonConvert.SerializeObject(promptRequest), DataFormat.Json);
+
+            // Send the request
+            var response = await client.ExecuteAsync(request);
+            AIPost aIPost = new AIPost();
+			if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var result = JsonConvert.DeserializeObject<PromptResponse>(response.Content);
+                if (result != null && result.choices != null && result.choices.Count > 0)
+                {
+					aIPost.Content = result.choices[0].message.content;
+				}
+                else
+                {
+                    Console.WriteLine("No valid response from the API.");
+                }
+
+				string pattern = @"\[Image: (.*?)\]";
+				Match match = Regex.Match(aIPost.Content, pattern);
+
+				if (match.Success)
+				{
+					string imageDescription = match.Groups[1].Value;
+					options = new RestClientOptions("https://k4m2aai.openai.azure.com")
+				{
+					MaxTimeout = -1,
+				};
+				client = new RestClient(options);
+				request = new RestRequest("/openai/deployments/dall-e-3/images/generations?api-version=2024-02-01", Method.Post);
+				request.AddHeader("api-key", GlobalVariables.OpenAPIKey);
+				request.AddHeader("Content-Type", "application/json");
+					var body = $@"{{
+                        ""prompt"": ""{imageDescription}"",
+                        ""size"": ""1024x1024"",
+                        ""n"": 1
+                    }}";
+					request.AddStringBody(body, DataFormat.Json);
+				response = await client.ExecuteAsync(request);
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var imgresult = JsonConvert.DeserializeObject<ImageResponse>(response.Content);
+                    if (imgresult != null && imgresult.Data != null)
+                    {
+                        var url = imgresult.Data.FirstOrDefault()?.Url;
+						aIPost.Url = url;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No valid response from the API.");
+                    }
+                }
+				}
+				else
+				{
+					Console.WriteLine("No image description found.");
+				}
+				
+			}
+            else
+            {
+                Console.WriteLine($"API call failed: {response.Content}");
+            }
+
+            return Ok(aIPost);
+        }
+
+        [AllowAnonymous]
+        [HttpGet(Name = "hastTag")]
+        public async Task<JsonResponse> ExtractPostHashTag(int postId)
+        {
+            try
+            {
+                return await _hashtagService.ExtractPostHashTag(postId);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet(Name = "GetTrendingHashTag")]
+        public async Task<JsonResponse> GetTrendingHashTag()
+        {
+            try
+            {
+                return await _hashtagService.GetTrendingHashTag();
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
 
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
         {
+
             try
             {
 				// Validate if files were uploaded
@@ -66,8 +207,8 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.Username = username;
 				// Produce a message
 				await KafkaProducer.ProduceMessage("post", postDataDto);
-				//var response = await _postService.InsertPost(postDataDto);
-				return new JsonResponse(200,true,"Success");
+                //var response = await _postService.InsertPost(postDataDto);
+                return new JsonResponse(200,true,"Success", null);
             }
             catch (Exception ex)
             {
@@ -189,6 +330,20 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200,true,"Fail",ex.Message);
             }
         }
+
+        [HttpPost(Name = "UserPostInterest")]
+        public async Task<JsonResponse> UserPostInterest(PostInterestModel req)
+        {
+            try
+            {
+                return await _postService.UserPostInterest(req, user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex.Message);
+            }
+        }
+
 
         [AllowAnonymous]
         [HttpPost(Name = "UpdatePost")]

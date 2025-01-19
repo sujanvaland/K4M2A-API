@@ -19,8 +19,9 @@ namespace SpiritualNetwork.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRepository<PasswordResetRequest> _passwordResetRequestRepository;
-		private readonly IRepository<EmailVerificationRequest> _emailVerificationRequestRepository;
-		private readonly INotificationService _notificationService;
+        private readonly IRepository<EmailVerificationRequest> _emailVerificationRequestRepository;
+        private readonly IRepository<PhoneVerificationRequest> _phoneVerificationRequestRepository;
+        private readonly INotificationService _notificationService;
         private readonly IGlobalSettingService _globalSettingService;
         private readonly IRepository<PreRegisteredUser> _preRegisteredUserRepository;
         private readonly IRepository<UserFollowers> _userFollowersRepository;
@@ -32,6 +33,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserAttribute> _userAttributeRepository;
         private readonly IRepository<Invitation> _InvitationRepository;
 		private readonly IRepository<Tags> _tagsRepository;
+		private readonly IRepository<DeviceToken> _deviceTokenRepository;
+        private readonly IRepository<InviteRequest> _inviteRequest;
 
 		public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -50,7 +53,10 @@ namespace SpiritualNetwork.API.Services
             IRepository<UserAttribute> userAttributeRepository,
             IRepository<Invitation> invitationRepository,
 			IRepository<EmailVerificationRequest> emailVerificationRequestRepository,
-			IRepository<Tags> tagsRepository)
+			IRepository<Tags> tagsRepository,
+			IRepository<DeviceToken> deviceTokenRepository,
+            IRepository<PhoneVerificationRequest> phoneVerificationRequest,
+			IRepository<InviteRequest> inviteRequest)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -69,9 +75,13 @@ namespace SpiritualNetwork.API.Services
             _InvitationRepository = invitationRepository;
             _emailVerificationRequestRepository = emailVerificationRequestRepository;
             _tagsRepository = tagsRepository;
-        }
+            _deviceTokenRepository = deviceTokenRepository;
+            _phoneVerificationRequestRepository = phoneVerificationRequest;
+            _inviteRequest = inviteRequest;
 
-        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string? ConnectionId)
+		}
+
+        public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
         {
             try
             {
@@ -80,28 +90,86 @@ namespace SpiritualNetwork.API.Services
                     .Where(x => x.IsDeleted == false && x.UserId == UserId)
                     .FirstOrDefaultAsync();
 
-                if(!ConnectionId.IsNullOrEmpty() && data != null)
+                if (Type == "save")
                 {
-                    data.ConnectionId = ConnectionId;
-                    await _onlineUsers.UpdateAsync(data);
-                    return new JsonResponse(200, true, "Success", data);
+                    if(data == null)
+                    {
+						OnlineUsers onlineUsers = new OnlineUsers();
+						onlineUsers.UserId = UserId;
+						onlineUsers.ConnectionId = ConnectionId;
+						await _onlineUsers.InsertAsync(onlineUsers);
+						return new JsonResponse(200, true, "Success", onlineUsers);
+                    }
+                    else
+                    {
+						data.ConnectionId = ConnectionId;
+						await _onlineUsers.UpdateAsync(data);
+						return new JsonResponse(200, true, "Success", data);
+					}
+				}
+                else
+                {
+                    if(data != null)
+                    {
+						 _onlineUsers.DeleteHard(data);
+					}
                 }
+				return new JsonResponse(200, true, "Success", null);
 
-                OnlineUsers onlineUsers = new OnlineUsers();
-                onlineUsers.UserId = UserId;
-                onlineUsers.ConnectionId = ConnectionId;
 
-                await _onlineUsers.InsertAsync(onlineUsers);
-
-                return new JsonResponse(200, true, "Success", onlineUsers);
-            }
-            catch (Exception ex)
+			}
+			catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        private async Task<User> Authenticate(string username, string password)
+		public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
+		{
+			try
+			{
+				var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
+
+				if (Type == "save")
+                {
+                    if (check == null)
+                    {
+                        DeviceToken deviceToken = new DeviceToken();
+                        deviceToken.UserId = UserId;
+                        deviceToken.Token = Token;
+                        await _deviceTokenRepository.InsertAsync(deviceToken);
+                    }
+                }else
+                {
+                    if (check != null) 
+                    { 
+                        await _deviceTokenRepository.DeleteAsync(check);
+                    }
+
+                }
+				return new JsonResponse(200, true, "Success", null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		private async Task<User> AuthenticateWithMobile(string username)
+		{
+			try
+			{
+				var data = await _userRepository.Table
+					.Where(x => x.PhoneNumber.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+                return data;
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+
+		private async Task<User> Authenticate(string username,string LoginMethod, string password)
         {
             try
             {
@@ -111,7 +179,16 @@ namespace SpiritualNetwork.API.Services
 
                 if (data != null)
                 {
-                    if (PasswordHelper.VerifyPassword(password, data.Password))
+                    var passwordMatch = false;
+                    if(LoginMethod == "google" || LoginMethod == "facebook")
+                    {
+						passwordMatch = PasswordHelper.VerifyPassword(password, data.SecondaryPassword);
+                    }
+                    else
+                    {
+						passwordMatch = PasswordHelper.VerifyPassword(password, data.Password);
+					}
+					if (passwordMatch)
                     {
                         return data;
                     }
@@ -131,62 +208,81 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        private async Task<bool> IsUserExist(string username)
+        private async Task<User> IsUserExist(string username)
         {
-            var data = await _userRepository.Table.Where(x => x.UserName == username || x.Email.ToLower() == username.ToLower()).FirstOrDefaultAsync();
-            return (data != null) ? true : false;
+            var data = await _userRepository.Table.Where(x => x.UserName == username 
+            || x.Email.ToLower() == username.ToLower()
+			|| x.PhoneNumber.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+            return data;
         }
 
-        public async Task<JsonResponse> SignIn(string username, string password)
-        {
-            if (!await IsUserExist(username))
-            {
-                return new JsonResponse(204, true, "Not Exist", null);
-            }
-            else
-            {
-                User user = await Authenticate(username, password);
-                if (user != null)
-                {
-                    var profileModal = _profileService.GetUserProfile(user);
-                    var authClaims = new List<Claim>
-                    {
-                        new Claim("Username", username),
-                        new Claim("Id", user.Id.ToString()),
-                        new Claim("Exp",DateTime.Now.AddMinutes(1).ToString())
-                    };
-                    var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
+		public async Task<JsonResponse> SignIn(string username, string password,string LoginMethod, int isMobile)
+		{
+			User user = await IsUserExist(username);
+			if (user == null)
+			{
+				return new JsonResponse(204, true, "Not Exist", null);
+			}
 
-                    var token = new JwtSecurityToken(
-                        issuer: _configuration["JWT:ValidIssuer"],
-                        audience: _configuration["JWT:ValidAudience"],
-                        expires: DateTime.Now.AddDays(1),
-                        claims: authClaims,
-                        signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
-                        );
+			bool isAuthenticated = false;
 
-                    LoginResponse loginResponse = new LoginResponse()
-                    {
-                        Token = new JwtSecurityTokenHandler().WriteToken(token),
-                        Profile = profileModal
-                    };
-                    
-                    return new JsonResponse(200, true, "Success", loginResponse);
-                }
-                else
-                {
-                    LoginResponse loginResponse = new LoginResponse()
-                    {
-                        Token = "",
-                        Profile = null
-                    };
+			// Handle mobile login
+			if (isMobile > 0)
+			{
+				var response = await VerifiedPhoneReq(new VerifiedPhone { OTP = password, Phone = username });
+				if (response.Success && response.Message == "Phone Number Verified")
+				{
+					isAuthenticated = true;
+				}
+				else
+				{
+					return new JsonResponse(200, true, "InvalidPhone", new LoginResponse());
+				}
+			}
+			// Handle non-mobile login
+			else
+			{
+				user = await Authenticate(username, LoginMethod, password);
+				if (user != null)
+				{
+					isAuthenticated = true;
+				}
+				else
+				{
+					return new JsonResponse(200, true, "UnAuthenticated", new LoginResponse());
+				}
+			}
 
-                    return new JsonResponse(200, true, "UnAuthenticated", loginResponse);
-                }
-            }
-        }
+			if (isAuthenticated)
+			{
+				var profileModal = _profileService.GetUserProfile(user);
+				var authClaims = new List<Claim>
+		        {
+			        new Claim("Username", username),
+			        new Claim("Id", user.Id.ToString()),
+			        new Claim("Exp", DateTime.Now.AddMinutes(1).ToString())
+		        };
+				var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
 
-        string GenerateRandomPassword(int length)
+				var token = new JwtSecurityToken(
+					issuer: _configuration["JWT:ValidIssuer"],
+					audience: _configuration["JWT:ValidAudience"],
+					expires: DateTime.Now.AddDays(1),
+					claims: authClaims,
+					signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
+				);
+
+				return new JsonResponse(200, true, "Success", new LoginResponse
+				{
+					Token = new JwtSecurityTokenHandler().WriteToken(token),
+					Profile = profileModal
+				});
+			}
+
+			return new JsonResponse(200, true, "UnAuthenticated", new LoginResponse());
+		}
+
+		string GenerateRandomPassword(int length)
         {
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -226,19 +322,19 @@ namespace SpiritualNetwork.API.Services
 
             EmailRequest emailRequest = new EmailRequest();
             emailRequest.USERNAME = user.UserName;
-            emailRequest.CONTENT1 = "Oops, it happens to the best of us! If you've forgotten your password, don't worry. We're here to help you regain access to your " + await _globalSettingService.GetValue("SiteName") + " account.";
+            emailRequest.CONTENT1 = "Oops, it happens to the best of us! If you've forgotten your password, don't worry. We're here to help you regain access to your " + GlobalVariables.SiteName + " account.";
             emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-            emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
+            emailRequest.CTALINK = GlobalVariables.SiteUrl + "/forgotPassword/" + encryptedotp + "/" + encrypteduserid;
             emailRequest.CTATEXT = "Click here to reset your password";
             emailRequest.ToEmail = user.Email;
-            emailRequest.Subject = "Password Reset Request : " + await _globalSettingService.GetValue("SiteName");
+            emailRequest.Subject = "Password Reset Request : " + GlobalVariables.SiteName;
 
             SMTPDetails smtpDetails = new SMTPDetails();
-            smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-            smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-            smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-            smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-            smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+            smtpDetails.Username = GlobalVariables.SMTPUsername;
+            smtpDetails.Host = GlobalVariables.SMTPHost;
+            smtpDetails.Password = GlobalVariables.SMTPPassword;
+            smtpDetails.Port = GlobalVariables.SMTPPort;
+            smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
             var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
             return new JsonResponse(200, true, "Success", null);
         }
@@ -297,19 +393,19 @@ namespace SpiritualNetwork.API.Services
 
                         EmailRequest emailRequest = new EmailRequest();
                         emailRequest.USERNAME = user.UserName;
-                        emailRequest.CONTENT1 = "Your new password, please use below pasword to login to " + await _globalSettingService.GetValue("SiteName") + " account.";
+                        emailRequest.CONTENT1 = "Your new password, please use below pasword to login to " + GlobalVariables.SiteName + " account.";
                         emailRequest.CONTENT2 = "New Password: " + newpassword;
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Login";
+                        emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Login";
                         emailRequest.CTATEXT = "Click here to login";
                         emailRequest.ToEmail = user.Email;
-                        emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+                        emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
                         SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+                        smtpDetails.Username = GlobalVariables.SMTPUsername;
+                        smtpDetails.Host = GlobalVariables.SMTPHost;
+                        smtpDetails.Password = GlobalVariables.SMTPPassword;
+                        smtpDetails.Port = GlobalVariables.SMTPPort;
+                        smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
                         var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
                         return new JsonResponse(200, true, "Success", null);
@@ -321,83 +417,218 @@ namespace SpiritualNetwork.API.Services
             return new JsonResponse(200, true, "Something went wrong", null);
         }
 
-        public async Task<JsonResponse> SignUp(SignupRequest signupRequest)
+        public async Task<JsonResponse> SignUpNew(SignupRequest request)
         {
-            try
+			request.Email = request.Email.TrimEnd().TrimStart().ToLower();
+            if(!String.IsNullOrEmpty(request.Email))
             {
-                signupRequest.UserName = signupRequest.UserName.TrimEnd().TrimStart().ToLower();
-                if (signupRequest.UserName.Contains(" "))
+				if (request.Email.Contains(" "))
+				{
+					return new JsonResponse(200, false, "Space not allowed in Email", null);
+				}
+
+				var existingUser = _userRepository.Table.FirstOrDefault(u => u.Email == request.Email);
+
+				if (existingUser != null)
+				{
+					if (request.LoginMethod == "google" && String.IsNullOrEmpty(existingUser.GoogleId))
+					{
+						// Existing manual signup, allow linking with social account
+						existingUser.GoogleId = request.Password;
+						existingUser.ProfileImg = request.ProfileImg;
+						existingUser.SecondaryPassword = PasswordHelper.EncryptPassword(request.Password);
+						await _userRepository.UpdateAsync(existingUser);
+						return new JsonResponse(200, true, "Account linked to social login successfully", null);
+					}
+					else if (request.LoginMethod != "google" && !String.IsNullOrEmpty(existingUser.GoogleId))
+					{
+						// Existing social signup, allow linking with manual account
+						existingUser.Password = PasswordHelper.EncryptPassword(request.Password);
+						await _userRepository.UpdateAsync(existingUser);
+						return new JsonResponse(200, true, "Account linked to manual login successfully", null);
+					}
+					else
+					{
+						return new JsonResponse(200, false, "Account already exists", null);
+					}
+
+				}
+			}
+
+            // Validate unique mobile number
+            if (!String.IsNullOrEmpty(request.PhoneNumber))
+            {
+                var existingUserByMobile = _userRepository.Table.FirstOrDefault(u => u.PhoneNumber == request.PhoneNumber);
+                if (existingUserByMobile != null)
                 {
-                    return new JsonResponse(200, false, "Space not allowed in username", null);
+                    return new JsonResponse(200, false, "Phone number already registered.", null);
                 }
+            }
 
-                var query = _userRepository.Table;
-                if (!String.IsNullOrEmpty(signupRequest.PhoneNumber))
-                {
-                    query = query.Where(x=>x.PhoneNumber == signupRequest.PhoneNumber);
-                }
+			// Create a new user
+			var user = _mapper.Map<User>(request);
+			user.InviterId = 0;
+            if (!String.IsNullOrEmpty(request.FirstName))
+            {
+				user.UserName = GenerateUniqueUsername(request.FirstName, request.LastName);
+			}
+			user.Password = PasswordHelper.EncryptPassword(request.Password);
+			user.ProfileImg = request.ProfileImg;
+			user.PaymentStatus = "";
+			user.PaymentRef1 = "";
+			user.PaymentRef2 = "";
+			user.Status = "";
+			await _userRepository.InsertAsync(user);
 
-                var data = await query.Where(x => x.IsDeleted == false &&
-                (x.UserName.ToLower().Trim() == signupRequest.UserName.ToLower().Trim()
-                || x.Email.ToLower().Trim() == signupRequest.Email.ToLower().Trim()
-                )).FirstOrDefaultAsync();
-                
-                if (data != null)
-                {
-                    return new JsonResponse(200, false, "Username or Email already exists", null);
-                }
+			PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
+			passwordResetRequest.UserId = user.Id;
+			passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
+			passwordResetRequest.ActivationDate = DateTime.Now;
+			passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+			passwordResetRequest.IsUsed = false;
+			await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
 
-                if (data == null)
-                {
-                    User user = _mapper.Map<User>(signupRequest);
-                    user.InviterId = 0;
-                    user.Password = PasswordHelper.EncryptPassword(signupRequest.Password);
+			// string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
+			// string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
+			try
+			{
+				var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
+				string encryptedotp = Convert.ToBase64String(byteotp);
+				var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
+				string encrypteduserid = Convert.ToBase64String(byteuserid);
 
-                    user.PaymentStatus = "";
-                    user.PaymentRef1 = "";
-                    user.PaymentRef2 = "";
-                    user.Status = "";
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.USERNAME = request.UserName;
+				emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
+				emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
+				emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+				emailRequest.CTATEXT = "Verify Email";
+				emailRequest.ToEmail = request.Email;
+				emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
-                    await _userRepository.InsertAsync(user);
+				SMTPDetails smtpDetails = new SMTPDetails();
+				smtpDetails.Username = GlobalVariables.SMTPUsername;
+				smtpDetails.Host = GlobalVariables.SMTPHost;
+				smtpDetails.Password = GlobalVariables.SMTPPassword;
+				smtpDetails.Port = GlobalVariables.SMTPPort;
+				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 
-                    var qresponse = await _question.InsertAnswerAsync(user.Id, signupRequest.Answers);
+				var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
-                    PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
-                    passwordResetRequest.UserId = user.Id;
-                    passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
-                    passwordResetRequest.ActivationDate = DateTime.Now;
-                    passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
-                    passwordResetRequest.IsUsed = false;
-                    await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
+				/* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
+						 .FirstOrDefaultAsync();
 
-                    // string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
-                    // string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
-                    try 
-                    { 
-                        var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
-                        string encryptedotp = Convert.ToBase64String(byteotp);
-                        var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
-                        string encrypteduserid = Convert.ToBase64String(byteuserid);
+				 var totalCount = await _userRepository.Table
+								 .Where(x => x.InviterId == Inviter_User.Id && x.IsDeleted == false)
+								 .CountAsync();
 
-                        EmailRequest emailRequest = new EmailRequest();
-                        emailRequest.USERNAME = signupRequest.UserName;
-                        emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
-                        emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
-                        emailRequest.CTATEXT = "Verify Email";
-                        emailRequest.ToEmail = signupRequest.Email;
-                        emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+				 await _notificationService.SendEmailNotification("newreferral", Inviter_User);*/
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, true, "Success", user);
+			}
 
-                        SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+			return new JsonResponse(200, true, "Success", user);
+		}
 
-                        var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+		public  string GenerateUniqueUsername(string firstName, string lastName)
+		{
+			// Generate initial username by concatenating first and last name
+			string baseUsername = $"{firstName.ToLower()}.{lastName.ToLower()}".Replace(" ", "");
+			string username = baseUsername;
+			int suffix = 1;
 
-                        /* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
+			List<string> existingUsernames = _userRepository.Table
+	        .Where(x => x.FirstName == firstName && x.LastName == lastName)
+	        .Select(x => x.UserName)
+	        .ToList() ?? new List<string>();
+			// Ensure the username is unique
+			while (existingUsernames.Contains(username))
+			{
+				username = $"{baseUsername}{suffix}";
+				suffix++;
+			}
+
+			return username;
+		}
+		public async Task<JsonResponse> SignUp(SignupRequest signupRequest)
+		{
+			try
+			{
+				signupRequest.UserName = signupRequest.UserName.TrimEnd().TrimStart().ToLower();
+				if (signupRequest.UserName.Contains(" "))
+				{
+					return new JsonResponse(200, false, "Space not allowed in username", null);
+				}
+
+				var query = _userRepository.Table;
+				if (!String.IsNullOrEmpty(signupRequest.PhoneNumber))
+				{
+					query = query.Where(x => x.PhoneNumber == signupRequest.PhoneNumber);
+				}
+
+				var data = await query.Where(x => x.IsDeleted == false &&
+				(x.UserName.ToLower().Trim() == signupRequest.UserName.ToLower().Trim()
+				|| x.Email.ToLower().Trim() == signupRequest.Email.ToLower().Trim()
+				)).FirstOrDefaultAsync();
+
+				if (data != null)
+				{
+					return new JsonResponse(200, false, "Username or Email already exists", null);
+				}
+
+				if (data == null)
+				{
+					User user = _mapper.Map<User>(signupRequest);
+					user.InviterId = 0;
+					user.Password = PasswordHelper.EncryptPassword(signupRequest.Password);
+					user.ProfileImg = signupRequest.ProfileImg;
+					user.PaymentStatus = "";
+					user.PaymentRef1 = "";
+					user.PaymentRef2 = "";
+					user.Status = "";
+
+					await _userRepository.InsertAsync(user);
+
+					//var qresponse = await _question.InsertAnswerAsync(user.Id, signupRequest.Answers);
+
+					PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
+					passwordResetRequest.UserId = user.Id;
+					passwordResetRequest.OTP = StringHelper.GenerateRandomNumber;
+					passwordResetRequest.ActivationDate = DateTime.Now;
+					passwordResetRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+					passwordResetRequest.IsUsed = false;
+					await _passwordResetRequestRepository.InsertAsync(passwordResetRequest);
+
+					// string encryptedotp = CommonHelper.EncryptString(passwordResetRequest.OTP.ToString());
+					// string encrypteduserid = CommonHelper.EncryptString(passwordResetRequest.UserId.ToString());
+					try
+					{
+						var byteotp = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.OTP));
+						string encryptedotp = Convert.ToBase64String(byteotp);
+						var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(passwordResetRequest.UserId));
+						string encrypteduserid = Convert.ToBase64String(byteuserid);
+
+						EmailRequest emailRequest = new EmailRequest();
+						emailRequest.USERNAME = signupRequest.UserName;
+						emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
+						emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
+						emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Verifyemail/" + encryptedotp + "/" + encrypteduserid;
+						emailRequest.CTATEXT = "Verify Email";
+						emailRequest.ToEmail = signupRequest.Email;
+						emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
+
+						SMTPDetails smtpDetails = new SMTPDetails();
+						smtpDetails.Username = GlobalVariables.SMTPUsername;
+						smtpDetails.Host = GlobalVariables.SMTPHost;
+						smtpDetails.Password = GlobalVariables.SMTPPassword;
+						smtpDetails.Port = GlobalVariables.SMTPPort;
+						smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
+
+						var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+
+						/* var Inviter_User = await _userRepository.Table.Where(x => x.UserName == signupRequest.InviterName)
                                  .FirstOrDefaultAsync();
 
                          var totalCount = await _userRepository.Table
@@ -405,28 +636,28 @@ namespace SpiritualNetwork.API.Services
                                          .CountAsync();
 
                          await _notificationService.SendEmailNotification("newreferral", Inviter_User);*/
-                    }
-                    catch (Exception ex)
-                    {
-                        return new JsonResponse(200, true, "Success", user);
-                    }
+					}
+					catch (Exception ex)
+					{
+						return new JsonResponse(200, true, "Success", user);
+					}
 
-                    return new JsonResponse(200, true, "Success", user);
-                    
-                }
-                else
-                {
-                    return null;
-                }
+					return new JsonResponse(200, true, "Success", user);
 
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+				}
+				else
+				{
+					return null;
+				}
 
-        public async Task<PreRegisteredUser> PreSignUp(PreSignupRequest req)
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public async Task<PreRegisteredUser> PreSignUp(PreSignupRequest req)
         {
             try
             {
@@ -508,19 +739,19 @@ namespace SpiritualNetwork.API.Services
 
                         EmailRequest emailRequest = new EmailRequest();
                         emailRequest.USERNAME = user.UserName;
-                        emailRequest.CONTENT1 = "Thankyou for verifying your Email with " + await _globalSettingService.GetValue("SiteName") + " account.";
+                        emailRequest.CONTENT1 = "Thankyou for verifying your Email with " + GlobalVariables.SiteName + " account.";
                         emailRequest.CONTENT2 = "We wish you good luck in your spirtual journey";
-                        emailRequest.CTALINK = await _globalSettingService.GetValue("SiteUrl") + "/Login";
+                        emailRequest.CTALINK = GlobalVariables.SiteUrl + "/Login";
                         emailRequest.CTATEXT = "Click here to login";
                         emailRequest.ToEmail = user.Email;
-                        emailRequest.Subject = "Email Verified " + await _globalSettingService.GetValue("SiteName");
+                        emailRequest.Subject = "Email Verified " + GlobalVariables.SiteName;
 
                         SMTPDetails smtpDetails = new SMTPDetails();
-                        smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                        smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                        smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                        smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                        smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+                        smtpDetails.Username = GlobalVariables.SMTPUsername;
+                        smtpDetails.Host = GlobalVariables.SMTPHost;
+                        smtpDetails.Password = GlobalVariables.SMTPPassword;
+                        smtpDetails.Port = GlobalVariables.SMTPPort;
+                        smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
                         var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 
                         return new JsonResponse(200, true, "Success", true);
@@ -532,7 +763,7 @@ namespace SpiritualNetwork.API.Services
             return new JsonResponse(200, true, "Something went wrong", null);
         }
     
-        public void FollowUnFollowUser(int userId,int loginUserId)
+        public async Task FollowUnFollowUser(int userId,int loginUserId)
         {
             var exists = _userFollowersRepository.Table.Where(x => x.UserId == loginUserId && x.FollowToUserId == userId).FirstOrDefault();
             if (exists == null)
@@ -549,7 +780,10 @@ namespace SpiritualNetwork.API.Services
                 notification.RefId1 = userId.ToString();
                 notification.RefId2 = "";
                 notification.Message = "";
-                _notificationService.SaveNotification(notification);
+                notification.PushAttribute = "pushfollowyou";
+				notification.EmailAttribute = "emailfollowyou";
+
+				await _notificationService.SaveNotification(notification);
             }
             else
             {
@@ -596,14 +830,20 @@ namespace SpiritualNetwork.API.Services
         
         public async Task<User> GetUserByName(string Username)
         {
-            var data = await _userRepository.Table.Where(x => x.IsDeleted ==  false 
-            && (x.UserName == Username || x.Email == Username))
-                .FirstOrDefaultAsync();
+			var data = await _userRepository.Table
+	            .Where(x => x.IsDeleted == false && x.UserName == Username)
+	            .FirstOrDefaultAsync();
 
-            return data;
-        }
+			if (data == null)
+			{
+				data = await _userRepository.Table
+					.Where(x => x.IsDeleted == false && x.Email == Username)
+					.FirstOrDefaultAsync();
+			}
+			return data;
+		}
 
-        public async Task<JsonResponse> GetOnlineUsers(int Id)
+		public async Task<JsonResponse> GetOnlineUsers(int Id)
         {
             try
             {
@@ -699,19 +939,19 @@ namespace SpiritualNetwork.API.Services
 
                 EmailRequest emailRequest = new EmailRequest();
                 emailRequest.USERNAME = User.FullName;
-                emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + await _globalSettingService.GetValue("SiteName") + " family. Get ready for an exciting journey with us!";
+                emailRequest.CONTENT1 = "Welcome aboard! We're delighted to have you as a part of our " + GlobalVariables.SiteName + " family. Get ready for an exciting journey with us!";
                 emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
                 emailRequest.CTALINK = "This is invitation";
                 emailRequest.CTATEXT = "Verify Email";
                 emailRequest.ToEmail = Emailreq;
-                emailRequest.Subject = "Welcome to " + await _globalSettingService.GetValue("SiteName");
+                emailRequest.Subject = "Welcome to " + GlobalVariables.SiteName;
 
                 SMTPDetails smtpDetails = new SMTPDetails();
-                /*smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-                smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-                smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-                smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-                smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");*/
+                /*smtpDetails.Username = GlobalVariables.SMTPUsername;
+                smtpDetails.Host = GlobalVariables.SMTPHost;
+                smtpDetails.Password = GlobalVariables.SMTPPassword;
+                smtpDetails.Port = GlobalVariables.SMTPPort;
+                smtpDetails.SSLEnable = GlobalVariables.SSLEnable;*/
 
                 smtpDetails.Username = "support@generositymatrix.net";
                 smtpDetails.Host = "mail.generositymatrix.net";
@@ -868,15 +1108,16 @@ namespace SpiritualNetwork.API.Services
 		public async Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req)
 		{
             var check = await _emailVerificationRequestRepository.Table.Where(x=> x.Email ==  req.Email && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
-			if (req.Email == null || req.FirstName == null || req.LastName == null)
-			{
-				return new JsonResponse(200, false, "Bad Request", null);
-			}
+            if (req.Email == null)
+            {
+                return new JsonResponse(200, false, "Bad Request", null);
+            }
 
-			EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
+            EmailVerificationRequest EmailRequest = new EmailVerificationRequest();
 			EmailRequest.Email = req.Email;
-			EmailRequest.OTP = StringHelper.GenerateRandomNumber;
-			EmailRequest.ActivationDate = DateTime.Now;
+			//EmailRequest.OTP = StringHelper.GenerateRandomNumber;
+            EmailRequest.OTP = "123456";
+            EmailRequest.ActivationDate = DateTime.Now;
 			EmailRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
 			EmailRequest.IsUsed = false;
 			if (check != null)
@@ -894,19 +1135,19 @@ namespace SpiritualNetwork.API.Services
 
 			EmailRequest emailRequest = new EmailRequest();
 			emailRequest.USERNAME = "Dear "+ req.FirstName + " " +req.LastName +",";
-			emailRequest.CONTENT1 = "Welcome to " + await _globalSettingService.GetValue("SiteName") + " ! We're excited to have you as part of our community. To complete the registration process and activate your account, please verify your email address.";
+			emailRequest.CONTENT1 = "Welcome to " + GlobalVariables.SiteName + " ! We're excited to have you as part of our community. To complete the registration process and activate your account, please verify your email address.";
 			emailRequest.CONTENT2 = "If you have any questions, we're here to help. Just reach out.";
 			emailRequest.CTALINK = EmailRequest.OTP;
 			emailRequest.CTATEXT = "Please enter this OTP on the verification page in the app to confirm your email address, This code is valid for 15 minutes ";
 			emailRequest.ToEmail = req.Email;
-			emailRequest.Subject = " Verify Your Account: Your OTP for " + await _globalSettingService.GetValue("SiteName");
+			emailRequest.Subject = " Verify Your Account: Your OTP for " + GlobalVariables.SiteName;
 
 			SMTPDetails smtpDetails = new SMTPDetails();
-			smtpDetails.Username = await _globalSettingService.GetValue("SMTPUsername");
-			smtpDetails.Host = await _globalSettingService.GetValue("SMTPHost");
-			smtpDetails.Password = await _globalSettingService.GetValue("SMTPPassword");
-			smtpDetails.Port = await _globalSettingService.GetValue("SMTPPort");
-			smtpDetails.SSLEnable = await _globalSettingService.GetValue("SMTPSSLEnable");
+			smtpDetails.Username = GlobalVariables.SMTPUsername;
+			smtpDetails.Host = GlobalVariables.SMTPHost;
+			smtpDetails.Password = GlobalVariables.SMTPPassword;
+			smtpDetails.Port = GlobalVariables.SMTPPort;
+			smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
 			var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
 			return new JsonResponse(200, true, "Success", null);
 		}
@@ -923,7 +1164,7 @@ namespace SpiritualNetwork.API.Services
                     await _emailVerificationRequestRepository.UpdateAsync(check);
 			    	return new JsonResponse(200, true, "Email Verified", null);
 				}
-				return new JsonResponse(200, true, "Invalid OTP", null);
+				return new JsonResponse(200, false, "Invalid OTP", null);
 			}
 			catch (Exception ex)
 			{
@@ -931,7 +1172,82 @@ namespace SpiritualNetwork.API.Services
 			}
 		}
 
-		public async Task<JsonResponse> getTagsList()
+
+        public async Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req)
+        {
+            var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && x.IsUsed == false 
+            && x.IsDeleted == false).FirstOrDefaultAsync();
+
+            if (req.Phone == null)
+            {
+                return new JsonResponse(200, false, "Bad Request", null);
+            }
+
+            PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
+            phoneRequest.PhoneNumber = req.Phone;
+            //phoneRequest.OTP = StringHelper.GenerateRandomNumber;
+            phoneRequest.OTP = "123456";
+            phoneRequest.ActivationDate = DateTime.Now;
+            phoneRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
+            phoneRequest.IsUsed = false;
+            if (check != null)
+            {
+                check.OTP = phoneRequest.OTP;
+                check.ActivationDate = phoneRequest.ActivationDate;
+                check.ExpirtionDate = phoneRequest.ExpirtionDate;
+                await _phoneVerificationRequestRepository.UpdateAsync(check);
+            }
+            else
+            {
+                await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
+            }
+
+            var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
+            if(user == null)
+            {
+                SignupRequest request = new SignupRequest();
+                request.PhoneNumber = phoneRequest.PhoneNumber;
+                request.InviterName = "";
+                request.FirstName = "";
+                request.LastName = "";
+                request.Email = "";
+                request.UserName = "";
+                request.Password = "";
+                await SignUpNew(request);
+            }
+            return new JsonResponse(200, true, "Success", null);
+        }
+
+
+        public async Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req)
+        {
+            try
+            {
+                var check = await _phoneVerificationRequestRepository.Table.Where(x => x.PhoneNumber == req.Phone && 
+                x.OTP == req.OTP && x.IsUsed == false && x.IsDeleted == false).FirstOrDefaultAsync();
+                if (check != null)
+                {
+                    check.IsUsed = true;
+                    await _phoneVerificationRequestRepository.UpdateAsync(check);
+
+                    if (DateTime.Now > check.ExpirtionDate)
+                    {
+                        return new JsonResponse(200, false, "OTP has expired", null);
+                    }
+                    
+                    return new JsonResponse(200, true, "Phone Number Verified", null);
+                }
+                return new JsonResponse(200, false, "Invalid OTP", null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public async Task<JsonResponse> getTagsList()
 		{
 			try
 			{
@@ -942,6 +1258,53 @@ namespace SpiritualNetwork.API.Services
 			{
 				throw ex;
 			}
+		}
+
+		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
+		{
+            if(request.id == 0)
+            {
+				var user = new InviteRequest();
+				if (!String.IsNullOrEmpty(request.inviter))
+				{
+					byte[] decodedBytes = Convert.FromBase64String(request.inviter);
+					int originalUserId = Convert.ToInt16(System.Text.Encoding.UTF8.GetString(decodedBytes));
+					user.InviterId = originalUserId;
+				}
+				user.Email = request.email;
+				user.CreatedDate = DateTime.UtcNow;
+				_inviteRequest.Insert(user);
+
+				var byteuserid = System.Text.Encoding.UTF8.GetBytes(Convert.ToString(user.Id));
+				string encrypteduserid = Convert.ToBase64String(byteuserid);
+
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.ToEmail = request.email;
+				emailRequest.Subject = " Thank You for Your Interest in " + GlobalVariables.SiteName;
+				emailRequest.SITETITLE = GlobalVariables.SiteName;
+				SMTPDetails smtpDetails = new SMTPDetails();
+				smtpDetails.Username = GlobalVariables.SMTPUsername;
+				smtpDetails.Host = GlobalVariables.SMTPHost;
+				smtpDetails.Password = GlobalVariables.SMTPPassword;
+				smtpDetails.Port = GlobalVariables.SMTPPort;
+				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
+				var body = EmailHelper.SendEmailRequestWithtemplate(emailRequest, smtpDetails,"requestInvite.html");
+
+				return new JsonResponse(200, true, "Success", user);
+			}
+            else
+            {
+                var user = _inviteRequest.GetById(request.id);
+                user.Name = request.name;
+                user.Phone = request.phone;
+                user.City = request.city;
+                user.Journey = request.journey;
+                _inviteRequest.Update(user);
+
+				return new JsonResponse(200, true, "Success", user);
+			}
+
+           
 		}
 	}
 }

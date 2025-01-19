@@ -7,6 +7,8 @@ using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
 using System.Net;
 using System.Net.Http;
+using Nethereum.Web3;
+using Nethereum.Signer;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -17,15 +19,13 @@ namespace SpiritualNetwork.API.Controllers
         private readonly ILogger<UserController> logger;
         private IUserService _userService;
         private IQuestion _question;
-        private readonly RabbitMQService _rabbitMQService;
 
         public UserController(ILogger<UserController> logger, 
-            IUserService userService, IQuestion question, RabbitMQService rabbitMQService)
+            IUserService userService, IQuestion question)
         {
             this.logger = logger;
             this._userService = userService;
             _question = question;
-            _rabbitMQService = rabbitMQService;
         }
 
         [AllowAnonymous]
@@ -70,7 +70,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                var response = await _userService.SignUp(signupRequest);
+                var response = await _userService.SignUpNew(signupRequest);
                 return response;
             }
             catch (Exception ex)
@@ -85,18 +85,63 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-				
-
-				// _rabbitMQService.PublishMessage("newposts", "received new post");
-				return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
-            }
+                if (!String.IsNullOrEmpty(loginRequest.Mobile))
+                {
+					return await _userService.SignIn(loginRequest.Mobile, loginRequest.Password,loginRequest.LoginMethod, 1);
+				}
+				return await _userService.SignIn(loginRequest.Username, loginRequest.Password, loginRequest.LoginMethod, 0);
+			}
             catch (Exception ex)
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
 
-        [AllowAnonymous]
+		[HttpPost("SignInICO")]
+		public async Task<IActionResult> SignInICO([FromBody] ICOLoginRequest request)
+		{
+			try
+			{
+				// Ensure the wallet address and signature are provided
+				if (string.IsNullOrEmpty(request.WalletAddress) || string.IsNullOrEmpty(request.Signature))
+				{
+					return BadRequest("Wallet address or signature is missing");
+				}
+
+				// Verify the signature
+				if (VerifySignature(request.WalletAddress, request.Signature, request.Message))
+				{
+					return Ok(new { Message = "Authentication successful" });
+				}
+				else
+				{
+					return Unauthorized("Invalid signature");
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { Message = ex.Message });
+			}
+		}
+
+		private bool VerifySignature(string walletAddress, string signature, string message)
+		{
+			try
+			{
+				// Recover address from the signed message
+				var signer = new EthereumMessageSigner();
+				var recoveredAddress = signer.EncodeUTF8AndEcRecover(message, signature);
+
+				// Check if the recovered address matches the provided wallet address
+				return string.Equals(recoveredAddress, walletAddress, StringComparison.OrdinalIgnoreCase);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		[AllowAnonymous]
         [HttpPost(Name = "GetUserByName")]
         public async Task<JsonResponse> GetUserByName(GetUserByNameReq getUserByNameReq)
         {
@@ -169,11 +214,11 @@ namespace SpiritualNetwork.API.Controllers
         }
 
         [HttpGet(Name = "FollowUnFollowUser")]
-        public JsonResponse FollowUnFollowUser(int userId)
+        public async Task<JsonResponse> FollowUnFollowUser(int userId)
         {
             try
             {
-                _userService.FollowUnFollowUser(userId, user_unique_id);
+                await _userService.FollowUnFollowUser(userId, user_unique_id);
                 return new JsonResponse(200, true, "Success", null);
             }
             catch (Exception ex)
@@ -196,12 +241,12 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpGet(Name = "OnlineOfflineUsers")]
-        public async Task<JsonResponse> OnlineOfflineUsers(string? connectionid)
+        [HttpPost(Name = "OnlineOfflineUsers")]
+        public async Task<JsonResponse> OnlineOfflineUsers(ConnectionIdReq Req)
         {
             try
             {
-                return await _userService.OnlineOfflineUsers(user_unique_id,connectionid);
+                return await _userService.OnlineOfflineUsers(user_unique_id,Req.ConnectionId, Req.Type);
             }
             catch (Exception ex)
             {
@@ -209,7 +254,20 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpGet(Name = "GetOnlineUsers")]
+		[HttpPost(Name = "SaveRemoveDeviceToken")]
+		public async Task<JsonResponse> SaveRemoveDeviceToken(DeviceTokenReq Req)
+		{
+			try
+			{
+				return await _userService.SaveRemoveDeviceToken(user_unique_id, Req.Token, Req.Type);
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+		
+		[HttpGet(Name = "GetOnlineUsers")]
         public async Task<JsonResponse> GetOnlineUsers()
         {
             try
@@ -382,13 +440,57 @@ namespace SpiritualNetwork.API.Controllers
 			}
 		}
 
-		[AllowAnonymous]
+        [AllowAnonymous]
+        [HttpPost(Name = "PhoneVerification")]
+        public async Task<JsonResponse> PhoneVerification(PhoneVerificationReq req)
+        {
+            try
+            {
+                var response = await _userService.PhoneVerificationReq(req);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost(Name = "VerifiedPhoneReq")]
+        public async Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req)
+        {
+            try
+            {
+                var response = await _userService.VerifiedPhoneReq(req);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
 		[HttpGet(Name = "GetTagsList")]
 		public async Task<JsonResponse> GetTagsList()
 		{
 			try
 			{
 				var response = await _userService.getTagsList();
+				return response;
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+		[AllowAnonymous]
+		[HttpPost(Name = "RequestInvite")]
+		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
+		{
+			try
+			{
+				var response = await _userService.RequestInvite(request);
 				return response;
 			}
 			catch (Exception ex)

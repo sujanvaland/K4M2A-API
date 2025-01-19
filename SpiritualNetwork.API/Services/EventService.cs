@@ -120,6 +120,25 @@ namespace SpiritualNetwork.API.Services
                 filterEvent = filterEvent.Where(x => x.EventFormat == req.EventFormat);
             }
 
+            if (req.Date != null && req.Date.HasValue)
+            {
+                filterEvent = filterEvent.Where(x => x.StartDate.Value.Date == req.Date.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(req.Search))
+            {
+                filterEvent = filterEvent.Where(x => x.EventTitle.ToLower().Contains(req.Search.ToLower()) ||
+                                                x.Description.ToLower().Contains(req.Search.ToLower()));
+            }
+            
+            if (!string.IsNullOrEmpty(req.Location) && req.EventFormat == "Offline")
+            {
+                filterEvent = filterEvent.Where(x => x.City.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.Eventaddress.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.State.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.Country.ToLower().Contains(req.Location.ToLower()));
+            }
+
             var eventsquery = (from ev in filterEvent
                               join at in _eventAttendeeRepository.Table on ev.Id equals at.EventId into attend
                               from at in attend.DefaultIfEmpty()
@@ -273,11 +292,22 @@ namespace SpiritualNetwork.API.Services
             {
                 filterEvent = filterEvent.Where(x => x.EventFormat == req.EventFormat);
             }
-
-            if (req.Search.Trim().Length > 0)
+            if (req.Date != null && req.Date.HasValue)
+            {
+                filterEvent = filterEvent.Where(x => x.StartDate.Value.Date == req.Date.Value.Date);
+            }
+            if (!string.IsNullOrEmpty(req.Search))
             {
                 filterEvent = filterEvent.Where(x => x.EventTitle.ToLower().Contains(req.Search.ToLower()) || 
                                                 x.Description.ToLower().Contains(req.Search.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(req.Location) && req.EventFormat == "Offline")
+            {
+                filterEvent = filterEvent.Where(x => x.City.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.Eventaddress.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.State.ToLower().Contains(req.Location.ToLower()) ||
+                                                x.Country.ToLower().Contains(req.Location.ToLower()) );
             }
 
             var count = filterEvent.Count();

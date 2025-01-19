@@ -93,9 +93,15 @@ namespace SpiritualNetwork.API.Services
                     x.PostId == postid)
                     .FirstOrDefaultAsync();
 
-                if(data != null)
+                NodeAddPost NodePostId = new NodeAddPost();
+
+                if (data != null)
                 {
                     _reaction.DeleteHard(data);
+
+                    NodePostId.Id = postid;
+                    await _notificationService.SendPostToNode(NodePostId);
+
                     return new JsonResponse(200, true, "Success", data);
                 }
 
@@ -105,6 +111,9 @@ namespace SpiritualNetwork.API.Services
                 reaction.Type = "bookmark";
 
                 await _reaction.InsertAsync(reaction);
+
+                NodePostId.Id = postid;
+                await _notificationService.SendPostToNode(NodePostId);
 
                 return new JsonResponse(200,true,"Success",reaction);
             }
@@ -132,7 +141,10 @@ namespace SpiritualNetwork.API.Services
                 {
                     _reaction.DeleteHard(like);
                     await _postService.UpdateCount(PostId,"like",0);
-                    like = null;
+
+                    NodeAddPost NodePostId = new NodeAddPost();
+                    NodePostId.Id = PostId;
+                    await _notificationService.SendPostToNode(NodePostId);
                 }
 
                 if (like == null)
@@ -144,45 +156,58 @@ namespace SpiritualNetwork.API.Services
                     await _reaction.InsertAsync(reaction);
                     await _postService.UpdateCount(PostId, "like", 1);
                     like = reaction;
-                }
 
-                //var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();
-                //foreach (var childPost in childPosts)
-                //{
-                //    var childpostReaction = await _reaction.Table
-                //    .Where(x => x.IsDeleted == false && x.PostId == childPost.Id)
-                //    .ToListAsync();
+                    NotificationRes notification = new NotificationRes();
+                    notification.PostId = PostId;
+                    notification.ActionByUserId = UserId;
+                    notification.ActionType = "like";
+                    notification.RefId1 = data.UserId.ToString();
+                    notification.RefId2 = "";
+                    notification.Message = "";
+                    notification.PushAttribute = "pushlikepost";
+					notification.EmailAttribute = "emaillikepost";
+					await _notificationService.SaveNotification(notification);
 
-                //    var childlike = childpostReaction.Where(x => x.Type == "like" && x.UserId == UserId).FirstOrDefault();
+					return new JsonResponse(200, true, "Success", notification);
+				}
 
-                //    if (childlike != null)
-                //    {
-                //        _reaction.DeleteHard(childlike);
-                //        await _postService.UpdateCount(childPost.Id, "like", 0);
-                //    }
+				//var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();
+				//foreach (var childPost in childPosts)
+				//{
+				//    var childpostReaction = await _reaction.Table
+				//    .Where(x => x.IsDeleted == false && x.PostId == childPost.Id)
+				//    .ToListAsync();
 
-                //    if (childlike == null)
-                //    {
-                //        Reaction reaction = new Reaction();
-                //        reaction.PostId = childPost.Id;
-                //        reaction.UserId = UserId;
-                //        reaction.Type = "like";
-                //        await _reaction.InsertAsync(reaction);
-                //        await _postService.UpdateCount(childPost.Id, "like", 1);
-                //        like = reaction;
+				//    var childlike = childpostReaction.Where(x => x.Type == "like" && x.UserId == UserId).FirstOrDefault();
 
-                //        NotificationRes notification = new NotificationRes();
-                //        notification.PostId = childPost.Id;
-                //        notification.ActionByUserId = UserId;
-                //        notification.ActionType = "like";
-                //        notification.RefId1 = data.UserId.ToString();
-                //        notification.RefId2 = "";
-                //        notification.Message = "";
-                //        await _notificationService.SaveNotification(notification);
+				//    if (childlike != null)
+				//    {
+				//        _reaction.DeleteHard(childlike);
+				//        await _postService.UpdateCount(childPost.Id, "like", 0);
+				//    }
 
-                //    }
-                //}
-                return new JsonResponse(200,true,"Success",like);
+				//    if (childlike == null)
+				//    {
+				//        Reaction reaction = new Reaction();
+				//        reaction.PostId = childPost.Id;
+				//        reaction.UserId = UserId;
+				//        reaction.Type = "like";
+				//        await _reaction.InsertAsync(reaction);
+				//        await _postService.UpdateCount(childPost.Id, "like", 1);
+				//        like = reaction;
+
+				//        NotificationRes notification = new NotificationRes();
+				//        notification.PostId = childPost.Id;
+				//        notification.ActionByUserId = UserId;
+				//        notification.ActionType = "like";
+				//        notification.RefId1 = data.UserId.ToString();
+				//        notification.RefId2 = "";
+				//        notification.Message = "";
+				//        await _notificationService.SaveNotification(notification);
+
+				//    }
+				//}
+				return new JsonResponse(200,true,"Success",null);
             }
             catch(Exception ex)
             {

@@ -445,7 +445,9 @@ namespace SpiritualNetwork.API.Services
                 notification.Message = "Your Request to Join " + community.Name + " Community is " + (req.Action == "approve" ? "Approved" : "Deny");
                 notification.connectionIds.Add(receiverConnectionId.ConnectionId ?? " ");
                 notification.ActionType = "communityReqApprove";
-                await _notificationService.SaveNotification(notification);
+				notification.PushAttribute = " ";
+				notification.EmailAttribute = " ";
+				await _notificationService.SaveNotification(notification);
             }
 
             return new JsonResponse(200, true, "Success", null);
@@ -476,7 +478,7 @@ namespace SpiritualNetwork.API.Services
                                       IsPending = false,
                                       CreatedDate = c.CreatedDate,
                                       IsModerator = cm.IsModerator,
-                                      IsNotification = cm.IsModerator && (crpGroup.Count() > 0 || cmrGroup.Count() > 0),
+                                      IsNotification = cm.IsModerator // && (crpGroup.Count() > 0 || cmrGroup.Count() > 0),
                                   }).ToListAsync();
 
                 return new JsonResponse(200, true, "Success", list);

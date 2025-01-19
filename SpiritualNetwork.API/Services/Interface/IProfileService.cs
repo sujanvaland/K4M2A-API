@@ -19,13 +19,13 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> SearchSuggestion(SearchProfileSuggestion req);
         public Task<JsonResponse> UpdateIsReadSuggestion(int Id);
         public Task<JsonResponse> DeleteProfileSuggestion(int Id);
-        Task<UserFollowersModel> GetFollowers(int UserId);
+        Task<JsonResponse> DeleteBook(string Id,int userId);
+		Task<UserFollowersModel> GetFollowers(int UserId);
         Task<ProfileModel> GetUserProfileById(int Id);
         public ProfileModel GetUserProfile(User user);
         Task<HashSet<Mentions>> GetConnectionsMentions(int UserId);
         Task<List<ProfileModel>> GetUsersProfile(List<User> users, int LoginUserId);
         public Task<JsonResponse> GetWhoToFollow(int UserId, int page);
-
-
+        public Task<JsonResponse> GetBooksAsync(string search);
     }
 }

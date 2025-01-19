@@ -27,6 +27,9 @@ namespace SpiritualNetwork.API.Services.Interface
 
         Task<int> UpdateRepostCount(int PostId, int dir);
 
-        Task DeleteAllVideoPost(int UserId); 
+        Task DeleteAllVideoPost(int UserId);
+
+        public Task<JsonResponse> UserPostInterest(PostInterestModel req, int LoginUserId);
+
     }
 }

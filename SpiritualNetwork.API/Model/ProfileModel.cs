@@ -15,7 +15,11 @@ namespace SpiritualNetwork.API.Model
 
     public class ProfileReqest 
     {
-        public string? About { get; set; }
+		public string? Name { get; set; }
+		public string? Username { get; set; }
+		public string? Email { get; set; }
+		public string? Password { get; set; }
+		public string? About { get; set; }
         public DateTime? DOB { get; set; }
         [MaxLength(10)]
         public string? Gender { get; set; }
@@ -39,6 +43,7 @@ namespace SpiritualNetwork.API.Model
         public string? BackgroundImg { get; set; }
         [MaxLength(1000)]
         public string? Tags { get; set; }
+        public int ModifiedBy { get; set; }
     }
 
     public class UserFollowersModel
@@ -59,6 +64,7 @@ namespace SpiritualNetwork.API.Model
     {
         public int userId { get; set; }
         public string name { get; set; }
+        public string? userName { get; set; }
         public string link { get; set; }
         public string avatar { get; set; }
         public bool? IsBusinessAccount { get; set; }

@@ -18,10 +18,18 @@ namespace SpiritualNetwork.Entities
 
     public class EmailVerificationRequest : BaseEntity
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
 		public string OTP { get; set; }
 		public DateTime ActivationDate { get; set; }
 		public DateTime ExpirtionDate { get; set; }
 		public bool IsUsed { get; set; }
 	}
+    public class PhoneVerificationRequest : BaseEntity
+    {
+        public string PhoneNumber { get; set; }
+        public string OTP { get; set; }
+        public DateTime ActivationDate { get; set; }
+        public DateTime ExpirtionDate { get; set; }
+        public bool IsUsed { get; set; }
+    }
 }

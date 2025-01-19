@@ -9,7 +9,7 @@ namespace SpiritualNetwork.API.Services.Interface
         Task<JsonResponse> MentionSearchUser(string Name, int PageNo, int Record);
         public Task<JsonResponse> GetMyGoogleContactList(int UserId);
         public Task<JsonResponse> RemoveContactList(int UserId);
-
+        public Task<JsonResponse> GetSearchHashTag(string Name);
 
     }
 }

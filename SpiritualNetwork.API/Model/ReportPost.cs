@@ -25,5 +25,11 @@
 
     }
 
+    public class PostInterestModel
+    {
+        public int PostId { get; set; }
+        public int PostUserId { get; set; }
+        public string ActionType { get; set; }
+    }
 
 }

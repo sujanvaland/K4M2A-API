@@ -69,10 +69,10 @@ namespace SpiritualNetwork.API.Controllers
 					UserUniqueId = user_unique_id,
                     Topic = topicName
 				});
-				// Produce a message
-				await KafkaProducer.ProduceMessage(topicName, message);
-				return new JsonResponse(200, true, "Success", null);
-				//return await _reactionService.ToggleLike(req.PostId,user_unique_id);
+				//// Produce a message
+				//await KafkaProducer.ProduceMessage(topicName, message);
+				//return new JsonResponse(200, true, "Success", null);
+				return await _reactionService.ToggleLike(req.PostId,user_unique_id);
 			}
             catch (Exception ex)
             {
