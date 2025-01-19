@@ -12,14 +12,18 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
-using SpiritualNetwork.API.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Enable legacy timestamp behavior for Npgsql
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 var ConnectionString = builder.Configuration.GetConnectionString("Default");
+var ConnectionStringMSSql = builder.Configuration.GetConnectionString("DefaultMSSql");
+
 var configRepository = new ConfigurationRepository(ConnectionString);
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
@@ -27,19 +31,24 @@ GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElast
 GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value; 
 GlobalVariables.OpenAPIKey = builder.Configuration.GetSection("OpenAPIKey").Value;
 GlobalVariables.OpenAIapiURL = builder.Configuration.GetSection("OpenAIURL").Value;
-GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
-GlobalVariables.SiteUrl = await configRepository.GetConfigurationValueAsync("SiteUrl");
-GlobalVariables.SMTPHost = await configRepository.GetConfigurationValueAsync("SMTPHost");
-GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync("SMTPUsername");
-GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
-GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
-GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
+//GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
+//GlobalVariables.SiteUrl = await configRepository.GetConfigurationValueAsync("SiteUrl");
+//GlobalVariables.SMTPHost = await configRepository.GetConfigurationValueAsync("SMTPHost");
+//GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync("SMTPUsername");
+//GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
+//GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
+//GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
     
-    dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+    dbContextBuilder.UseNpgsql(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
 });
+
+//builder.Services.AddDbContext<AppMSDbContext>((serviceProvider, dbContextBuilder) =>
+//{
+//	dbContextBuilder.UseSqlServer(ConnectionStringMSSql, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+//});
 
 builder.Services
     .AddGraphQLServer()

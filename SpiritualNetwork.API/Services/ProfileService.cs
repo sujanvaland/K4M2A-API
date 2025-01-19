@@ -2,7 +2,6 @@
 using GreenDonut;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Common;

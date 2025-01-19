@@ -10,7 +10,6 @@ using System.Text.Json;
 using SpiritualNetwork.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
 using Azure.Core;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;

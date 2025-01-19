@@ -1,6 +1,5 @@
 ﻿using HotChocolate.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;

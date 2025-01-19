@@ -429,5 +429,20 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
-    }
+
+  //      [AllowAnonymous]
+		//[HttpGet(Name = "MigratePost")]
+		//public JsonResponse MigratePost()
+		//{
+		//	try
+		//	{
+		//		_postService.MigratePost();
+		//		return new JsonResponse(200, true, "Success", null);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return new JsonResponse(200, false, "Fail", ex.Message);
+		//	}
+		//}
+	}
 }

@@ -6,7 +6,7 @@ using static SpiritualNetwork.API.Model.TimelineModel;
 
 namespace SpiritualNetwork.API.AppContext
 {
-    public class AppDbContext : DbContext
+    public class AppMSDbContext : DbContext
     {
         protected readonly IConfiguration _configuration;
 
@@ -72,7 +72,7 @@ namespace SpiritualNetwork.API.AppContext
 		public DbSet<InviteRequest> InviteRequest { get; set; }
 		public DbSet<UserContract> UserContract { get; set; }
 		
-		public AppDbContext(IConfiguration configuration)
+		public AppMSDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -95,7 +95,7 @@ namespace SpiritualNetwork.API.AppContext
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("Default"));
+            optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultMSSql"));
         }
 
     }

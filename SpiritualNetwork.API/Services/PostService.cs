@@ -11,6 +11,7 @@ using SpiritualNetwork.Entities.CommonModel;
 using System.Net.Mail;
 using System.Security.Cryptography.Xml;
 using System.Text.Json;
+using System.Linq;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -24,7 +25,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<Reaction> _reactionRepository;
         private readonly IRepository<BlockedPosts> _blockedPost;
         private readonly AppDbContext _context;
-        private readonly IRepository<User> _userRepository;
+		//private readonly AppMSDbContext _msdbcontext;
+		private readonly IRepository<User> _userRepository;
         private readonly IRepository<UserSubcription> _userSubcriptionRepo;
         private readonly IPollService _pollService;
         private readonly IProfileService _profileService;
@@ -44,7 +46,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<User> userRepository,
             IPollService pollService,
             AppDbContext context,
-            IProfileService profileService,
+			//AppMSDbContext msdbcontext,
+			IProfileService profileService,
             IEventService eventService,
             IGlobalSettingService globalSettingService,
             IRepository<ReportEntity> reportRepository,
@@ -57,7 +60,8 @@ namespace SpiritualNetwork.API.Services
             _reactionRepository = reactionRepository;
             _fileRepository = filerepository;
             _context = context;
-            _attachmentService = attachmentService;
+			//_msdbcontext = msdbcontext;
+			_attachmentService = attachmentService;
             _userPostRepository = userPostRepository;
             _postFiles = postFiles;
             _userRepository = userRepository;
@@ -1099,5 +1103,33 @@ namespace SpiritualNetwork.API.Services
 
         }
 
-    }
+		
+		//public void MigratePost()
+  //      {
+  //          var data = _msdbcontext.UserInterest.ToList();
+  //          _context.UserInterest.AddRange(data);
+  //          _context.SaveChanges();
+
+  //          var data1 = _msdbcontext.UserMuteBlockLists.ToList();
+  //          _context.UserMuteBlockLists.AddRange(data1);
+  //          _context.SaveChanges();
+
+  //          var data2 = _msdbcontext.UserNetworks.ToList();
+		//	_context.UserNetworks.AddRange(data2);
+		//	_context.SaveChanges();
+
+		//	//var data3 = _msdbcontext.UserNotification.ToList();
+		//	//_context.UserNotification.AddRange(data3);
+		//	//_context.SaveChanges();
+
+		//	//var data4 = _msdbcontext.UserProfileSuggestion.ToList();
+		//	//_context.UserProfileSuggestion.AddRange(data4);
+		//	//_context.SaveChanges();
+
+		//	//var data5 = _msdbcontext.UserSubcription.ToList();
+		//	//_context.UserSubcription.AddRange(data5);
+		//	//_context.SaveChanges();
+		//}
+
+	}
 }

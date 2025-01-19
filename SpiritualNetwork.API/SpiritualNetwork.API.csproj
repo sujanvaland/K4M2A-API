@@ -31,6 +31,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.0.2" />
     <PackageReference Include="Nethereum.Web3" Version="4.27.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
@@ -45,6 +46,7 @@
 
   <ItemGroup>
     <Folder Include="MetaData\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,7 +15,6 @@ using Twilio;
 using Twilio.Rest.IpMessaging.V2.Service.Channel;
 using Twilio.Rest.Chat.V1.Service.Channel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
 
 namespace SpiritualNetwork.API.Services
 {
