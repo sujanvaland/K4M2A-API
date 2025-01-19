@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using GreenDonut;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Common;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace SpiritualNetwork.API.Services

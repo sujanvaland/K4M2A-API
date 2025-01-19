@@ -95,7 +95,7 @@ namespace SpiritualNetwork.API.AppContext
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-			optionsBuilder.UseSqlServer(_configuration.GetConnectionString("Default"));
+			optionsBuilder.UseNpgsql(_configuration.GetConnectionString("Default"));
 
 			//optionsBuilder.UseNpgsql(_configuration.GetConnectionString("Default"));
         }

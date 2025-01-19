@@ -12,8 +12,6 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
-using Microsoft.Extensions.Options;
-using SpiritualNetwork.API.Migrations;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,11 +35,6 @@ GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync
 GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
 GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
 
-builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
-{
-    
-    dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
-});
 //builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 //{
 //	var ConnectionString = builder.Configuration.GetConnectionString("Default");
