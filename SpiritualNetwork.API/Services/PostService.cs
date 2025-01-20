@@ -142,22 +142,15 @@ namespace SpiritualNetwork.API.Services
                 }
                 if (ProfileUserId > 0)
                 {
-                    SqlParameter userparam = new SqlParameter("@UserId", Id);
-                    SqlParameter pageparam = new SqlParameter("@PageNo", PageNo);
-                    SqlParameter profileUserIdparam = new SqlParameter("@ProfileUserId", ProfileUserId);
-                    var Result = await _context.PostResponses
-                        .FromSqlRaw("GetProfileTimeLine @UserId,@PageNo,@ProfileUserId", userparam, pageparam, profileUserIdparam)
-                        .ToListAsync();
+					
+					var userIdParam = new NpgsqlParameter("@userid", Id);
+					var PageNoParam = new NpgsqlParameter("@PageNo", PageNo);
+					var ProfileUserIdParam = new NpgsqlParameter("@ProfileUserId", ProfileUserId);
 
-                    //foreach (var item in Result)
-                    //{
-                    //    var reactions = _reactionRepository.Table.Where(x=>x.PostId == item.Id)
-                    //    if(item.Type == "repost")
-                    //    {
-                    //        item.isLiked = 
-                    //    }
-                    //}
-                    return new JsonResponse(200, true, "Success", Result);
+					var result = await _context.PostResponses
+								  .FromSqlRaw("SELECT * FROM dbo.GetProfileTimeLine(@userid,@PageNo,@ProfileUserId)", userIdParam, PageNoParam, ProfileUserIdParam)
+								  .ToListAsync();
+					return new JsonResponse(200, true, "Success", result);
                 }
                 else
                 {
