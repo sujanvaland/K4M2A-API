@@ -12,6 +12,7 @@ using System.Net.Mail;
 using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Linq;
+using Npgsql;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -279,13 +280,15 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                SqlParameter postparam = new SqlParameter("@postId", postId);
-                SqlParameter userparam = new SqlParameter("@UserId", loginUserId);
-                var Result = await _context.PostResponses
-                    .FromSqlRaw("GetPostById @postId,@UserId", postparam, userparam)
-                    .ToListAsync();
-
-                return new JsonResponse(200, true, "Success", Result);
+                var postIdParam = new NpgsqlParameter("@postId", postId);
+                var userIdParam = new NpgsqlParameter("@requserId", loginUserId);
+                //var Result = await _context.PostResponses
+                //    .FromSqlRaw("GetPostById @postId,@UserId", postIdParam, userIdParam)
+                //    .ToListAsync();
+                var result = await _context.PostResponses
+                              .FromSqlRaw("SELECT * FROM dbo.GetPostById(@postId, @requserId)", postIdParam, userIdParam)
+                              .ToListAsync();
+                return new JsonResponse(200, true, "Success", result);
             }
             catch (Exception ex)
             {
