@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using Npgsql;
 using SpiritualNetwork.API.AppContext;
 using SpiritualNetwork.API.Hubs;
 using SpiritualNetwork.API.Model;
@@ -51,15 +52,11 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-
-                SqlParameter postparam = new SqlParameter("@postid", PostId);
-
-                var Result = await _appDbContext.PostResponses
-                    .FromSqlRaw("GetComments @postid", postparam)
-                    .ToListAsync();
-
-                return new JsonResponse(200, true, "Success", Result);
-
+				var postIdParam = new NpgsqlParameter("@postId", PostId);
+				var result = await _context.PostResponses
+							  .FromSqlRaw("SELECT * FROM dbo.getcomments(@postId)", postIdParam)
+							  .ToListAsync();
+				return new JsonResponse(200, true, "Success", result);
             }
             catch (Exception ex)
             {
@@ -71,11 +68,12 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                SqlParameter userparam = new SqlParameter("@UserId", userid);
-                var Result = await _context.PostResponses
-                    .FromSqlRaw("GetBookmarkTimeLine @UserId", userparam)
-                    .ToListAsync();
-                return new JsonResponse(200, true, "Success", Result);
+				var userIdParam = new NpgsqlParameter("@requserId", userid);
+
+				var result = await _context.PostResponses
+							  .FromSqlRaw("SELECT * FROM dbo.getbookmarktimeline(@requserId)", userIdParam)
+							  .ToListAsync();
+				return new JsonResponse(200, true, "Success", result);
             }
             catch(Exception ex)
             {

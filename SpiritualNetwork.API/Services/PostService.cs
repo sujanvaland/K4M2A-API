@@ -233,7 +233,7 @@ namespace SpiritualNetwork.API.Services
                         {
                             var YTurl = new CommunityMediaModel();
                             YTurl.PostId = post.Id;
-                            YTurl.UserId = post.UserId;
+                            YTurl.UserId = post.PostUserId;
                             YTurl.YouTubeUrl = postData.url;
                             YTurl.CommunityId = ProfileUserId;
                             urlList.Add(YTurl);
@@ -245,7 +245,7 @@ namespace SpiritualNetwork.API.Services
                             {
                                 var ImgUrl = new CommunityMediaModel();
                                 ImgUrl.PostId = post.Id;
-                                ImgUrl.UserId = post.UserId;
+                                ImgUrl.UserId = post.PostUserId;
                                 ImgUrl.ImgUrl = img;
                                 ImgUrl.CommunityId = ProfileUserId;
                                 urlList.Add(ImgUrl);
@@ -258,7 +258,7 @@ namespace SpiritualNetwork.API.Services
                             {
                                 var VideoUrl = new CommunityMediaModel();
                                 VideoUrl.PostId = post.Id;
-                                VideoUrl.UserId = post.UserId;
+                                VideoUrl.UserId = post.PostUserId;
                                 VideoUrl.VideoUrl = video;
                                 VideoUrl.CommunityId = ProfileUserId;
                                 urlList.Add(VideoUrl);
@@ -282,9 +282,7 @@ namespace SpiritualNetwork.API.Services
             {
                 var postIdParam = new NpgsqlParameter("@postId", postId);
                 var userIdParam = new NpgsqlParameter("@requserId", loginUserId);
-                //var Result = await _context.PostResponses
-                //    .FromSqlRaw("GetPostById @postId,@UserId", postIdParam, userIdParam)
-                //    .ToListAsync();
+               
                 var result = await _context.PostResponses
                               .FromSqlRaw("SELECT * FROM dbo.GetPostById(@postId, @requserId)", postIdParam, userIdParam)
                               .ToListAsync();
@@ -1106,33 +1104,33 @@ namespace SpiritualNetwork.API.Services
 
         }
 
-		
-		//public void MigratePost()
-  //      {
-  //          var data = _msdbcontext.UserInterest.ToList();
-  //          _context.UserInterest.AddRange(data);
-  //          _context.SaveChanges();
 
-  //          var data1 = _msdbcontext.UserMuteBlockLists.ToList();
-  //          _context.UserMuteBlockLists.AddRange(data1);
-  //          _context.SaveChanges();
+        public void MigratePost()
+        {
+			//var data = _msdbcontext.UserInterest.ToList();
+			//         _context.UserInterest.AddRange(data);
+			//         _context.SaveChanges();
 
-  //          var data2 = _msdbcontext.UserNetworks.ToList();
-		//	_context.UserNetworks.AddRange(data2);
-		//	_context.SaveChanges();
+			//         var data1 = _msdbcontext.UserMuteBlockLists.ToList();
+			//         _context.UserMuteBlockLists.AddRange(data1);
+			//         _context.SaveChanges();
 
-		//	//var data3 = _msdbcontext.UserNotification.ToList();
-		//	//_context.UserNotification.AddRange(data3);
-		//	//_context.SaveChanges();
+			//         var data2 = _msdbcontext.UserNetworks.ToList();
+			//         _context.UserNetworks.AddRange(data2);
+			//         _context.SaveChanges();
 
-		//	//var data4 = _msdbcontext.UserProfileSuggestion.ToList();
-		//	//_context.UserProfileSuggestion.AddRange(data4);
-		//	//_context.SaveChanges();
+			//var data3 = _msdbcontext.UserNotification.ToList();
+			//_context.UserNotification.AddRange(data3);
+			//_context.SaveChanges();
 
-		//	//var data5 = _msdbcontext.UserSubcription.ToList();
-		//	//_context.UserSubcription.AddRange(data5);
-		//	//_context.SaveChanges();
-		//}
+			//var data4 = _msdbcontext.UserProfileSuggestion.ToList();
+			//_context.UserProfileSuggestion.AddRange(data4);
+			//_context.SaveChanges();
 
-	}
+			//var data5 = _msdbcontext.UserSubcription.ToList();
+			//_context.UserSubcription.AddRange(data5);
+			//_context.SaveChanges();
+		}
+
+    }
 }

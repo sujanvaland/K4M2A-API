@@ -9,8 +9,8 @@ namespace SpiritualNetwork.API.AppContext
     public class AppDbContext : DbContext
     {
         protected readonly IConfiguration _configuration;
-
-        public DbSet<Invitation> Invitation {  get; set; }
+		public DbSet<MaxID> MaxID { get; set; }
+		public DbSet<Invitation> Invitation {  get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequest { get; set; }
         public DbSet<EmailTemplate> EmailTemplate { get; set; }
