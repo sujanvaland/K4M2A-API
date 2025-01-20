@@ -148,7 +148,7 @@ namespace SpiritualNetwork.API.Services
 					var ProfileUserIdParam = new NpgsqlParameter("@ProfileUserId", ProfileUserId);
 
 					var result = await _context.PostResponses
-								  .FromSqlRaw("SELECT * FROM dbo.GetProfileTimeLine(@userid,@PageNo,@ProfileUserId)", userIdParam, PageNoParam, ProfileUserIdParam)
+								  .FromSqlRaw("SELECT * FROM dbo.getProfileTimeLine(@userid,@PageNo,@ProfileUserId)", userIdParam, PageNoParam, ProfileUserIdParam)
 								  .ToListAsync();
 					return new JsonResponse(200, true, "Success", result);
                 }
