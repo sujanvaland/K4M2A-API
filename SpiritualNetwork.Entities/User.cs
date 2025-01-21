@@ -6,7 +6,12 @@ namespace SpiritualNetwork.Entities
     {
         public string Name { get; set; }
     }
-    public class User : BaseEntity
+
+	public class MaxID
+	{
+		public int id { get; set; }
+	}
+	public class User : BaseEntity
     {
         [MaxLength(100)]
         public string UserName { get; set; }

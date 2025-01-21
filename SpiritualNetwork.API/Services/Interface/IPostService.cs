@@ -20,7 +20,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> GetAllImgVideoLink(int Id, int PageNo, int? ProfileUserId, string? Type);
         public Task<JsonResponse> UpdateViews(List<int> req);
 
-        //public void MigratePost();
+        public void MigratePost();
         void UpdatePost();
         Task<UserPost> ChangeWhoCanReply(int postId, int whoCanReply);
 

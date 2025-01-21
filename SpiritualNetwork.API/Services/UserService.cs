@@ -1267,8 +1267,14 @@ namespace SpiritualNetwork.API.Services
 
 		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
 		{
+
             if(request.id == 0)
             {
+                var exist = _inviteRequest.Table.Where(x => x.Email.ToLower() == request.email.ToLower()).FirstOrDefault();
+                if (exist !=null)
+                {
+					return new JsonResponse(200, true, "Fail", "Already registered");
+				}
 				var user = new InviteRequest();
 				if (!String.IsNullOrEmpty(request.inviter))
 				{
