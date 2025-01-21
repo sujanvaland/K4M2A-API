@@ -656,10 +656,12 @@ namespace SpiritualNetwork.API.Services
             var Following = (from uf in _userFollowers.Table
                              join u in _userRepository.Table on uf.FollowToUserId equals u.Id
                              where uf.UserId == UserId
+                             orderby uf.Id descending
                              select u).ToList();
             var Followers = (from uf in _userFollowers.Table
                              join u in _userRepository.Table on uf.UserId equals u.Id
                              where uf.FollowToUserId == UserId
+                             orderby uf.Id descending
                              select u).ToList();
             var MutualFollowers = Following.Intersect(Followers).ToList();
 
