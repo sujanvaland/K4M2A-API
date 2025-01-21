@@ -694,11 +694,11 @@ namespace SpiritualNetwork.API.Services
 
             var paginatedUserFollowing = userFollowing.Skip(skip).Take(size).ToList();
 
-            if (paginatedUserFollowing.Count < size)
+			if (paginatedUserFollowing.Count < size)
             {
               var newUser = _userRepository.Table
                  .Where(c => c.IsDeleted == false && !Following.Contains(c.Id))
-                 .OrderBy(c => Guid.NewGuid())
+                 .OrderBy(c => EF.Functions.Random())
                  .Skip(skip)
                 .Take(size - paginatedUserFollowing.Count)
                 .ToList();
