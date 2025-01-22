@@ -116,12 +116,18 @@ namespace SpiritualNetwork.API.Services
                 var profileData = await _userRepository.Table.Where(x => x.Id == UserId
                                     && x.IsDeleted == false).FirstOrDefaultAsync();
                 //profileData = _mapper.Map<User>(profileData);
-                var splitName = profileReq.Name.Split(" ");
+                var splitName = profileReq.Name?.Split(" ");
+
                 if (splitName?.Length > 0)
                 {
                     profileData.FirstName = splitName[0];
                     profileData.LastName = splitName.Length > 1 ? splitName[1] : "";
                 }
+                else
+                {
+                    profileData.FirstName = profileReq.FirstName;
+                    profileData.LastName = profileReq.LastName;
+				}
                 if (!String.IsNullOrEmpty(profileData.FirstName) && String.IsNullOrEmpty(profileData.UserName))
 				{
 					profileData.UserName = GenerateUniqueUsername(profileData.FirstName, profileData.LastName);

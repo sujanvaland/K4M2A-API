@@ -1305,14 +1305,27 @@ namespace SpiritualNetwork.API.Services
 			}
             else
             {
-                var user = _inviteRequest.GetById(request.id);
-                user.Name = request.name;
-                user.Phone = request.phone;
-                user.City = request.city;
-                user.Journey = request.journey;
-                _inviteRequest.Update(user);
-
-				return new JsonResponse(200, true, "Success", user);
+                var phoneexist = _inviteRequest.Table.Where(x => x.Phone == request.phone).FirstOrDefault();
+                if (phoneexist == null)
+                {
+                    var user = _inviteRequest.GetById(request.id);
+                    user.Name = request.name;
+                    user.Phone = request.phone;
+                    user.City = request.city;
+                    user.Journey = request.journey;
+                    _inviteRequest.Update(user);
+					return new JsonResponse(200, true, "Success", user);
+                }
+                else
+                {
+					var user = _inviteRequest.GetById(request.id);
+					user.Name = request.name;
+					user.Phone = request.phone;
+					user.City = request.city;
+					user.Journey = request.journey;
+					_inviteRequest.Update(user);
+					return new JsonResponse(200, true, "Fail", "Phone number already registered");
+				}
 			}
 
            

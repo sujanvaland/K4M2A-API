@@ -31,13 +31,13 @@ GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElast
 GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value; 
 GlobalVariables.OpenAPIKey = builder.Configuration.GetSection("OpenAPIKey").Value;
 GlobalVariables.OpenAIapiURL = builder.Configuration.GetSection("OpenAIURL").Value;
-//GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
-//GlobalVariables.SiteUrl = await configRepository.GetConfigurationValueAsync("SiteUrl");
-//GlobalVariables.SMTPHost = await configRepository.GetConfigurationValueAsync("SMTPHost");
-//GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync("SMTPUsername");
-//GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
-//GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
-//GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
+GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
+GlobalVariables.SiteUrl = await configRepository.GetConfigurationValueAsync("SiteUrl");
+GlobalVariables.SMTPHost = await configRepository.GetConfigurationValueAsync("SMTPHost");
+GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync("SMTPUsername");
+GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
+GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
+GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {

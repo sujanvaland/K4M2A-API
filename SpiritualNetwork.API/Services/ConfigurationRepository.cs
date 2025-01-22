@@ -17,7 +17,7 @@ namespace SpiritualNetwork.API.Services
 			using var connection = new NpgsqlConnection(_connectionString);
 			await connection.OpenAsync();
 
-			var query = "SELECT Value FROM GlobalSetting WHERE KeyName = @Key";
+			var query = "SELECT \"Value\" FROM dbo.\"GlobalSetting\" WHERE \"KeyName\" = @Key";
 
 			using var command = new NpgsqlCommand(query, connection);
 			command.Parameters.AddWithValue("@Key", key);
