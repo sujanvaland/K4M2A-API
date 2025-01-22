@@ -25,6 +25,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<OnlineUsers> _onlineUsers;
         private readonly IRepository<UserProfileSuggestion> _profilesuggestionRepo; 
         private readonly IRepository<UserSubcription> _userSubcriptionRepo;
+        private readonly IRepository<UserMuteBlockList> _blockmuteRepository;
         private readonly IMapper _mapper;
 
         public ProfileService(IRepository<User> userRepository, 
@@ -37,7 +38,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<OnlineUsers> onlineUsers,
             IRepository<UserProfileSuggestion> profilesuggestionRepo,
             IRepository<UserSubcription> userSubcriptionRepo,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<UserMuteBlockList> blockmuteRepository)
         {
             _userRepository = userRepository;
             _bookRepository = bookRepository;
@@ -50,6 +52,7 @@ namespace SpiritualNetwork.API.Services
             _profilesuggestionRepo = profilesuggestionRepo;
             _userSubcriptionRepo = userSubcriptionRepo;
             _mapper = mapper;
+            _blockmuteRepository = blockmuteRepository;
         }
 
         private List<T> Shuffle<T>(List<T> list)
@@ -245,6 +248,9 @@ namespace SpiritualNetwork.API.Services
 				profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
 				profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == UserId && x.FollowToUserId == profileModel.Id).Count();
+                profileModel.IsBlock = _blockmuteRepository.Table.Any(x=> x.UserId == UserId && x.BlockedUserId == profileModel.Id && x.IsDeleted == false);
+                profileModel.IsMute = _blockmuteRepository.Table.Any(x => x.UserId == UserId && x.MuteedUserId == profileModel.Id && x.IsDeleted == false);
+
                 return profileModel;
             }
             catch (Exception ex)

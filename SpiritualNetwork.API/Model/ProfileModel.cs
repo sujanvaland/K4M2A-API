@@ -11,6 +11,9 @@ namespace SpiritualNetwork.API.Model
         public int NoOfFollowing { get; set; }
         public int IsFollowedByLoginUser { get; set; }
         public int IsFollowingLoginUser { get; set; }
+        public bool? IsBlock {  get; set; }
+        public bool? IsMute { get; set; }
+
     }
 
     public class ProfileReqest 
