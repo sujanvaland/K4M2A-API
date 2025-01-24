@@ -40,8 +40,9 @@ namespace SpiritualNetwork.API.Services
 		private readonly IRepository<Tags> _tagsRepository;
 		private readonly IRepository<DeviceToken> _deviceTokenRepository;
         private readonly IRepository<InviteRequest> _inviteRequest;
+        private readonly IRepository<ActivityLog> _activityRepository;
 
-		public UserService(
+        public UserService(
             IRepository<OnlineUsers> onlineUsers,
             IRepository<PreRegisteredUser> preregistereduserrepository,
             IRepository<User> userRepository,
@@ -61,7 +62,8 @@ namespace SpiritualNetwork.API.Services
 			IRepository<Tags> tagsRepository,
 			IRepository<DeviceToken> deviceTokenRepository,
             IRepository<PhoneVerificationRequest> phoneVerificationRequest,
-			IRepository<InviteRequest> inviteRequest)
+			IRepository<InviteRequest> inviteRequest,
+            IRepository<ActivityLog> activityRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -83,6 +85,7 @@ namespace SpiritualNetwork.API.Services
             _deviceTokenRepository = deviceTokenRepository;
             _phoneVerificationRequestRepository = phoneVerificationRequest;
             _inviteRequest = inviteRequest;
+            _activityRepository = activityRepository;
 
 		}
 
@@ -771,12 +774,15 @@ namespace SpiritualNetwork.API.Services
         public async Task FollowUnFollowUser(int userId,int loginUserId)
         {
             var exists = _userFollowersRepository.Table.Where(x => x.UserId == loginUserId && x.FollowToUserId == userId).FirstOrDefault();
+            
             if (exists == null)
             {
                 UserFollowers follower = new UserFollowers();
                 follower.UserId = loginUserId;
                 follower.FollowToUserId = userId;
                 _userFollowersRepository.Insert(follower);
+
+               
 
                 NotificationRes notification = new NotificationRes();
                 notification.PostId = 0;
@@ -792,7 +798,15 @@ namespace SpiritualNetwork.API.Services
             }
             else
             {
+                ActivityLog activity = new ActivityLog();
+                activity.UserId = loginUserId;
+                activity.RefId1 = userId;
+                activity.ActivityType = "unfollow";
+                activity.Type = "profile";
+
                 _userFollowersRepository.DeleteHard(exists);
+
+                _activityRepository.Insert(activity);
             }
         }
 

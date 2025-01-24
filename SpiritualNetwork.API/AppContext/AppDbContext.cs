@@ -71,8 +71,9 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<UserInterest> UserInterest { get; set; }
 		public DbSet<InviteRequest> InviteRequest { get; set; }
 		public DbSet<UserContract> UserContract { get; set; }
-		
-		public AppDbContext(IConfiguration configuration)
+        public DbSet<ActivityLog> ActivityLog { get; set; }
+
+        public AppDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

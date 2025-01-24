@@ -16,6 +16,10 @@ namespace SpiritualNetwork.API.Helper
             CreateMap<NotificationRes, Notification > ();
             CreateMap<User, UserDetails>();
             CreateMap<UserDetails, User>();
+            CreateMap<ActivityLog, ActivityModel>();
+            CreateMap<ActivityModel, ActivityLog>();
+
+
         }
     }
 }
