@@ -57,22 +57,23 @@ namespace SpiritualNetwork.API.Services
                          .ToListAsync();
 
                 var users = (from x in _activityRepository.Table
-                            join u in _userRepository.Table on x.RefId1 equals u.Id
-                            where x.UserId == UserId && x.IsDeleted == false && x.Type == "search" && x.ActivityType == "user"
-                            select new SearchedUserRes
-                            {
-                                Id = x.Id,
-                                UserId = u.Id,
-                                UserName = u.UserName,
-                                FirstName = u.FirstName,   
-                                LastName = u.LastName,
-                                ProfileImgUrl = u.ProfileImg,
-                                IsBusinessAccount = u.IsBusinessAccount,
-                            })
-                            .Distinct()     
-                            .OrderByDescending(u => u.Id)   
-                            .Take(10)
-                            .ToList();
+                             join u in _userRepository.Table on x.RefId1 equals u.Id
+                             where x.UserId == UserId && x.IsDeleted == false && x.Type == "search" && x.ActivityType == "user"
+                             group u by u.Id into g 
+                             where g.Any()
+                             select new SearchedUserRes
+                             {
+                                 Id = g.OrderByDescending(u => u.Id).FirstOrDefault().Id,
+                                 UserId = g.Key, 
+                                 UserName = g.OrderByDescending(u => u.Id).FirstOrDefault().UserName,
+                                 FirstName = g.OrderByDescending(u => u.Id).FirstOrDefault().FirstName,
+                                 LastName = g.OrderByDescending(u => u.Id).FirstOrDefault().LastName,
+                                 ProfileImgUrl = g.OrderByDescending(u => u.Id).FirstOrDefault().ProfileImg,
+                                 IsBusinessAccount = g.OrderByDescending(u => u.Id).FirstOrDefault().IsBusinessAccount,
+                             })
+                             .OrderByDescending(u => u.Id) 
+                             .Take(10) 
+                             .ToList();
 
                 SearchResponse results = new SearchResponse
                 {
