@@ -6,6 +6,7 @@ namespace SpiritualNetwork.API.Services.Interface
     public interface IActivityLogService
     {
         public Task<JsonResponse> SaveUserActivity(ActivityModel activityLog);
+        public Task<JsonResponse> GetSearchKeywordsAndUsers(int UserId);
 
     }
 }

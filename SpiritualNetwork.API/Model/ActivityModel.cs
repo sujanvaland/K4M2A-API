@@ -12,4 +12,22 @@
         public string? Latitude { get; set; }
         public string? Longitude { get; set; }
     }
+
+    public class SearchResponse
+    {
+        public List<string> RecentSearchedKeywords { get; set; }
+        public List<SearchedUserRes> RecentSearchedUsers { get; set; }
+    }
+
+    public class SearchedUserRes
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string UserName { get; set; }
+        public string? ProfileImgUrl { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+
+    }
+
 }
