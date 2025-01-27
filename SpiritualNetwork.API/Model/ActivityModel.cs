@@ -15,19 +15,26 @@
 
     public class SearchResponse
     {
-        public List<string> RecentSearchedKeywords { get; set; }
+        public List<SearchedKeywordsRes> RecentSearchedKeywords { get; set; }
         public List<SearchedUserRes> RecentSearchedUsers { get; set; }
     }
 
     public class SearchedUserRes
     {
         public int Id { get; set; }
+        public int UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }
         public string? ProfileImgUrl { get; set; }
         public bool? IsBusinessAccount { get; set; }
 
+    }
+
+    public class SearchedKeywordsRes
+    {
+        public int Id { get; set; }
+        public string Keywords { get; set; }
     }
 
 }

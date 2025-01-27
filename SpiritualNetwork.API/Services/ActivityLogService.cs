@@ -43,18 +43,26 @@ namespace SpiritualNetwork.API.Services
             try
             {
                 var keywords = await _activityRepository.Table
-                    .Where(x => x.UserId == UserId && x.ActivityType == "keywords" && x.Type == "search")
-                    .OrderByDescending(x => x.Id)
-                    .Select(x => x.Message)
-                    .Distinct()              
-                    .Take(10).ToListAsync();
+                         .Where(x => x.UserId == UserId && x.ActivityType == "keywords" && x.Type == "search" 
+                          && x.IsDeleted == false && x.Message != "" )
+                         .GroupBy(x => x.Message) // Group by unique Keyword (Message)
+                         .Where(g => g.Any())
+                         .Select(g => new SearchedKeywordsRes
+                         {
+                             Id = g.OrderByDescending(x => x.Id).FirstOrDefault().Id, 
+                             Keywords = g.Key ?? ""
+                         })
+                         .OrderByDescending(x => x.Id) 
+                         .Take(10) 
+                         .ToListAsync();
 
                 var users = (from x in _activityRepository.Table
                             join u in _userRepository.Table on x.RefId1 equals u.Id
                             where x.UserId == UserId && x.IsDeleted == false && x.Type == "search" && x.ActivityType == "user"
                             select new SearchedUserRes
                             {
-                                Id = u.Id,
+                                Id = x.Id,
+                                UserId = u.Id,
                                 UserName = u.UserName,
                                 FirstName = u.FirstName,   
                                 LastName = u.LastName,
