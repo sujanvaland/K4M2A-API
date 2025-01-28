@@ -40,8 +40,8 @@
     public class DeleteReq
     {
         public int Id { get; set; }
-        public string message { get; set; }
-        public string type { get; set; }
+        public string Message { get; set; }
+        public string Type { get; set; }
     }
 
 }

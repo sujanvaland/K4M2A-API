@@ -928,9 +928,9 @@ namespace SpiritualNetwork.API.Services
                 var DbUserNetwork = await _userNetworkRepository.Table.ToListAsync();
 
                 list = list.Where(nuser => !DbUserNetwork.Any(user => 
-                    user.UniqueId != nuser.UniqueId ||
-                    user.PhoneNumber != nuser.PhoneNumber ||
-                    user.Email != nuser.Email
+                    user.UniqueId == nuser.UniqueId ||
+                    user.PhoneNumber == nuser.PhoneNumber ||
+                    user.Email == nuser.Email
                     )).ToList();
 
                 /* 
@@ -947,7 +947,7 @@ namespace SpiritualNetwork.API.Services
             catch(Exception ex)
             {
                 throw ex;
-            }
+            }   
         }
     
         public async Task<bool> SendInvitationMail(string Emailreq, int UserId, int Id)

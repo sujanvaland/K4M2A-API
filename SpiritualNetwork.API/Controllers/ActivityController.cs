@@ -49,12 +49,12 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [HttpGet(Name = "deleteRecentSearch")]
-        public async Task<JsonResponse> deleteRecentSearch(DeleteReq req)
+        [HttpPost(Name = "DeleteRecentSearch")]
+        public async Task<JsonResponse> DeleteRecentSearch(DeleteReq req)
         {
             try
             {
-                var response = await _activityService.DeleteSearchKeywordsAndUsers(req.Id,user_unique_id,req.message,req.type);
+                var response = await _activityService.DeleteSearchKeywordsAndUsers(req.Id,user_unique_id,req.Message,req.Type);
                 return response;
             }
             catch (Exception ex)
