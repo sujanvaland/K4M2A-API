@@ -102,7 +102,7 @@ namespace SpiritualNetwork.API.Services
                                  && x.IsDeleted == false)
                                 .ToListAsync();
 
-                    await _activityRepository.DeleteRangeAsync(data); 
+                    _activityRepository.DeleteRange(data); 
 
                     return new JsonResponse(200, true, "success", null);
                 }
@@ -113,7 +113,7 @@ namespace SpiritualNetwork.API.Services
                          && x.IsDeleted == false && x.RefId1 == Id)
                         .ToListAsync();
 
-                   await _activityRepository.DeleteRangeAsync(user);
+                    _activityRepository.DeleteRange(user);
                     return new JsonResponse(200, true, "success", null);
 
                 }
@@ -124,7 +124,7 @@ namespace SpiritualNetwork.API.Services
                         && x.IsDeleted == false && x.Message == message)
                        .ToListAsync();
 
-                    await _activityRepository.DeleteRangeAsync(data);
+                     _activityRepository.DeleteRange(data);
                     return new JsonResponse(200, true, "success", null);
                 }
 
