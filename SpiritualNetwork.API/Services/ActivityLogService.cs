@@ -89,5 +89,52 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
+        public async Task<JsonResponse> DeleteSearchKeywordsAndUsers(int Id,int UserId,string message,string type)
+        {
+            try
+            {
+                if (type == "all")
+                {
+                    var data = await _activityRepository.Table
+                                .Where(x => x.UserId == UserId
+                                 && (x.ActivityType == "user" || x.ActivityType == "keywords") 
+                                 && x.Type == "search"
+                                 && x.IsDeleted == false)
+                                .ToListAsync();
+
+                    await _activityRepository.DeleteRangeAsync(data); 
+
+                    return new JsonResponse(200, true, "success", null);
+                }
+                if (string.IsNullOrEmpty(message) && type == "user")
+                {
+                    var user = await _activityRepository.Table
+                        .Where(x => x.UserId == UserId && x.ActivityType == "user" && x.Type == "search"
+                         && x.IsDeleted == false && x.RefId1 == Id)
+                        .ToListAsync();
+
+                   await _activityRepository.DeleteRangeAsync(user);
+                    return new JsonResponse(200, true, "success", null);
+
+                }
+                else
+                {
+                    var data = await _activityRepository.Table
+                       .Where(x => x.UserId == UserId && x.ActivityType == "keywords" && x.Type == "search"
+                        && x.IsDeleted == false && x.Message == message)
+                       .ToListAsync();
+
+                    await _activityRepository.DeleteRangeAsync(data);
+                    return new JsonResponse(200, true, "success", null);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

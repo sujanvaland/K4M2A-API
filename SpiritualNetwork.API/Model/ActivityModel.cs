@@ -37,4 +37,11 @@
         public string Keywords { get; set; }
     }
 
+    public class DeleteReq
+    {
+        public int Id { get; set; }
+        public string message { get; set; }
+        public string type { get; set; }
+    }
+
 }

@@ -184,9 +184,22 @@ namespace SpiritualNetwork.API.Services
                 .ToListAsync();
 
             return new JsonResponse(200, true, "Success", data);
-
-
         }
 
+        public async Task<JsonResponse> GetSearchHashTag(string searchTerm)
+        {
+            var data = await _hashTagRepository.Table
+                .Where(h => h.Name.Contains(searchTerm))
+                .OrderByDescending(h => h.Count)
+                .Take(3) // Limit to 3 items
+                .Select(h => new
+                {
+                    h.Name,
+                    h.Count
+                })
+                .ToListAsync();
+
+            return new JsonResponse(200, true, "Success", data);
+        }
     }
 }

@@ -48,5 +48,19 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
+
+        [HttpGet(Name = "deleteRecentSearch")]
+        public async Task<JsonResponse> deleteRecentSearch(DeleteReq req)
+        {
+            try
+            {
+                var response = await _activityService.DeleteSearchKeywordsAndUsers(req.Id,user_unique_id,req.message,req.type);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
     }
 }
