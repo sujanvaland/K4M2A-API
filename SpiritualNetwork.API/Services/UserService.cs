@@ -15,6 +15,10 @@ using Twilio;
 using Twilio.Rest.IpMessaging.V2.Service.Channel;
 using Twilio.Rest.Chat.V1.Service.Channel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Text.RegularExpressions;
+using System.Linq;
+using Npgsql;
+using SpiritualNetwork.API.AppContext;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -41,6 +45,7 @@ namespace SpiritualNetwork.API.Services
 		private readonly IRepository<DeviceToken> _deviceTokenRepository;
         private readonly IRepository<InviteRequest> _inviteRequest;
         private readonly IRepository<ActivityLog> _activityRepository;
+        private readonly AppDbContext _context;
 
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -63,7 +68,8 @@ namespace SpiritualNetwork.API.Services
 			IRepository<DeviceToken> deviceTokenRepository,
             IRepository<PhoneVerificationRequest> phoneVerificationRequest,
 			IRepository<InviteRequest> inviteRequest,
-            IRepository<ActivityLog> activityRepository)
+            IRepository<ActivityLog> activityRepository,
+            AppDbContext context)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -86,6 +92,7 @@ namespace SpiritualNetwork.API.Services
             _phoneVerificationRequestRepository = phoneVerificationRequest;
             _inviteRequest = inviteRequest;
             _activityRepository = activityRepository;
+            _context = context;
 
 		}
 
@@ -810,6 +817,41 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
+        public async Task FollowUsers(List<int> userIds, int loginUserId)
+        {
+            foreach (var userId in userIds)
+            {
+                var exists = _userFollowersRepository.Table
+                    .FirstOrDefault(x => x.UserId == loginUserId && x.FollowToUserId == userId && x.IsDeleted == false);
+
+                if (exists == null)
+                {
+                    UserFollowers follower = new UserFollowers
+                    {
+                        UserId = loginUserId,
+                        FollowToUserId = userId
+                    };
+                    _userFollowersRepository.Insert(follower);
+
+                    NotificationRes notification = new NotificationRes
+                    {
+                        PostId = 0,
+                        ActionByUserId = loginUserId,
+                        ActionType = "follow",
+                        RefId1 = userId.ToString(),
+                        RefId2 = "",
+                        Message = "",
+                        PushAttribute = "pushfollowyou",
+                        EmailAttribute = "emailfollowyou"
+                    };
+
+                    await _notificationService.SaveNotification(notification);
+                }
+            }
+        }
+
+
+
         public void BlockMuteUser(int userId, int loginUserId,string type)
         {
             var query = _userMuteBlockListRepository.Table.Where(x => x.UserId == loginUserId);
@@ -949,7 +991,52 @@ namespace SpiritualNetwork.API.Services
                 throw ex;
             }   
         }
-    
+
+        public static string NormalizePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber)) return phoneNumber;
+
+            string normalized = Regex.Replace(phoneNumber, @"[^\d+]", "");
+
+            return normalized; 
+        }
+
+
+        public async Task<JsonResponse> getUserInviteList(int UserId)
+            {
+            
+                try
+                {
+                var userIdParam = new NpgsqlParameter("@userid", UserId);
+                var result = await _context.InviteUserRes
+                              .FromSqlRaw("SELECT * FROM dbo.getUserInvitesList(@userid)", userIdParam)
+                              .ToListAsync();
+
+                return new JsonResponse(200, true, "Success", result);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+
+        public async Task<JsonResponse> GetUserFromYourContact(int UserId)
+        {
+            try
+            {
+                var userIdParam = new NpgsqlParameter("@UserId", UserId);
+                var result = await _context.ContactUserRes
+                              .FromSqlRaw("SELECT * FROM dbo.getUserWithMatchingPhoneNumber(@UserId)", userIdParam)
+                              .ToListAsync();
+
+                return new JsonResponse(200, true, "Success", result);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public async Task<bool> SendInvitationMail(string Emailreq, int UserId, int Id)
         {
             try
@@ -1263,8 +1350,6 @@ namespace SpiritualNetwork.API.Services
                 throw ex;
             }
         }
-
-
 
         public async Task<JsonResponse> getTagsList()
 		{

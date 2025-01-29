@@ -44,4 +44,39 @@
         public string Type { get; set; }
     }
 
+    public class ContactUserRes
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string UserName { get; set; }
+        public string? ProfileImg { get; set; }
+        public bool? IsBusinessAccount { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Email {  get; set; } 
+
+    }
+
+    public class InviteUserRes
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Photo { get; set; }
+
+    }
+
+
+    public class InviteContactRes
+    {
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? FullName { get; set; }
+        public string? Photo { get; set; }
+        public string? PhoneNumber { get; set; }
+
+    }
 }
