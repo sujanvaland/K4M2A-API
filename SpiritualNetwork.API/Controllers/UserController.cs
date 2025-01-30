@@ -411,13 +411,12 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [AllowAnonymous]
         [HttpGet(Name = "getUserInviteList")]
         public async Task<JsonResponse> getUserInviteList()
         {
             try
             {
-                return await _userService.getUserInviteList(624);
+                return await _userService.getUserInviteList(user_unique_id);
             }
             catch (Exception ex)
             {
@@ -425,13 +424,12 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [AllowAnonymous]
         [HttpGet(Name = "GetUserFromYourContact")]
         public async Task<JsonResponse> GetUserFromYourContact()
         {
             try
             {
-                return await _userService.GetUserFromYourContact(624);
+                return await _userService.GetUserFromYourContact(user_unique_id);
             }
             catch (Exception ex)
             {
