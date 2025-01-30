@@ -71,7 +71,6 @@ namespace SpiritualNetwork.API.Services
                                  ProfileImgUrl = g.OrderByDescending(u => u.Id).FirstOrDefault().ProfileImg,
                                  IsBusinessAccount = g.OrderByDescending(u => u.Id).FirstOrDefault().IsBusinessAccount,
                              })
-                             .OrderByDescending(u => u.Id) 
                              .Take(10) 
                              .ToList();
 

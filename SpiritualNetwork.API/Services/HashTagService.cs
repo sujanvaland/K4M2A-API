@@ -189,7 +189,7 @@ namespace SpiritualNetwork.API.Services
         public async Task<JsonResponse> GetSearchHashTag(string searchTerm)
         {
             var data = await _hashTagRepository.Table
-                .Where(h => h.Name.Contains(searchTerm))
+                .Where(h => h.Name.ToLower().Contains(searchTerm.ToLower()))
                 .OrderByDescending(h => h.Count)
                 .Take(3) // Limit to 3 items
                 .Select(h => new

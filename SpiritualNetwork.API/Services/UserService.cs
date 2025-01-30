@@ -781,7 +781,10 @@ namespace SpiritualNetwork.API.Services
         public async Task FollowUnFollowUser(int userId,int loginUserId)
         {
             var exists = _userFollowersRepository.Table.Where(x => x.UserId == loginUserId && x.FollowToUserId == userId).FirstOrDefault();
-            
+            if(userId == loginUserId)
+            {
+                return;
+            }
             if (exists == null)
             {
                 UserFollowers follower = new UserFollowers();
@@ -950,9 +953,16 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
+                var check = await _userNetworkRepository.Table.Where(x=> x.InviterId == inviterId 
+                            && x.IsDeleted == false).Select(x=> x.PhoneNumber).ToListAsync();
+
                 List<UserNetwork> list = new List<UserNetwork>();
                 foreach (var item in req.list)
                 {
+                    if (check.Contains(item.PhoneNumber))
+                    {
+                        continue;
+                    }
                     UserNetwork userNetwork = new UserNetwork();
 
                     userNetwork.InviterId = inviterId;
