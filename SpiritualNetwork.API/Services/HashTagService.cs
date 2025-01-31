@@ -22,7 +22,6 @@ namespace SpiritualNetwork.API.Services
             _hashTagRepository = hashTagRepository;
             _notificationService = notificationService;
         }
-
         public async Task<JsonResponse> ExtractPostHashTag(int postId)
         {
             var post = await _userPostRepository.Table.Where(x => x.Id == postId && x.IsDeleted == false).FirstOrDefaultAsync();
