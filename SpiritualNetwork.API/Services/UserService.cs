@@ -1034,7 +1034,33 @@ namespace SpiritualNetwork.API.Services
                               .FromSqlRaw("SELECT * FROM dbo.getUserWithMatchingPhoneNumber(@UserId)", userIdParam)
                               .ToListAsync();
 
-                return new JsonResponse(200, true, "Success", result);
+                List<ProfileModel> userList = new List<ProfileModel>();
+                
+                var userIds = result.Select(x=> x.Id).ToList();
+
+               
+
+                var spuserList = await Task.WhenAll(userIds.Select(id => _profileService.GetUserInfoBoxByUserId(id, UserId)));
+                userList.AddRange(spuserList);
+
+                if (userList.Count < 20)
+                {
+                    int remainingCount = 20 - userList.Count;
+                    var whoToFollowResponse = await _profileService.GetWhoToFollow(UserId, 1); // Assuming page=1 for simplicity
+
+                    if (whoToFollowResponse.Result is List<ProfileModel> followList)
+                    {
+                        // Filter out users already in userList
+                        //var existingUserIds = new HashSet<int>(userList.Select(u => u.Id));
+                        var filteredFollowList = followList.Where(u => !userIds.Contains(u.Id))
+                                                           .Take(remainingCount)
+                                                           .ToList();
+
+                        userList.AddRange(filteredFollowList);
+                    }
+                }
+
+                return new JsonResponse(200, true, "Success", userList);
             }
             catch (Exception ex)
             {
