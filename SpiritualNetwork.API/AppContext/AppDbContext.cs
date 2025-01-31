@@ -28,6 +28,8 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<Model.TimelineModel.PostResponse> PostResponses { get; set; }
         public DbSet<Model.TimelineModel.CommentReposne> CommentResponses { get; set; }
         public DbSet<Model.TimelineModel.UserChatResponse> UserChatResponse { get; set; }
+        public DbSet<ContactUserRes> ContactUserRes { get; set; }
+        public DbSet<InviteUserRes> InviteUserRes { get; set; }
         public DbSet<ReactionResponse> Reactions { get; set; }
         public DbSet<UserFollowers> UserFollowers { get; set; }
         public DbSet<OnlineUsers> OnlineUsers { get; set; }
@@ -71,17 +73,24 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<UserInterest> UserInterest { get; set; }
 		public DbSet<InviteRequest> InviteRequest { get; set; }
 		public DbSet<UserContract> UserContract { get; set; }
-		
-		public AppDbContext(IConfiguration configuration)
+        public DbSet<ActivityLog> ActivityLog { get; set; }
+
+        public AppDbContext(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _configuration = configuration; 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.HasDefaultSchema("dbo"); 
             modelBuilder.Entity<PostResponse>()
                 .HasNoKey()
                 .ToTable("PostResponse", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<ContactUserRes>()
+               .HasNoKey()
+               .ToTable("ContactUserRes", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<InviteUserRes>()
+               .HasNoKey()
+               .ToTable("InviteUserRes", t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CommentReposne>()
                 .HasNoKey()
                 .ToTable("CommentReposne", t => t.ExcludeFromMigrations());

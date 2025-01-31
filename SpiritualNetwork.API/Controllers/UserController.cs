@@ -227,6 +227,21 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+        [HttpPost(Name = "FollowMultipleUser")]
+        public async Task<JsonResponse> FollowMultipleUser(FollowUserReq req)
+        {
+            try
+            {
+                await _userService.FollowUsers(req.userId, user_unique_id);
+                return new JsonResponse(200, true, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
         [HttpGet(Name = "BlockMuteUser")]
         public JsonResponse BlockMuteUser(int userId,string type)
         {
@@ -381,7 +396,7 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, true, "Fail", ex);
             }
         }
-
+        
         [AllowAnonymous]
         [HttpGet(Name = "Invitation")]
         public async Task<JsonResponse> Invitation(string name)
@@ -389,6 +404,32 @@ namespace SpiritualNetwork.API.Controllers
             try
             {
                 return await _userService.Invitation(name);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex);
+            }
+        }
+
+        [HttpGet(Name = "getUserInviteList")]
+        public async Task<JsonResponse> getUserInviteList()
+        {
+            try
+            {
+                return await _userService.getUserInviteList(user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex);
+            }
+        }
+
+        [HttpGet(Name = "GetUserFromYourContact")]
+        public async Task<JsonResponse> GetUserFromYourContact()
+        {
+            try
+            {
+                return await _userService.GetUserFromYourContact(user_unique_id);
             }
             catch (Exception ex)
             {
