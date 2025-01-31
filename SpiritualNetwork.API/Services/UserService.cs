@@ -953,16 +953,9 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var check = await _userNetworkRepository.Table.Where(x=> x.InviterId == inviterId 
-                            && x.IsDeleted == false).Select(x=> x.PhoneNumber).ToListAsync();
-
                 List<UserNetwork> list = new List<UserNetwork>();
                 foreach (var item in req.list)
                 {
-                    if (check.Contains(item.PhoneNumber))
-                    {
-                        continue;
-                    }
                     UserNetwork userNetwork = new UserNetwork();
 
                     userNetwork.InviterId = inviterId;
@@ -977,12 +970,14 @@ namespace SpiritualNetwork.API.Services
                     list.Add(userNetwork);
                 }
 
-                var DbUserNetwork = await _userNetworkRepository.Table.ToListAsync();
+                var DbUserNetwork = await _userNetworkRepository.Table.Where(x => x.InviterId == inviterId
+                            && x.IsDeleted == false).ToListAsync();
 
                 list = list.Where(nuser => !DbUserNetwork.Any(user => 
-                    user.UniqueId == nuser.UniqueId ||
-                    user.PhoneNumber == nuser.PhoneNumber ||
-                    user.Email == nuser.Email
+                    user.UniqueId == nuser.UniqueId &&
+                    user.PhoneNumber == nuser.PhoneNumber &&
+                    user.Email == nuser.Email &&
+                    user.InviterId == inviterId
                     )).ToList();
 
                 /* 

@@ -308,6 +308,8 @@ namespace SpiritualNetwork.API.Controllers
         //        return new JsonResponse(200, false, "Fail", ex.Message);
         //    }
         //}
+        
+        [AllowAnonymous]
         [HttpPost(Name = "StoreUserConnections")]
         public async Task<JsonResponse> StoreUserConnections(UserNetworkReq req)
         {
