@@ -139,38 +139,117 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-		public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
-		{
-			try
-			{
-				var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
+		//public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
+		//{
+		//	try
+		//	{
+		//		var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
 
-				if (Type == "save")
+		//		if (Type == "save")
+  //              {
+  //                  if (check == null)
+  //                  {
+  //                      DeviceToken deviceToken = new DeviceToken();
+  //                      deviceToken.UserId = UserId;
+  //                      deviceToken.Token = Token;
+  //                      await _deviceTokenRepository.InsertAsync(deviceToken);
+  //                  }
+
+  //                  if (check.Token == Token)
+  //                  {
+  //                      DeviceToken deviceToken = new DeviceToken();
+  //                      deviceToken.UserId = UserId;
+  //                      deviceToken.Token = Token;
+  //                      await _deviceTokenRepository.InsertAsync(deviceToken);
+  //                  }
+
+  //              }
+  //              else
+  //              {
+  //                  if (check != null) 
+  //                  { 
+  //                      await _deviceTokenRepository.DeleteAsync(check);
+  //                  }
+
+  //              }
+		//		return new JsonResponse(200, true, "Success", null);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		throw ex;
+		//	}
+		//}
+
+
+        public async Task<JsonResponse> SaveRemoveDeviceToken(int userId, string? token, string type)
+        {
+            // Validate the token input
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return new JsonResponse(400, false, "Invalid token.", null);
+            }
+
+            try
+            {
+                // Look up the token across all users (ignoring soft-deleted entries)
+                var existingToken = await _deviceTokenRepository.Table
+                    .Where(x => x.Token == token && !x.IsDeleted)
+                    .FirstOrDefaultAsync();
+
+                if (type.Equals("save", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (check == null)
+                    if (existingToken != null)
                     {
-                        DeviceToken deviceToken = new DeviceToken();
-                        deviceToken.UserId = UserId;
-                        deviceToken.Token = Token;
-                        await _deviceTokenRepository.InsertAsync(deviceToken);
+                        // If the token exists but belongs to a different user, update it
+                        if (existingToken.UserId != userId)
+                        {
+                            existingToken.UserId = userId;
+                            // Optionally update other properties like ModifiedDate
+                            await _deviceTokenRepository.UpdateAsync(existingToken);
+                        }
+                        // Else: token already exists for this user. No action needed.
                     }
-                }else
-                {
-                    if (check != null) 
-                    { 
-                        await _deviceTokenRepository.DeleteAsync(check);
+                    else
+                    {
+                        // Insert a new record if the token does not exist
+                        var newToken = new DeviceToken
+                        {
+                            UserId = userId,
+                            Token = token,
+                            IsDeleted = false,
+                            // You can also set CreatedDate = DateTime.UtcNow, etc.
+                        };
+                        await _deviceTokenRepository.InsertAsync(newToken);
                     }
-
                 }
-				return new JsonResponse(200, true, "Success", null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                else if (type.Equals("remove", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Only remove the token if it exists and belongs to this user
+                    if (existingToken != null && existingToken.UserId == userId)
+                    {
+                        // For soft delete:
+                        existingToken.IsDeleted = true;
+                        await _deviceTokenRepository.UpdateAsync(existingToken);
 
-		private async Task<User> AuthenticateWithMobile(string username)
+                        // Alternatively, for a hard delete, you might call:
+                        // await _deviceTokenRepository.DeleteAsync(existingToken);
+                    }
+                }
+                else
+                {
+                    return new JsonResponse(400, false, "Invalid type provided.", null);
+                }
+
+                return new JsonResponse(200, true, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception as needed, then rethrow preserving the stack trace.
+                throw;
+            }
+        }
+
+        private async Task<User> AuthenticateWithMobile(string username)
 		{
 			try
 			{
