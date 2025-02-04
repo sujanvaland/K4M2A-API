@@ -529,15 +529,16 @@ namespace SpiritualNetwork.API.Services
                                       Message =N.Message
                                   };
 
-			string sql = @"
+			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
+
+            string sql = @"
                  UPDATE ""dbo"".""UserNotification""
                  SET ""IsRead"" = true
                  WHERE ""UserId"" = {0}
                  AND ""IsRead"" = false";
 
-			_context.Database.ExecuteSqlRaw(sql, userId);
+            _context.Database.ExecuteSqlRaw(sql, userId);
 
-			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
             return new JsonResponse(200, true, " Success", chatHistory);
         }
 
