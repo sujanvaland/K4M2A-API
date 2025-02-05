@@ -30,6 +30,7 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<Model.TimelineModel.UserChatResponse> UserChatResponse { get; set; }
         public DbSet<ContactUserRes> ContactUserRes { get; set; }
         public DbSet<InviteUserRes> InviteUserRes { get; set; }
+        public DbSet<NotificationTemplate> NotificationTemplate { get; set; }
         public DbSet<ReactionResponse> Reactions { get; set; }
         public DbSet<UserFollowers> UserFollowers { get; set; }
         public DbSet<OnlineUsers> OnlineUsers { get; set; }
