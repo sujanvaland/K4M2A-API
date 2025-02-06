@@ -519,6 +519,7 @@ namespace SpiritualNetwork.API.Services
                                   orderby UN.CreatedDate descending
                                   select new userNotificationRes
                                   {
+                                      Id = UN.Id,
                                       UserDetail = _mapper.Map<UserDetails>(UD),
                                       Type = N.ActionType,
                                       PostId = N.PostId,
@@ -531,15 +532,76 @@ namespace SpiritualNetwork.API.Services
 
 			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
 
-            string sql = @"
-                 UPDATE ""dbo"".""UserNotification""
-                 SET ""IsRead"" = true
-                 WHERE ""UserId"" = {0}
-                 AND ""IsRead"" = false";
+            //string sql = @"
+            //     UPDATE ""dbo"".""UserNotification""
+            //     SET ""IsRead"" = true
+            //     WHERE ""UserId"" = {0}
+            //     AND ""IsRead"" = false";
 
-            _context.Database.ExecuteSqlRaw(sql, userId);
+            //_context.Database.ExecuteSqlRaw(sql, userId);
 
             return new JsonResponse(200, true, " Success", chatHistory);
+        }
+
+        public async Task<JsonResponse> DeleteUndoNotification(string type, int userId,int Id)
+        {
+            try
+            {
+                var data = await _userNotificationRepository.Table.Where(x=> x.UserId == userId &&  x.Id == Id).FirstOrDefaultAsync();
+                if(type == "delete" && !data.IsDeleted)
+                {
+                    await _userNotificationRepository.DeleteAsync(data);
+                    return new JsonResponse(200, true, "Notification Deleted Success", null);
+                }
+                else if(type == "undo" && data.IsDeleted)
+                {
+                    data.IsDeleted = false;
+                    await _userNotificationRepository.UpdateAsync(data);
+                    return new JsonResponse(200, true, "Notification Undo Success", null);
+                }
+
+                return new JsonResponse(200, true, " Notification not Found", null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<JsonResponse> ReadNotification(string type, int userId, int Id)
+        {
+            try
+            {
+                if (type == "markallread")
+                {
+                    string sql = @"
+                         UPDATE ""dbo"".""UserNotification""
+                         SET ""IsRead"" = true
+                         WHERE ""UserId"" = {0}
+                         AND ""IsRead"" = false";
+
+                    _context.Database.ExecuteSqlRaw(sql, userId);
+
+                    return new JsonResponse(200, true, "Mark As All Read Success", null);
+                }
+
+                var data = await _userNotificationRepository.Table.Where(x => x.UserId == userId && x.Id == Id).FirstOrDefaultAsync();
+
+                if (data != null)
+                {
+                    data.IsRead = true;
+                    await _userNotificationRepository.UpdateAsync(data);
+                    return new JsonResponse(200, true, "Notification Read Success", null);
+                }
+
+                return new JsonResponse(200, true, " Notification not Found", null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<JsonResponse> GetAllNotificationCount(int User)

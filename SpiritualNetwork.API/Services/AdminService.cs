@@ -19,6 +19,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserPost> _postRepository;
         private readonly IRepository<Reaction> _reaction;
         private readonly IRepository<ReportEntity> _reportRepository;
+        private readonly IRepository<NotificationTemplate> _NotificationTemRepo;
+
 
         public AdminService(IRepository<User> userRepository,
             IRepository<OnlineUsers> onlineuserRepository,
@@ -27,7 +29,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<Community> communityRepository,
             IRepository<UserPost> postRepository,
             IRepository<Reaction> reaction,
-            IRepository<ReportEntity> reportRepository)
+            IRepository<ReportEntity> reportRepository,
+            IRepository<NotificationTemplate> notificationTemRepo)
         {
             _userNetworkRepository = userNetworkRepository;
             _userRepository = userRepository;
@@ -37,6 +40,7 @@ namespace SpiritualNetwork.API.Services
             _postRepository = postRepository;
             _reaction = reaction;
             _reportRepository = reportRepository;
+            _NotificationTemRepo = notificationTemRepo;
         }
 
         public async Task<JsonResponse> AllUserList(string Name, int PageNo, int Record)
@@ -254,5 +258,17 @@ namespace SpiritualNetwork.API.Services
 
             return new JsonResponse(200, true, "Success", query);
         }
+
+        public async Task<JsonResponse> SaveNotificationTemplate(NotiTemReq req)
+        {
+            NotificationTemplate temp = new NotificationTemplate();
+            temp.Type = req.Type;
+            temp.Message = req.Message;
+
+             await _NotificationTemRepo.InsertAsync(temp);
+
+            return new JsonResponse(200, true, "Success", null);
+        }
+
     }
 }
