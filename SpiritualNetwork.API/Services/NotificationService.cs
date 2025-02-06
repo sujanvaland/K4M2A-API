@@ -519,7 +519,7 @@ namespace SpiritualNetwork.API.Services
                                   orderby UN.CreatedDate descending
                                   select new userNotificationRes
                                   {
-                                      Id = UN.Id,
+                                      NotificationId = UN.Id,
                                       UserDetail = _mapper.Map<UserDetails>(UD),
                                       Type = N.ActionType,
                                       PostId = N.PostId,
@@ -530,7 +530,7 @@ namespace SpiritualNetwork.API.Services
                                       Message =N.Message
                                   };
 
-			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
+			//var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
             var notifications = await allNotification.ToListAsync();
 
             // Process likes separately
@@ -539,7 +539,7 @@ namespace SpiritualNetwork.API.Services
                 .GroupBy(n => n.PostId)
                 .Select(g => new userNotificationRes
                 {
-                    Id = g.First().Id,
+                    NotificationId = g.First().NotificationId,
                     UserDetailList = g.OrderByDescending(n => n.CreatedDate)
                                       .Take(3)
                                       .Select(n => n.UserDetail)
@@ -559,7 +559,7 @@ namespace SpiritualNetwork.API.Services
                 .Where(n => n.Type != "like")
                 .Select(n => new userNotificationRes
                 {
-                    Id = n.Id,
+                    NotificationId = n.NotificationId,
                     UserDetail = n.UserDetail,
                     Type = n.Type,
                     PostId = n.PostId,

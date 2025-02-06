@@ -22,7 +22,7 @@ namespace SpiritualNetwork.API.Model
 
     public class userNotificationRes
     {
-        public int Id { get; set; }
+        public int NotificationId { get; set; }
         public UserDetails UserDetail { get; set; }
         public List<UserDetails> UserDetailList { get; set; }
         public int OtherLikeCount { get; set; } = 0;
