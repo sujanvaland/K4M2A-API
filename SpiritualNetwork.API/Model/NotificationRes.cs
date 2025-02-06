@@ -24,6 +24,8 @@ namespace SpiritualNetwork.API.Model
     {
         public int Id { get; set; }
         public UserDetails UserDetail { get; set; }
+        public List<UserDetails> UserDetailList { get; set; }
+        public int OtherLikeCount { get; set; } = 0;
         public string Type { get; set; }
         public string Message { get; set; }
         public int? PostId { get; set; }

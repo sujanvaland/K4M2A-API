@@ -531,7 +531,51 @@ namespace SpiritualNetwork.API.Services
                                   };
 
 			var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
+            var notifications = await allNotification.ToListAsync();
 
+            // Process likes separately
+            var groupedLikes = notifications
+                .Where(n => n.Type == "like" && n.PostId != null)
+                .GroupBy(n => n.PostId)
+                .Select(g => new userNotificationRes
+                {
+                    Id = g.First().Id,
+                    UserDetailList = g.OrderByDescending(n => n.CreatedDate)
+                                      .Take(3)
+                                      .Select(n => n.UserDetail)
+                                      .ToList(),
+                    OtherLikeCount = g.Count() - 1 > 0 ? g.Count() - 1 : 0,
+                    Type = "like",
+                    PostId = g.Key,
+                    ParentPostId = g.First().ParentPostId,
+                    RepostUserDetail = g.First().RepostUserDetail,
+                    CreatedDate = g.First().CreatedDate,
+                    IsRead = g.First().IsRead,
+                    Message = g.First().Message
+                }).ToList();
+
+            // Keep non-like notifications unchanged
+            var otherNotifications = notifications
+                .Where(n => n.Type != "like")
+                .Select(n => new userNotificationRes
+                {
+                    Id = n.Id,
+                    UserDetail = n.UserDetail,
+                    Type = n.Type,
+                    PostId = n.PostId,
+                    ParentPostId = n.ParentPostId,
+                    RepostUserDetail = n.RepostUserDetail,
+                    CreatedDate = n.CreatedDate,
+                    IsRead = n.IsRead,
+                    Message = n.Message
+                }).ToList();
+
+            // Combine lists and apply pagination
+            var finalNotifications = groupedLikes.Concat(otherNotifications)
+                .OrderByDescending(n => n.CreatedDate)
+                .Skip((PageNo - 1) * Size)
+                .Take(Size)
+                .ToList();
             //string sql = @"
             //     UPDATE ""dbo"".""UserNotification""
             //     SET ""IsRead"" = true
@@ -540,7 +584,7 @@ namespace SpiritualNetwork.API.Services
 
             //_context.Database.ExecuteSqlRaw(sql, userId);
 
-            return new JsonResponse(200, true, " Success", chatHistory);
+            return new JsonResponse(200, true, " Success", finalNotifications);
         }
 
         public async Task<JsonResponse> DeleteUndoNotification(string type, int userId,int Id)
