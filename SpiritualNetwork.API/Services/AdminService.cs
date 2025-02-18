@@ -264,6 +264,7 @@ namespace SpiritualNetwork.API.Services
             NotificationTemplate temp = new NotificationTemplate();
             temp.Type = req.Type;
             temp.Message = req.Message;
+            temp.Route = req.Route;
 
              await _NotificationTemRepo.InsertAsync(temp);
 

@@ -66,6 +66,7 @@
     {
         public string Type { get; set; }
         public string Message { get; set; }
+        public string Route { get; set; }
 
     }
 
