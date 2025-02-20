@@ -23,7 +23,7 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                var response = await _searchService.SearchUser(req.Name, req.PageNo, req.Records);
+                var response = await _searchService.SearchUser(req.Name, req.PageNo, req.Records,user_unique_id);
                 return response;
             }
             catch (Exception ex)
