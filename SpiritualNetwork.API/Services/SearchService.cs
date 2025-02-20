@@ -36,6 +36,8 @@ namespace SpiritualNetwork.API.Services
             {
                 if (Name.Length > 0)
                 {
+                    var trimmedName = string.Join("", Name.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
                     var data = await (from user in _userRepository.Table
                                       join onlineUser in _onlineuserRepository.Table 
                                       on user.Id equals onlineUser.UserId into onlineJoin
@@ -44,7 +46,8 @@ namespace SpiritualNetwork.API.Services
                                       from uf in ufGroup.DefaultIfEmpty()
                                       where user.UserName.ToLower().Contains(Name.ToLower()) || 
                                       user.FirstName.ToLower().Contains(Name.ToLower()) || 
-                                      user.LastName.ToLower().Contains(Name.ToLower()) && 
+                                      user.LastName.ToLower().Contains(Name.ToLower()) ||
+                                      (user.FirstName.Trim() + user.LastName.Trim()).ToLower().Contains(trimmedName) && 
                                       user.IsDeleted == false
                                       select new SearchUserResModel
                                       {
