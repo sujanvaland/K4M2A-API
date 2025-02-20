@@ -24,6 +24,9 @@ namespace SpiritualNetwork.API.Services
         private readonly INotificationService _notificationService;
         private readonly AppDbContext _context;
         private readonly IRepository<UserFollowers> _userFollowers;
+        private readonly IRepository<UserNotification> _userNotificationRepository;
+        private readonly IRepository<Notification> _notificationRepository;
+
 
         public ReactionService(IRepository<PostComment> postComment, 
             AppDbContext appDbContext,
@@ -34,7 +37,9 @@ namespace SpiritualNetwork.API.Services
             IRepository<OnlineUsers> onlineUsers,
             INotificationService notificationService,
             AppDbContext context,
-            IRepository<UserFollowers> userFollowers) 
+            IRepository<UserFollowers> userFollowers,
+            IRepository<UserNotification> userNotificationRepository,
+            IRepository<Notification> notificationRepository) 
         {
             _onlineUsers = onlineUsers;
             _userRepository = userRepository;
@@ -46,6 +51,8 @@ namespace SpiritualNetwork.API.Services
             _notificationService = notificationService;
             _context = context;
             _userFollowers = userFollowers;
+            _userNotificationRepository = userNotificationRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<JsonResponse> GetAllComments(int PostId)
@@ -143,6 +150,14 @@ namespace SpiritualNetwork.API.Services
                     NodeAddPost NodePostId = new NodeAddPost();
                     NodePostId.Id = PostId;
                     await _notificationService.SendPostToNode(NodePostId);
+
+                    var noti = await _notificationRepository.Table.Where(x=> x.ActionByUserId == UserId && x.PostId == PostId
+                    && x.ActionType == "like").FirstOrDefaultAsync();
+                    if (noti != null) { 
+                        var unoti = await _userNotificationRepository.Table.Where(x=>x.NotificationId == noti.Id).ToListAsync();
+                        _notificationRepository.DeleteHard(noti);
+                        _userNotificationRepository.DeleteHardRange(unoti);
+                    }
                 }
 
                 if (like == null)

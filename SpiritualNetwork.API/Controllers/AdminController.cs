@@ -90,5 +90,21 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
+
+        [AllowAnonymous]
+        [HttpPost(Name = "SaveNotificationTemplate")]
+        public async Task<JsonResponse> SaveNotificationTemplate(NotiTemReq req)
+        {
+            try
+            {
+                var response = await _adminService.SaveNotificationTemplate(req);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
     }
 }

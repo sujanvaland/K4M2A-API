@@ -273,6 +273,11 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
+                var post = _userPostRepository.GetById(postId);
+                if(post.IsDeleted)
+                {
+                    return new JsonResponse(200, false, "This Post was deleted by the Post Author", null);
+                }
                 var postIdParam = new NpgsqlParameter("@postId", postId);
                 var userIdParam = new NpgsqlParameter("@requserId", loginUserId);
                
