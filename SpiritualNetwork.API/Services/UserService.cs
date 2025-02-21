@@ -1401,8 +1401,14 @@ namespace SpiritualNetwork.API.Services
 
             PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
             phoneRequest.PhoneNumber = req.Phone;
-            //phoneRequest.OTP = StringHelper.GenerateRandomNumber;
-            phoneRequest.OTP = "123456";
+            if(req.Phone == "+919404437591" || req.Phone == "+919958355307")
+            {
+				phoneRequest.OTP = StringHelper.GenerateRandomNumber;
+            }
+            else
+            {
+				phoneRequest.OTP = "123456";
+			}
             phoneRequest.ActivationDate = DateTime.Now;
             phoneRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
             phoneRequest.IsUsed = false;
@@ -1418,7 +1424,22 @@ namespace SpiritualNetwork.API.Services
                 await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
             }
 
-            var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
+            if(phoneRequest.OTP != "123456")
+            {
+				// Replace with your Twilio Account SID and Auth Token
+				string accountSid = "ACc1c75bb7f23792994352017d4743c537";
+				string authToken = "f0b4b303513fa377a688a288ae02bba2";
+
+				TwilioClient.Init(accountSid, authToken);
+
+				var message = Twilio.Rest.Api.V2010.Account.MessageResource.Create(
+					body: "Your OTP to Verify K4M2A Account :" + phoneRequest.OTP,
+					from: new Twilio.Types.PhoneNumber("+17348905624"), // Your Twilio phone number
+					to: new Twilio.Types.PhoneNumber(req.Phone) // Recipient's phone number
+				);
+			}
+
+			var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
             if(user == null)
             {
                 SignupRequest request = new SignupRequest();
