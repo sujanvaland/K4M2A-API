@@ -4,6 +4,7 @@ using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
+using System.Text.RegularExpressions;
 using Twilio.TwiML.Voice;
 using static HotChocolate.ErrorCodes;
 
@@ -34,6 +35,8 @@ namespace SpiritualNetwork.API.Services
         {
             try 
             {
+                Name = Regex.Replace(Name, @"^@+", "").Trim();
+
                 if (Name.Length > 0)
                 {
                     var trimmedName = string.Join("", Name.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
