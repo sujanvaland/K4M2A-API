@@ -38,8 +38,7 @@ GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync
 GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
 GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
 GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
-GlobalVariables.TwilioaccountSid = await configRepository.GetConfigurationValueAsync("TwilioaccountSid");
-GlobalVariables.TwilioauthToken = await configRepository.GetConfigurationValueAsync("TwilioauthToken");
+
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
     
