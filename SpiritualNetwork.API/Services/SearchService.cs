@@ -15,32 +15,39 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<OnlineUsers> _onlineuserRepository;
         private readonly IRepository<UserNetwork> _userNetworkRepository;
         private readonly IRepository<HashTag> _hashTagRepository;
+        private readonly IRepository<UserFollowers> _userFollowers;
 
         public SearchService(IRepository<User> userRepository, 
             IRepository<OnlineUsers> onlineuserRepository,
             IRepository<UserNetwork> userNetworkRepository,
-            IRepository<HashTag> hashTagRepository)
+            IRepository<HashTag> hashTagRepository,
+            IRepository<UserFollowers> userFollowers)
         {
             _userNetworkRepository = userNetworkRepository;
             _userRepository = userRepository;
             _onlineuserRepository = onlineuserRepository;
             _hashTagRepository = hashTagRepository;
-
+            _userFollowers = userFollowers;
         }
 
-        public async Task<JsonResponse> SearchUser(string Name, int PageNo, int Record)
+        public async Task<JsonResponse> SearchUser(string Name, int PageNo, int Record, int LoginId)
         {
             try 
             {
                 if (Name.Length > 0)
                 {
+                    var trimmedName = string.Join("", Name.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
                     var data = await (from user in _userRepository.Table
                                       join onlineUser in _onlineuserRepository.Table 
                                       on user.Id equals onlineUser.UserId into onlineJoin
                                       from onlineUser in onlineJoin.DefaultIfEmpty()
+                                      join uf in _userFollowers.Table.Where(x => x.UserId == LoginId) on user.Id equals uf.FollowToUserId into ufGroup
+                                      from uf in ufGroup.DefaultIfEmpty()
                                       where user.UserName.ToLower().Contains(Name.ToLower()) || 
                                       user.FirstName.ToLower().Contains(Name.ToLower()) || 
-                                      user.LastName.ToLower().Contains(Name.ToLower()) && 
+                                      user.LastName.ToLower().Contains(Name.ToLower()) ||
+                                      (user.FirstName.Trim() + user.LastName.Trim()).ToLower().Contains(trimmedName) && 
                                       user.IsDeleted == false
                                       select new SearchUserResModel
                                       {
@@ -54,6 +61,7 @@ namespace SpiritualNetwork.API.Services
                                           UserName = user.UserName,
                                           ProfileImg = user.ProfileImg,
                                           Online = onlineUser != null ? true : false,
+                                          IsFollowedByLoginUser = uf != null,
                                           IsInvited = false,
                                           IsBusinessAccount= user.IsBusinessAccount,
                                       })
@@ -83,7 +91,8 @@ namespace SpiritualNetwork.API.Services
                                             ProfileImg = user.Photo,
                                             Online = false,
                                             UniqueId = user.UniqueId,
-                                            IsInvited = user.IsInvited
+                                            IsInvited = user.IsInvited,
+                                            IsFollowedByLoginUser = false,
                                         })
                                         .Skip((PageNo - 1) * (Record - data.Count))
                                         .Take(Record - data.Count)

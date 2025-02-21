@@ -51,4 +51,11 @@
         public int Size { get; set; }
     }
 
+    public class NotificationActionReq
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+    }
+
+
 }

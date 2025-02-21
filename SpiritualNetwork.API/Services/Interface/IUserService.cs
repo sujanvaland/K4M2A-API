@@ -36,8 +36,10 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task FollowUnFollowUser(int userId, int loginUserId);
         public Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req);
         public Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req);
+        public Task FollowUsers(List<int> userIds, int loginUserId);
+        public Task<JsonResponse> RequestInvite(RequestInviteRequest request);
+        public Task<JsonResponse> getUserInviteList(int UserId);
+        public Task<JsonResponse> GetUserFromYourContact(int UserId);
 
-		public Task<JsonResponse> RequestInvite(RequestInviteRequest request);
-
-	}
+    }
 }

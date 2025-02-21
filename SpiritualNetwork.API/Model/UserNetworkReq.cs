@@ -27,4 +27,9 @@
 		public string ConnectionId { get; set; }
 		public string Type { get; set; }
 	}
+
+    public class FollowUserReq
+    {
+        public List<int> userId { get; set; }
+    }
 }

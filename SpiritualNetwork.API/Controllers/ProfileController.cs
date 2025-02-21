@@ -278,5 +278,31 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
+
+        [HttpPost(Name = "DeleteUndoNotification")]
+        public async Task<JsonResponse> DeleteUndoNotification(NotificationActionReq req)
+        {
+            try
+            {
+                return await _notificationService.DeleteUndoNotification(req.Type,user_unique_id,req.Id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [HttpPost(Name = "ReadNotification")]
+        public async Task<JsonResponse> ReadNotification(NotificationActionReq req)
+        {
+            try
+            {
+                return await _notificationService.ReadNotification(req.Type, user_unique_id, req.Id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
     }
 }

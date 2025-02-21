@@ -10,5 +10,6 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> BanUnBanUser(int Id);
         public Task<JsonResponse> GetAllReportByReportedId(ReportDetailReq req);
         public Task<JsonResponse> ReportList(ReportReq req);
+        public Task<JsonResponse> SaveNotificationTemplate(NotiTemReq req);
     }
 }

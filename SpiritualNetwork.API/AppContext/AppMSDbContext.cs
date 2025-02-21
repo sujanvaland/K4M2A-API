@@ -6,11 +6,11 @@ using static SpiritualNetwork.API.Model.TimelineModel;
 
 namespace SpiritualNetwork.API.AppContext
 {
-    public class AppDbContext : DbContext
+    public class AppMSDbContext : DbContext
     {
         protected readonly IConfiguration _configuration;
-		public DbSet<MaxID> MaxID { get; set; }
-		public DbSet<Invitation> Invitation {  get; set; }
+
+        public DbSet<Invitation> Invitation {  get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequest { get; set; }
         public DbSet<EmailTemplate> EmailTemplate { get; set; }
@@ -28,9 +28,6 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<Model.TimelineModel.PostResponse> PostResponses { get; set; }
         public DbSet<Model.TimelineModel.CommentReposne> CommentResponses { get; set; }
         public DbSet<Model.TimelineModel.UserChatResponse> UserChatResponse { get; set; }
-        public DbSet<ContactUserRes> ContactUserRes { get; set; }
-        public DbSet<InviteUserRes> InviteUserRes { get; set; }
-        public DbSet<NotificationTemplate> NotificationTemplate { get; set; }
         public DbSet<ReactionResponse> Reactions { get; set; }
         public DbSet<UserFollowers> UserFollowers { get; set; }
         public DbSet<OnlineUsers> OnlineUsers { get; set; }
@@ -76,22 +73,16 @@ namespace SpiritualNetwork.API.AppContext
 		public DbSet<UserContract> UserContract { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
 
-        public AppDbContext(IConfiguration configuration)
+        public AppMSDbContext(IConfiguration configuration)
         {
-            _configuration = configuration; 
+            _configuration = configuration;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("dbo"); 
+            modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.Entity<PostResponse>()
                 .HasNoKey()
                 .ToTable("PostResponse", t => t.ExcludeFromMigrations());
-            modelBuilder.Entity<ContactUserRes>()
-               .HasNoKey()
-               .ToTable("ContactUserRes", t => t.ExcludeFromMigrations());
-            modelBuilder.Entity<InviteUserRes>()
-               .HasNoKey()
-               .ToTable("InviteUserRes", t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CommentReposne>()
                 .HasNoKey()
                 .ToTable("CommentReposne", t => t.ExcludeFromMigrations());
@@ -105,7 +96,7 @@ namespace SpiritualNetwork.API.AppContext
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("Default"));
+            optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultMSSql"));
         }
 
     }

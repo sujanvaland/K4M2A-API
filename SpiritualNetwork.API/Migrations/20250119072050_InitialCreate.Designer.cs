@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SpiritualNetwork.API.AppContext;
@@ -11,9 +12,11 @@ using SpiritualNetwork.API.AppContext;
 namespace SpiritualNetwork.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250119072050_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,73 +26,10 @@ namespace SpiritualNetwork.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.ContactUserRes", b =>
-                {
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("IsBusinessAccount")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProfileImg")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("ContactUserRes", "dbo", t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
-            modelBuilder.Entity("SpiritualNetwork.API.Model.InviteUserRes", b =>
-                {
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Photo")
-                        .HasColumnType("text");
-
-                    b.ToTable("InviteUserRes", "dbo", t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
             modelBuilder.Entity("SpiritualNetwork.API.Model.ReactionResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -116,7 +56,7 @@ namespace SpiritualNetwork.API.Migrations
             modelBuilder.Entity("SpiritualNetwork.API.Model.TimelineModel+CommentReposne", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -149,7 +89,7 @@ namespace SpiritualNetwork.API.Migrations
             modelBuilder.Entity("SpiritualNetwork.API.Model.TimelineModel+PostResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -172,9 +112,6 @@ namespace SpiritualNetwork.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("PostUserId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ProfileImg")
                         .IsRequired()
                         .HasColumnType("text");
@@ -182,6 +119,9 @@ namespace SpiritualNetwork.API.Migrations
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -211,7 +151,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
@@ -246,61 +186,6 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.ActivityLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ActivityType")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("IPAddress")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Latitude")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Longitude")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("RefId1")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RefId2")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ActivityLog", "dbo");
-                });
-
             modelBuilder.Entity("SpiritualNetwork.Entities.AnswerOption", b =>
                 {
                     b.Property<int>("Id")
@@ -313,7 +198,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("IsCorrect")
                         .HasColumnType("integer");
@@ -325,7 +210,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Option")
                         .IsRequired()
@@ -352,7 +237,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -361,7 +246,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -402,7 +287,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -411,7 +296,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -436,7 +321,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("DeleteForUserId1")
                         .HasColumnType("integer");
@@ -463,7 +348,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ReceiverId")
                         .HasColumnType("integer");
@@ -494,7 +379,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -507,7 +392,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -533,7 +418,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -542,7 +427,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -586,7 +471,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -604,7 +489,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -629,7 +514,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -638,7 +523,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -674,7 +559,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descriptions")
                         .HasMaxLength(200)
@@ -687,7 +572,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Rule")
                         .IsRequired()
@@ -711,7 +596,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -720,7 +605,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -792,19 +677,19 @@ namespace SpiritualNetwork.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -816,7 +701,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -848,14 +733,14 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EndTime")
                         .HasColumnType("text");
@@ -894,10 +779,10 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("StartTime")
                         .HasColumnType("text");
@@ -926,7 +811,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -944,7 +829,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -970,7 +855,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -982,7 +867,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1004,7 +889,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -1016,7 +901,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Type")
                         .HasColumnType("text");
@@ -1041,7 +926,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EventTypeName")
                         .IsRequired()
@@ -1054,7 +939,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1073,7 +958,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ExperienceImg")
                         .IsRequired()
@@ -1090,7 +975,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1120,7 +1005,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
@@ -1137,7 +1022,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasColumnType("text");
@@ -1159,7 +1044,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -1177,13 +1062,13 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("JoinDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ModifiedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1205,7 +1090,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("GuruImg")
                         .IsRequired()
@@ -1222,7 +1107,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1244,7 +1129,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1253,7 +1138,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1277,7 +1162,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1286,7 +1171,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1313,7 +1198,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1334,7 +1219,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
@@ -1349,19 +1234,6 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("InviteRequest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.MaxID", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.HasKey("id");
-
-                    b.ToTable("MaxID", "dbo");
-                });
-
             modelBuilder.Entity("SpiritualNetwork.Entities.MessageGroupDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -1374,7 +1246,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("GroupName")
                         .IsRequired()
@@ -1387,7 +1259,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ProfileImgUrl")
                         .IsRequired()
@@ -1410,7 +1282,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1419,7 +1291,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("MovieImg")
                         .IsRequired()
@@ -1454,7 +1326,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1468,7 +1340,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -1486,46 +1358,6 @@ namespace SpiritualNetwork.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Notification", "dbo");
-                });
-
-            modelBuilder.Entity("SpiritualNetwork.Entities.NotificationTemplate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Route")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("NotificationTemplate", "dbo");
                 });
 
             modelBuilder.Entity("SpiritualNetwork.Entities.OnBoardingQuestion", b =>
@@ -1548,7 +1380,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -1573,7 +1405,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Question")
                         .IsRequired()
@@ -1606,7 +1438,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1615,7 +1447,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1634,16 +1466,16 @@ namespace SpiritualNetwork.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1655,7 +1487,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -1678,16 +1510,16 @@ namespace SpiritualNetwork.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1699,7 +1531,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -1740,7 +1572,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Day")
                         .HasColumnType("integer");
@@ -1758,7 +1590,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PollTitle")
                         .IsRequired()
@@ -1785,7 +1617,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1794,7 +1626,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PollId")
                         .HasColumnType("integer");
@@ -1819,7 +1651,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1833,7 +1665,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("integer");
@@ -1861,7 +1693,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("FileId")
                         .HasColumnType("integer");
@@ -1873,7 +1705,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -1895,7 +1727,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1904,7 +1736,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PracticeImg")
                         .IsRequired()
@@ -1931,7 +1763,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1963,7 +1795,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -1987,7 +1819,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1996,7 +1828,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -2028,7 +1860,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -2040,7 +1872,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ReportId")
                         .HasColumnType("integer");
@@ -2073,7 +1905,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -2085,7 +1917,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2118,7 +1950,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2127,7 +1959,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Question")
                         .HasColumnType("text");
@@ -2152,7 +1984,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
@@ -2164,7 +1996,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("ServiceId")
                         .HasColumnType("integer");
@@ -2186,7 +2018,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2198,7 +2030,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SnoozeUserId")
                         .HasColumnType("integer");
@@ -2226,7 +2058,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");
@@ -2238,7 +2070,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2269,10 +2101,10 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DOB")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -2339,7 +2171,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Organization")
                         .HasMaxLength(200)
@@ -2379,7 +2211,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime?>("ReActivationDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SecondaryPassword")
                         .HasColumnType("text");
@@ -2429,7 +2261,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptiveAnswer")
                         .HasMaxLength(1000)
@@ -2442,7 +2274,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("QuestionId")
                         .HasColumnType("integer");
@@ -2467,7 +2299,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2481,7 +2313,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -2526,7 +2358,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2535,7 +2367,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("NoOfCoins")
                         .HasColumnType("numeric");
@@ -2560,7 +2392,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2569,7 +2401,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -2594,7 +2426,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("FollowToUserId")
                         .HasColumnType("integer");
@@ -2606,7 +2438,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -2632,7 +2464,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2641,7 +2473,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PostHashTag")
                         .IsRequired()
@@ -2676,7 +2508,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2685,7 +2517,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("MuteedUserId")
                         .HasColumnType("integer");
@@ -2710,7 +2542,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -2737,7 +2569,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
@@ -2765,7 +2597,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2786,7 +2618,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("NotificationId")
                         .HasColumnType("integer");
@@ -2811,7 +2643,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2829,7 +2661,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
@@ -2864,7 +2696,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2876,7 +2708,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SuggestedId")
                         .HasColumnType("integer");
@@ -2905,7 +2737,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsAnnual")
                         .HasColumnType("boolean");
@@ -2926,7 +2758,7 @@ namespace SpiritualNetwork.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()

@@ -15,7 +15,10 @@ using Twilio;
 using Twilio.Rest.IpMessaging.V2.Service.Channel;
 using Twilio.Rest.Chat.V1.Service.Channel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
+using System.Text.RegularExpressions;
+using System.Linq;
+using Npgsql;
+using SpiritualNetwork.API.AppContext;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -41,8 +44,12 @@ namespace SpiritualNetwork.API.Services
 		private readonly IRepository<Tags> _tagsRepository;
 		private readonly IRepository<DeviceToken> _deviceTokenRepository;
         private readonly IRepository<InviteRequest> _inviteRequest;
+        private readonly IRepository<ActivityLog> _activityRepository;
+        private readonly AppDbContext _context;
+        private readonly IRepository<UserNotification> _userNotificationRepository;
+        private readonly IRepository<Notification> _notificationRepository;
 
-		public UserService(
+        public UserService(
             IRepository<OnlineUsers> onlineUsers,
             IRepository<PreRegisteredUser> preregistereduserrepository,
             IRepository<User> userRepository,
@@ -62,7 +69,11 @@ namespace SpiritualNetwork.API.Services
 			IRepository<Tags> tagsRepository,
 			IRepository<DeviceToken> deviceTokenRepository,
             IRepository<PhoneVerificationRequest> phoneVerificationRequest,
-			IRepository<InviteRequest> inviteRequest)
+			IRepository<InviteRequest> inviteRequest,
+            IRepository<ActivityLog> activityRepository,
+            AppDbContext context,
+            IRepository<UserNotification> userNotificationRepository,
+            IRepository<Notification> notificationRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -84,7 +95,10 @@ namespace SpiritualNetwork.API.Services
             _deviceTokenRepository = deviceTokenRepository;
             _phoneVerificationRequestRepository = phoneVerificationRequest;
             _inviteRequest = inviteRequest;
-
+            _activityRepository = activityRepository;
+            _context = context;
+            _userNotificationRepository = userNotificationRepository;
+            _notificationService = notificationService;
 		}
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
@@ -130,38 +144,117 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-		public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
-		{
-			try
-			{
-				var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
+		//public async Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type )
+		//{
+		//	try
+		//	{
+		//		var check = await _deviceTokenRepository.Table.Where(x => x.UserId == UserId && x.Token == Token && x.IsDeleted == false).FirstOrDefaultAsync();
 
-				if (Type == "save")
+		//		if (Type == "save")
+  //              {
+  //                  if (check == null)
+  //                  {
+  //                      DeviceToken deviceToken = new DeviceToken();
+  //                      deviceToken.UserId = UserId;
+  //                      deviceToken.Token = Token;
+  //                      await _deviceTokenRepository.InsertAsync(deviceToken);
+  //                  }
+
+  //                  if (check.Token == Token)
+  //                  {
+  //                      DeviceToken deviceToken = new DeviceToken();
+  //                      deviceToken.UserId = UserId;
+  //                      deviceToken.Token = Token;
+  //                      await _deviceTokenRepository.InsertAsync(deviceToken);
+  //                  }
+
+  //              }
+  //              else
+  //              {
+  //                  if (check != null) 
+  //                  { 
+  //                      await _deviceTokenRepository.DeleteAsync(check);
+  //                  }
+
+  //              }
+		//		return new JsonResponse(200, true, "Success", null);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		throw ex;
+		//	}
+		//}
+
+
+        public async Task<JsonResponse> SaveRemoveDeviceToken(int userId, string? token, string type)
+        {
+            // Validate the token input
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return new JsonResponse(400, false, "Invalid token.", null);
+            }
+
+            try
+            {
+                // Look up the token across all users (ignoring soft-deleted entries)
+                var existingToken = await _deviceTokenRepository.Table
+                    .Where(x => x.Token == token && !x.IsDeleted)
+                    .FirstOrDefaultAsync();
+
+                if (type.Equals("save", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (check == null)
+                    if (existingToken != null)
                     {
-                        DeviceToken deviceToken = new DeviceToken();
-                        deviceToken.UserId = UserId;
-                        deviceToken.Token = Token;
-                        await _deviceTokenRepository.InsertAsync(deviceToken);
+                        // If the token exists but belongs to a different user, update it
+                        if (existingToken.UserId != userId)
+                        {
+                            existingToken.UserId = userId;
+                            // Optionally update other properties like ModifiedDate
+                            await _deviceTokenRepository.UpdateAsync(existingToken);
+                        }
+                        // Else: token already exists for this user. No action needed.
                     }
-                }else
-                {
-                    if (check != null) 
-                    { 
-                        await _deviceTokenRepository.DeleteAsync(check);
+                    else
+                    {
+                        // Insert a new record if the token does not exist
+                        var newToken = new DeviceToken
+                        {
+                            UserId = userId,
+                            Token = token,
+                            IsDeleted = false,
+                            // You can also set CreatedDate = DateTime.UtcNow, etc.
+                        };
+                        await _deviceTokenRepository.InsertAsync(newToken);
                     }
-
                 }
-				return new JsonResponse(200, true, "Success", null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                else if (type.Equals("remove", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Only remove the token if it exists and belongs to this user
+                    if (existingToken != null && existingToken.UserId == userId)
+                    {
+                        // For soft delete:
+                        existingToken.IsDeleted = true;
+                        await _deviceTokenRepository.UpdateAsync(existingToken);
 
-		private async Task<User> AuthenticateWithMobile(string username)
+                        // Alternatively, for a hard delete, you might call:
+                        // await _deviceTokenRepository.DeleteAsync(existingToken);
+                    }
+                }
+                else
+                {
+                    return new JsonResponse(400, false, "Invalid type provided.", null);
+                }
+
+                return new JsonResponse(200, true, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception as needed, then rethrow preserving the stack trace.
+                throw;
+            }
+        }
+
+        private async Task<User> AuthenticateWithMobile(string username)
 		{
 			try
 			{
@@ -273,7 +366,7 @@ namespace SpiritualNetwork.API.Services
 				var token = new JwtSecurityToken(
 					issuer: _configuration["JWT:ValidIssuer"],
 					audience: _configuration["JWT:ValidAudience"],
-					expires: DateTime.Now.AddDays(1),
+					expires: DateTime.Now.AddDays(2),
 					claims: authClaims,
 					signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
 				);
@@ -772,12 +865,18 @@ namespace SpiritualNetwork.API.Services
         public async Task FollowUnFollowUser(int userId,int loginUserId)
         {
             var exists = _userFollowersRepository.Table.Where(x => x.UserId == loginUserId && x.FollowToUserId == userId).FirstOrDefault();
+            if(userId == loginUserId)
+            {
+                return;
+            }
             if (exists == null)
             {
                 UserFollowers follower = new UserFollowers();
                 follower.UserId = loginUserId;
                 follower.FollowToUserId = userId;
                 _userFollowersRepository.Insert(follower);
+
+               
 
                 NotificationRes notification = new NotificationRes();
                 notification.PostId = 0;
@@ -793,9 +892,61 @@ namespace SpiritualNetwork.API.Services
             }
             else
             {
+                ActivityLog activity = new ActivityLog();
+                activity.UserId = loginUserId;
+                activity.RefId1 = userId;
+                activity.ActivityType = "unfollow";
+                activity.Type = "profile";
+
+                var noti = await _notificationRepository.Table.Where(x => x.ActionByUserId == loginUserId && x.RefId1 == userId.ToString()
+                   && x.ActionType == "follow").FirstOrDefaultAsync();
+                if (noti != null)
+                {
+                    var unoti = await _userNotificationRepository.Table.Where(x => x.NotificationId == noti.Id).ToListAsync();
+                    _notificationRepository.DeleteHard(noti);
+                    _userNotificationRepository.DeleteHardRange(unoti);
+                }
+
                 _userFollowersRepository.DeleteHard(exists);
+
+                _activityRepository.Insert(activity);
             }
         }
+
+        public async Task FollowUsers(List<int> userIds, int loginUserId)
+        {
+            foreach (var userId in userIds)
+            {
+                var exists = _userFollowersRepository.Table
+                    .FirstOrDefault(x => x.UserId == loginUserId && x.FollowToUserId == userId && x.IsDeleted == false);
+
+                if (exists == null)
+                {
+                    UserFollowers follower = new UserFollowers
+                    {
+                        UserId = loginUserId,
+                        FollowToUserId = userId
+                    };
+                    _userFollowersRepository.Insert(follower);
+
+                    NotificationRes notification = new NotificationRes
+                    {
+                        PostId = 0,
+                        ActionByUserId = loginUserId,
+                        ActionType = "follow",
+                        RefId1 = userId.ToString(),
+                        RefId2 = "",
+                        Message = "",
+                        PushAttribute = "pushfollowyou",
+                        EmailAttribute = "emailfollowyou"
+                    };
+
+                    await _notificationService.SaveNotification(notification);
+                }
+            }
+        }
+
+
 
         public void BlockMuteUser(int userId, int loginUserId,string type)
         {
@@ -912,12 +1063,14 @@ namespace SpiritualNetwork.API.Services
                     list.Add(userNetwork);
                 }
 
-                var DbUserNetwork = await _userNetworkRepository.Table.ToListAsync();
+                var DbUserNetwork = await _userNetworkRepository.Table.Where(x => x.InviterId == inviterId
+                            && x.IsDeleted == false).ToListAsync();
 
                 list = list.Where(nuser => !DbUserNetwork.Any(user => 
-                    user.UniqueId != nuser.UniqueId ||
-                    user.PhoneNumber != nuser.PhoneNumber ||
-                    user.Email != nuser.Email
+                    user.UniqueId == nuser.UniqueId &&
+                    user.PhoneNumber == nuser.PhoneNumber &&
+                    user.Email == nuser.Email &&
+                    user.InviterId == inviterId
                     )).ToList();
 
                 /* 
@@ -934,9 +1087,80 @@ namespace SpiritualNetwork.API.Services
             catch(Exception ex)
             {
                 throw ex;
+            }   
+        }
+
+        public static string NormalizePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber)) return phoneNumber;
+
+            string normalized = Regex.Replace(phoneNumber, @"[^\d+]", "");
+
+            return normalized; 
+        }
+
+
+        public async Task<JsonResponse> getUserInviteList(int UserId)
+            {
+            
+                try
+                {
+                var userIdParam = new NpgsqlParameter("@userid", UserId);
+                var result = await _context.InviteUserRes
+                              .FromSqlRaw("SELECT * FROM dbo.getUserInvitesList(@userid)", userIdParam)
+                              .ToListAsync();
+
+                return new JsonResponse(200, true, "Success", result);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+
+        public async Task<JsonResponse> GetUserFromYourContact(int UserId)
+        {
+            try
+            {
+                var userIdParam = new NpgsqlParameter("@UserId", UserId);
+                var result = await _context.ContactUserRes
+                              .FromSqlRaw("SELECT * FROM dbo.getUserWithMatchingPhoneNumber(@UserId)", userIdParam)
+                              .ToListAsync();
+
+                List<ProfileModel> userList = new List<ProfileModel>();
+                
+                var userIds = result.Select(x=> x.Id).ToList();
+
+               
+
+                var spuserList = await Task.WhenAll(userIds.Select(id => _profileService.GetUserInfoBoxByUserId(id, UserId)));
+                userList.AddRange(spuserList);
+
+                if (userList.Count < 20)
+                {
+                    int remainingCount = 20 - userList.Count;
+                    var whoToFollowResponse = await _profileService.GetWhoToFollow(UserId, 1); // Assuming page=1 for simplicity
+
+                    if (whoToFollowResponse.Result is List<ProfileModel> followList)
+                    {
+                        // Filter out users already in userList
+                        //var existingUserIds = new HashSet<int>(userList.Select(u => u.Id));
+                        var filteredFollowList = followList.Where(u => !userIds.Contains(u.Id))
+                                                           .Take(remainingCount)
+                                                           .ToList();
+
+                        userList.AddRange(filteredFollowList);
+                    }
+                }
+
+                return new JsonResponse(200, true, "Success", userList);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
-    
+
         public async Task<bool> SendInvitationMail(string Emailreq, int UserId, int Id)
         {
             try
@@ -1191,8 +1415,14 @@ namespace SpiritualNetwork.API.Services
 
             PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
             phoneRequest.PhoneNumber = req.Phone;
-            //phoneRequest.OTP = StringHelper.GenerateRandomNumber;
-            phoneRequest.OTP = "123456";
+            if(req.Phone == "+919404437591" || req.Phone == "+919958355307" || req.Phone == "+919423405704")
+            {
+				phoneRequest.OTP = StringHelper.GenerateRandomNumber;
+            }
+            else
+            {
+				phoneRequest.OTP = "123456";
+			}
             phoneRequest.ActivationDate = DateTime.Now;
             phoneRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
             phoneRequest.IsUsed = false;
@@ -1208,7 +1438,21 @@ namespace SpiritualNetwork.API.Services
                 await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
             }
 
-            var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
+            if(phoneRequest.OTP != "123456")
+            {
+                string accountSid = GlobalVariables.TwilioaccountSid;
+                string authToken = GlobalVariables.TwilioauthToken;
+
+				TwilioClient.Init(accountSid, authToken);
+
+				var message = Twilio.Rest.Api.V2010.Account.MessageResource.Create(
+					body: phoneRequest.OTP + "is your login OTP for K4M2A App.Do not share it with anyone. Jl2oLB1ekMT - K4M2A",
+					from: new Twilio.Types.PhoneNumber("+17348905624"), // Your Twilio phone number
+					to: new Twilio.Types.PhoneNumber(req.Phone) // Recipient's phone number
+				);
+			}
+
+			var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
             if(user == null)
             {
                 SignupRequest request = new SignupRequest();
@@ -1251,8 +1495,6 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-
-
         public async Task<JsonResponse> getTagsList()
 		{
 			try
@@ -1268,8 +1510,14 @@ namespace SpiritualNetwork.API.Services
 
 		public async Task<JsonResponse> RequestInvite(RequestInviteRequest request)
 		{
+
             if(request.id == 0)
             {
+                var exist = _inviteRequest.Table.Where(x => x.Email.ToLower() == request.email.ToLower()).FirstOrDefault();
+                if (exist !=null)
+                {
+					return new JsonResponse(200, true, "Fail", "Already registered");
+				}
 				var user = new InviteRequest();
 				if (!String.IsNullOrEmpty(request.inviter))
 				{
@@ -1300,14 +1548,27 @@ namespace SpiritualNetwork.API.Services
 			}
             else
             {
-                var user = _inviteRequest.GetById(request.id);
-                user.Name = request.name;
-                user.Phone = request.phone;
-                user.City = request.city;
-                user.Journey = request.journey;
-                _inviteRequest.Update(user);
-
-				return new JsonResponse(200, true, "Success", user);
+                var phoneexist = _inviteRequest.Table.Where(x => x.Phone == request.phone).FirstOrDefault();
+                if (phoneexist == null)
+                {
+                    var user = _inviteRequest.GetById(request.id);
+                    user.Name = request.name;
+                    user.Phone = request.phone;
+                    user.City = request.city;
+                    user.Journey = request.journey;
+                    _inviteRequest.Update(user);
+					return new JsonResponse(200, true, "Success", user);
+                }
+                else
+                {
+					var user = _inviteRequest.GetById(request.id);
+					user.Name = request.name;
+					user.Phone = request.phone;
+					user.City = request.city;
+					user.Journey = request.journey;
+					_inviteRequest.Update(user);
+					return new JsonResponse(200, true, "Fail", "Phone number already registered");
+				}
 			}
 
            

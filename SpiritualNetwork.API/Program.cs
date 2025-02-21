@@ -12,14 +12,18 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
-using SpiritualNetwork.API.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Enable legacy timestamp behavior for Npgsql
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 var ConnectionString = builder.Configuration.GetConnectionString("Default");
+var ConnectionStringMSSql = builder.Configuration.GetConnectionString("DefaultMSSql");
+
 var configRepository = new ConfigurationRepository(ConnectionString);
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
@@ -34,12 +38,18 @@ GlobalVariables.SMTPUsername = await configRepository.GetConfigurationValueAsync
 GlobalVariables.SMTPPassword = await configRepository.GetConfigurationValueAsync("SMTPPassword");
 GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SMTPPort");
 GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
-
+GlobalVariables.TwilioaccountSid = await configRepository.GetConfigurationValueAsync("TwilioaccountSid");
+GlobalVariables.TwilioauthToken = await configRepository.GetConfigurationValueAsync("TwilioauthToken");
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
     
-    dbContextBuilder.UseSqlServer(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+    dbContextBuilder.UseNpgsql(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
 });
+
+//builder.Services.AddDbContext<AppMSDbContext>((serviceProvider, dbContextBuilder) =>
+//{
+//	dbContextBuilder.UseSqlServer(ConnectionStringMSSql, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+//});
 
 builder.Services
     .AddGraphQLServer()
@@ -118,6 +128,8 @@ builder.Services.AddScoped<IK4M2AService, K4M2AService>();
 builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IHastTagService, HashTagService>();
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
 //builder.Services.AddSingleton<RabbitMQService>();
 //builder.Services.AddSingleton<RabbitMQConsumerService>();
 //builder.Services.AddHostedService<RabbitMQConsumerHostedService>();

@@ -27,7 +27,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserFollowers> _userFollowers;
         private readonly IProfileService _profileService;
         private readonly AppDbContext _context;
-        private readonly INotificationService _notificationService;
+		//private readonly AppMSDbContext _msdbcontext;
+		private readonly INotificationService _notificationService;
         private readonly IRepository<Entities.File> _fileRepository;
         private readonly IRepository<MessageGroupDetails> _messageGroupDetailsRepository;
         private readonly IRepository<GroupMember> _groupMemberRepository;
@@ -40,7 +41,8 @@ namespace SpiritualNetwork.API.Services
         public ChatService(IRepository<ChatMessages> chatMessagesRepository, 
             IRepository<User> userRepository,
             AppDbContext context,
-            INotificationService notificationService,
+			//AppMSDbContext msdbcontext,
+			INotificationService notificationService,
             IRepository<OnlineUsers> onlineUsers,
             IRepository<UserFollowers> userFollowers,
             IProfileService profileService,
@@ -56,7 +58,8 @@ namespace SpiritualNetwork.API.Services
                 _chatMessagesRepository = chatMessagesRepository;
                 _userRepository = userRepository;
                 _context = context;
-                _notificationService = notificationService;
+			    //_msdbcontext = msdbcontext;
+				_notificationService = notificationService;
                 _userFollowers = userFollowers;
                 _profileService = profileService;
                 _fileRepository = fileRepository;
@@ -180,11 +183,11 @@ namespace SpiritualNetwork.API.Services
 						};
 
             string sql = @"
-                            UPDATE ChatMessages
-                            SET IsRead = 1
-                            WHERE ReceiverId = {0}
-                            AND SenderId = {1}
-                            AND IsRead = 0";
+                            UPDATE ""dbo"".""ChatMessages""
+                            SET ""IsRead"" = true
+                            WHERE ""ReceiverId"" = {0}
+                            AND ""SenderId"" = {1}
+                            AND ""IsRead"" = false";
 
             _context.Database.ExecuteSqlRaw(sql, LoginUserId, req.UserId);
 

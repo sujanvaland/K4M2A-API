@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using Npgsql;
 using SpiritualNetwork.API.AppContext;
 using SpiritualNetwork.API.Hubs;
 using SpiritualNetwork.API.Model;
@@ -23,6 +24,9 @@ namespace SpiritualNetwork.API.Services
         private readonly INotificationService _notificationService;
         private readonly AppDbContext _context;
         private readonly IRepository<UserFollowers> _userFollowers;
+        private readonly IRepository<UserNotification> _userNotificationRepository;
+        private readonly IRepository<Notification> _notificationRepository;
+
 
         public ReactionService(IRepository<PostComment> postComment, 
             AppDbContext appDbContext,
@@ -33,7 +37,9 @@ namespace SpiritualNetwork.API.Services
             IRepository<OnlineUsers> onlineUsers,
             INotificationService notificationService,
             AppDbContext context,
-            IRepository<UserFollowers> userFollowers) 
+            IRepository<UserFollowers> userFollowers,
+            IRepository<UserNotification> userNotificationRepository,
+            IRepository<Notification> notificationRepository) 
         {
             _onlineUsers = onlineUsers;
             _userRepository = userRepository;
@@ -45,21 +51,19 @@ namespace SpiritualNetwork.API.Services
             _notificationService = notificationService;
             _context = context;
             _userFollowers = userFollowers;
+            _userNotificationRepository = userNotificationRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<JsonResponse> GetAllComments(int PostId)
         {
             try
             {
-
-                SqlParameter postparam = new SqlParameter("@postid", PostId);
-
-                var Result = await _appDbContext.PostResponses
-                    .FromSqlRaw("GetComments @postid", postparam)
-                    .ToListAsync();
-
-                return new JsonResponse(200, true, "Success", Result);
-
+				var postIdParam = new NpgsqlParameter("@postId", PostId);
+				var result = await _context.PostResponses
+							  .FromSqlRaw("SELECT * FROM dbo.getcomments(@postId)", postIdParam)
+							  .ToListAsync();
+				return new JsonResponse(200, true, "Success", result);
             }
             catch (Exception ex)
             {
@@ -71,11 +75,12 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                SqlParameter userparam = new SqlParameter("@UserId", userid);
-                var Result = await _context.PostResponses
-                    .FromSqlRaw("GetBookmarkTimeLine @UserId", userparam)
-                    .ToListAsync();
-                return new JsonResponse(200, true, "Success", Result);
+				var userIdParam = new NpgsqlParameter("@requserId", userid);
+
+				var result = await _context.PostResponses
+							  .FromSqlRaw("SELECT * FROM dbo.getbookmarktimeline(@requserId)", userIdParam)
+							  .ToListAsync();
+				return new JsonResponse(200, true, "Success", result);
             }
             catch(Exception ex)
             {
@@ -145,6 +150,14 @@ namespace SpiritualNetwork.API.Services
                     NodeAddPost NodePostId = new NodeAddPost();
                     NodePostId.Id = PostId;
                     await _notificationService.SendPostToNode(NodePostId);
+
+                    var noti = await _notificationRepository.Table.Where(x=> x.ActionByUserId == UserId && x.PostId == PostId
+                    && x.ActionType == "like").FirstOrDefaultAsync();
+                    if (noti != null) { 
+                        var unoti = await _userNotificationRepository.Table.Where(x=>x.NotificationId == noti.Id).ToListAsync();
+                        _notificationRepository.DeleteHard(noti);
+                        _userNotificationRepository.DeleteHardRange(unoti);
+                    }
                 }
 
                 if (like == null)
@@ -157,18 +170,20 @@ namespace SpiritualNetwork.API.Services
                     await _postService.UpdateCount(PostId, "like", 1);
                     like = reaction;
 
-                    NotificationRes notification = new NotificationRes();
-                    notification.PostId = PostId;
-                    notification.ActionByUserId = UserId;
-                    notification.ActionType = "like";
-                    notification.RefId1 = data.UserId.ToString();
-                    notification.RefId2 = "";
-                    notification.Message = "";
-                    notification.PushAttribute = "pushlikepost";
-					notification.EmailAttribute = "emaillikepost";
-					await _notificationService.SaveNotification(notification);
-
-					return new JsonResponse(200, true, "Success", notification);
+                    if(data.UserId != UserId)
+                    {
+                        NotificationRes notification = new NotificationRes();
+                        notification.PostId = PostId;
+                        notification.ActionByUserId = UserId;
+                        notification.ActionType = "like";
+                        notification.RefId1 = data.UserId.ToString();
+                        notification.RefId2 = "";
+                        notification.Message = "";
+                        notification.PushAttribute = "pushlikepost";
+                        notification.EmailAttribute = "emaillikepost";
+                        await _notificationService.SaveNotification(notification);
+                    }
+                    return new JsonResponse(200, true, "Success", null);
 				}
 
 				//var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();

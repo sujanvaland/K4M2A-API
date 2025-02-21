@@ -10,7 +10,6 @@ using System.Text.Json;
 using SpiritualNetwork.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using SpiritualNetwork.API.Migrations;
 using Azure.Core;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -24,6 +23,8 @@ using Event = SpiritualNetwork.Entities.Event;
 using Community = SpiritualNetwork.Entities.Community;
 using System.IO.Hashing;
 using SpiritualNetwork.API.AppContext;
+using Org.BouncyCastle.Utilities.Collections;
+using static Antlr4.Runtime.Atn.SemanticContext;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -518,6 +519,7 @@ namespace SpiritualNetwork.API.Services
                                   orderby UN.CreatedDate descending
                                   select new userNotificationRes
                                   {
+                                      NotificationId = UN.Id,
                                       UserDetail = _mapper.Map<UserDetails>(UD),
                                       Type = N.ActionType,
                                       PostId = N.PostId,
@@ -528,16 +530,122 @@ namespace SpiritualNetwork.API.Services
                                       Message =N.Message
                                   };
 
-            string sql = @"
-                            UPDATE UserNotification
-                            SET IsRead = 1
-                            WHERE UserId = {0}
-                            AND IsRead = 0";
+			//var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
+            var notifications = await allNotification.ToListAsync();
 
-            _context.Database.ExecuteSqlRaw(sql, userId);
+            // Process likes separately
+            var groupedLikes = notifications
+                .Where(n => n.Type == "like" && n.PostId != null)
+                .GroupBy(n => n.PostId)
+                .Select(g => new userNotificationRes
+                {
+                    NotificationId = g.First().NotificationId,
+                    UserDetailList = g.OrderByDescending(n => n.CreatedDate)
+                                      .Take(3)
+                                      .Select(n => n.UserDetail)
+                                      .ToList(),
+                    OtherLikeCount = g.Count() - 1 > 0 ? g.Count() - 1 : 0,
+                    Type = "like",
+                    PostId = g.Key,
+                    ParentPostId = g.First().ParentPostId,
+                    RepostUserDetail = g.First().RepostUserDetail,
+                    CreatedDate = g.First().CreatedDate,
+                    IsRead = g.First().IsRead,
+                    Message = g.First().Message
+                }).ToList();
 
-            var chatHistory = await allNotification.Take(Size).Skip((PageNo - 1) * Size).ToListAsync();
-            return new JsonResponse(200, true, " Success", chatHistory);
+            // Keep non-like notifications unchanged
+            var otherNotifications = notifications
+                .Where(n => n.Type != "like")
+                .Select(n => new userNotificationRes
+                {
+                    NotificationId = n.NotificationId,
+                    UserDetail = n.UserDetail,
+                    Type = n.Type,
+                    PostId = n.PostId,
+                    ParentPostId = n.ParentPostId,
+                    RepostUserDetail = n.RepostUserDetail,
+                    CreatedDate = n.CreatedDate,
+                    IsRead = n.IsRead,
+                    Message = n.Message
+                }).ToList();
+
+            // Combine lists and apply pagination
+            var finalNotifications = groupedLikes.Concat(otherNotifications)
+                .OrderByDescending(n => n.CreatedDate)
+                .Skip((PageNo - 1) * Size)
+                .Take(Size)
+                .ToList();
+            //string sql = @"
+            //     UPDATE ""dbo"".""UserNotification""
+            //     SET ""IsRead"" = true
+            //     WHERE ""UserId"" = {0}
+            //     AND ""IsRead"" = false";
+
+            //_context.Database.ExecuteSqlRaw(sql, userId);
+
+            return new JsonResponse(200, true, " Success", finalNotifications);
+        }
+
+        public async Task<JsonResponse> DeleteUndoNotification(string type, int userId,int Id)
+        {
+            try
+            {
+                var data = await _userNotificationRepository.Table.Where(x=> x.UserId == userId &&  x.Id == Id).FirstOrDefaultAsync();
+                if(type == "delete" && !data.IsDeleted)
+                {
+                    await _userNotificationRepository.DeleteAsync(data);
+                    return new JsonResponse(200, true, "Notification Deleted Success", null);
+                }
+                else if(type == "undo" && data.IsDeleted)
+                {
+                    data.IsDeleted = false;
+                    await _userNotificationRepository.UpdateAsync(data);
+                    return new JsonResponse(200, true, "Notification Undo Success", null);
+                }
+
+                return new JsonResponse(200, true, " Notification not Found", null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<JsonResponse> ReadNotification(string type, int userId, int Id)
+        {
+            try
+            {
+                if (type == "markallread")
+                {
+                    string sql = @"
+                         UPDATE ""dbo"".""UserNotification""
+                         SET ""IsRead"" = true
+                         WHERE ""UserId"" = {0}
+                         AND ""IsRead"" = false";
+
+                    _context.Database.ExecuteSqlRaw(sql, userId);
+
+                    return new JsonResponse(200, true, "Mark As All Read Success", null);
+                }
+
+                var data = await _userNotificationRepository.Table.Where(x => x.UserId == userId && x.Id == Id).FirstOrDefaultAsync();
+
+                if (data != null)
+                {
+                    data.IsRead = true;
+                    await _userNotificationRepository.UpdateAsync(data);
+                    return new JsonResponse(200, true, "Notification Read Success", null);
+                }
+
+                return new JsonResponse(200, true, " Notification not Found", null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<JsonResponse> GetAllNotificationCount(int User)

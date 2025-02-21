@@ -164,6 +164,19 @@ namespace SpiritualNetwork.API.Controllers
         }
 
 
+        [AllowAnonymous]
+        [HttpGet(Name = "GetSearchHashTag")]
+        public async Task<JsonResponse> GetSearchHashTag(string search)
+        {
+            try
+            {
+                return await _hashtagService.GetSearchHashTag(search);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
 
         [HttpPost(Name = "PostUpload")]
         public async Task<JsonResponse> PostUpload(IFormCollection form)
@@ -206,8 +219,8 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.UserUniqueId = user_unique_id;
                 postDataDto.Username = username;
 				// Produce a message
-				await KafkaProducer.ProduceMessage("post", postDataDto);
-                //var response = await _postService.InsertPost(postDataDto);
+				//await KafkaProducer.ProduceMessage("post", postDataDto);
+                var response = await _postService.InsertPost(postDataDto);
                 return new JsonResponse(200,true,"Success", null);
             }
             catch (Exception ex)
@@ -422,6 +435,21 @@ namespace SpiritualNetwork.API.Controllers
             try
             {
                 await _postService.DeleteAllVideoPost(user_unique_id);
+                return new JsonResponse(200, true, "Success", null);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet(Name = "MigratePost")]
+        public JsonResponse MigratePost()
+        {
+            try
+            {
+                _postService.MigratePost();
                 return new JsonResponse(200, true, "Success", null);
             }
             catch (Exception ex)

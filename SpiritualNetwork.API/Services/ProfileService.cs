@@ -2,7 +2,6 @@
 using GreenDonut;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using SpiritualNetwork.API.Migrations;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Common;
@@ -26,6 +25,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<OnlineUsers> _onlineUsers;
         private readonly IRepository<UserProfileSuggestion> _profilesuggestionRepo; 
         private readonly IRepository<UserSubcription> _userSubcriptionRepo;
+        private readonly IRepository<UserMuteBlockList> _blockmuteRepository;
         private readonly IMapper _mapper;
 
         public ProfileService(IRepository<User> userRepository, 
@@ -38,7 +38,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<OnlineUsers> onlineUsers,
             IRepository<UserProfileSuggestion> profilesuggestionRepo,
             IRepository<UserSubcription> userSubcriptionRepo,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<UserMuteBlockList> blockmuteRepository)
         {
             _userRepository = userRepository;
             _bookRepository = bookRepository;
@@ -51,6 +52,7 @@ namespace SpiritualNetwork.API.Services
             _profilesuggestionRepo = profilesuggestionRepo;
             _userSubcriptionRepo = userSubcriptionRepo;
             _mapper = mapper;
+            _blockmuteRepository = blockmuteRepository;
         }
 
         private List<T> Shuffle<T>(List<T> list)
@@ -114,12 +116,18 @@ namespace SpiritualNetwork.API.Services
                 var profileData = await _userRepository.Table.Where(x => x.Id == UserId
                                     && x.IsDeleted == false).FirstOrDefaultAsync();
                 //profileData = _mapper.Map<User>(profileData);
-                var splitName = profileReq.Name.Split(" ");
+                var splitName = profileReq.Name?.Split(" ");
+
                 if (splitName?.Length > 0)
                 {
                     profileData.FirstName = splitName[0];
                     profileData.LastName = splitName.Length > 1 ? splitName[1] : "";
                 }
+                else
+                {
+                    profileData.FirstName = profileReq.FirstName;
+                    profileData.LastName = profileReq.LastName;
+				}
                 if (!String.IsNullOrEmpty(profileData.FirstName) && String.IsNullOrEmpty(profileData.UserName))
 				{
 					profileData.UserName = GenerateUniqueUsername(profileData.FirstName, profileData.LastName);
@@ -246,6 +254,9 @@ namespace SpiritualNetwork.API.Services
 				profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
 				profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == UserId && x.FollowToUserId == profileModel.Id).Count();
+                profileModel.IsBlock = _blockmuteRepository.Table.Any(x=> x.UserId == UserId && x.BlockedUserId == profileModel.Id && x.IsDeleted == false);
+                profileModel.IsMute = _blockmuteRepository.Table.Any(x => x.UserId == UserId && x.MuteedUserId == profileModel.Id && x.IsDeleted == false);
+
                 return profileModel;
             }
             catch (Exception ex)
@@ -657,10 +668,12 @@ namespace SpiritualNetwork.API.Services
             var Following = (from uf in _userFollowers.Table
                              join u in _userRepository.Table on uf.FollowToUserId equals u.Id
                              where uf.UserId == UserId
+                             orderby uf.Id descending
                              select u).ToList();
             var Followers = (from uf in _userFollowers.Table
                              join u in _userRepository.Table on uf.UserId equals u.Id
                              where uf.FollowToUserId == UserId
+                             orderby uf.Id descending
                              select u).ToList();
             var MutualFollowers = Following.Intersect(Followers).ToList();
 
@@ -695,11 +708,11 @@ namespace SpiritualNetwork.API.Services
 
             var paginatedUserFollowing = userFollowing.Skip(skip).Take(size).ToList();
 
-            if (paginatedUserFollowing.Count < size)
+			if (paginatedUserFollowing.Count < size)
             {
               var newUser = _userRepository.Table
                  .Where(c => c.IsDeleted == false && !Following.Contains(c.Id))
-                 .OrderBy(c => Guid.NewGuid())
+                 .OrderBy(c => EF.Functions.Random())
                  .Skip(skip)
                 .Take(size - paginatedUserFollowing.Count)
                 .ToList();
