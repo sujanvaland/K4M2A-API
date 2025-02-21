@@ -1415,7 +1415,7 @@ namespace SpiritualNetwork.API.Services
 
             PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
             phoneRequest.PhoneNumber = req.Phone;
-            if(req.Phone == "+919404437591" || req.Phone == "+919958355307")
+            if(req.Phone == "+919404437591" || req.Phone == "+919958355307" || req.Phone == "+919423405704)")
             {
 				phoneRequest.OTP = StringHelper.GenerateRandomNumber;
             }
