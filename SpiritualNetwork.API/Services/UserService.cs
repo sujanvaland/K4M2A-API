@@ -1415,8 +1415,14 @@ namespace SpiritualNetwork.API.Services
 
             PhoneVerificationRequest phoneRequest = new PhoneVerificationRequest();
             phoneRequest.PhoneNumber = req.Phone;
-            //phoneRequest.OTP = StringHelper.GenerateRandomNumber;
-            phoneRequest.OTP = "123456";
+            if(req.Phone == "+919404437591" || req.Phone == "+919958355307" || req.Phone == "+919423405704" || req.Phone == "+919423405704")
+            {
+				phoneRequest.OTP = StringHelper.GenerateRandomNumber;
+            }
+            else
+            {
+				phoneRequest.OTP = "123456";
+			}
             phoneRequest.ActivationDate = DateTime.Now;
             phoneRequest.ExpirtionDate = DateTime.Now.AddMinutes(15);
             phoneRequest.IsUsed = false;
@@ -1432,7 +1438,21 @@ namespace SpiritualNetwork.API.Services
                 await _phoneVerificationRequestRepository.InsertAsync(phoneRequest);
             }
 
-            var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
+            if(phoneRequest.OTP != "123456")
+            {
+                string accountSid = GlobalVariables.TwilioaccountSid;
+                string authToken = GlobalVariables.TwilioauthToken;
+
+				TwilioClient.Init(accountSid, authToken);
+
+				var message = Twilio.Rest.Api.V2010.Account.MessageResource.Create(
+					body: phoneRequest.OTP + " is your login OTP for K4M2A App.Do not share it with anyone. Jl2oLB1ekMT - K4M2A",
+					from: new Twilio.Types.PhoneNumber("+17348905624"), // Your Twilio phone number
+					to: new Twilio.Types.PhoneNumber(req.Phone) // Recipient's phone number
+				);
+			}
+
+			var user = _userRepository.Table.Where(x => x.PhoneNumber == phoneRequest.PhoneNumber).FirstOrDefault();
             if(user == null)
             {
                 SignupRequest request = new SignupRequest();
