@@ -165,8 +165,18 @@ namespace SpiritualNetwork.API.Services
 
 		public string GenerateUniqueUsername(string firstName, string lastName)
 		{
-			// Generate initial username by concatenating first and last name
-			string baseUsername = $"{firstName.ToLower()}.{lastName.ToLower()}".Replace(" ", "");
+            // Generate initial username by concatenating first and last name
+            firstName = firstName?.Trim() ?? "";
+            lastName = lastName?.Trim() ?? "";
+
+            // Generate base username
+            string baseUsername = string.IsNullOrEmpty(lastName)
+                ? firstName.ToLower()
+                : $"{firstName.ToLower()}.{lastName.ToLower()}";
+
+            baseUsername = baseUsername.Replace(" ", ""); // Remove spaces
+
+            //string baseUsername = $"{firstName.ToLower()}.{lastName.ToLower()}".Replace(" ", "");
 			string username = baseUsername;
 			int suffix = 1;
 
