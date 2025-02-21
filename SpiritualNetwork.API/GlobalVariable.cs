@@ -18,6 +18,8 @@
 		public static string SMTPPassword { get; set; }
 		public static string SMTPPort { get; set; }
 		public static string SSLEnable { get; set; }
+		public static string TwilioaccountSid { get; set; }
+		public static string TwilioauthToken { get; set; }
 	}
     
 }
