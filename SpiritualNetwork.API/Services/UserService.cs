@@ -1446,7 +1446,7 @@ namespace SpiritualNetwork.API.Services
 				TwilioClient.Init(accountSid, authToken);
 
 				var message = Twilio.Rest.Api.V2010.Account.MessageResource.Create(
-					body: phoneRequest.OTP + " is your login OTP for K4M2A App.Do not share it with anyone. Jl2oLB1ekMT - K4M2A",
+					body: phoneRequest.OTP + " is your login OTP for K4M2A App.Do not share it with anyone. kgRDFNv939x - K4M2A",
 					from: new Twilio.Types.PhoneNumber("+17348905624"), // Your Twilio phone number
 					to: new Twilio.Types.PhoneNumber(req.Phone) // Recipient's phone number
 				);
