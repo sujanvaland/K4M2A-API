@@ -46,6 +46,8 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<InviteRequest> _inviteRequest;
         private readonly IRepository<ActivityLog> _activityRepository;
         private readonly AppDbContext _context;
+        private readonly IRepository<UserNotification> _userNotificationRepository;
+        private readonly IRepository<Notification> _notificationRepository;
 
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -69,7 +71,9 @@ namespace SpiritualNetwork.API.Services
             IRepository<PhoneVerificationRequest> phoneVerificationRequest,
 			IRepository<InviteRequest> inviteRequest,
             IRepository<ActivityLog> activityRepository,
-            AppDbContext context)
+            AppDbContext context,
+            IRepository<UserNotification> userNotificationRepository,
+            IRepository<Notification> notificationRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -93,7 +97,8 @@ namespace SpiritualNetwork.API.Services
             _inviteRequest = inviteRequest;
             _activityRepository = activityRepository;
             _context = context;
-
+            _userNotificationRepository = userNotificationRepository;
+            _notificationService = notificationService;
 		}
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
@@ -361,7 +366,7 @@ namespace SpiritualNetwork.API.Services
 				var token = new JwtSecurityToken(
 					issuer: _configuration["JWT:ValidIssuer"],
 					audience: _configuration["JWT:ValidAudience"],
-					expires: DateTime.Now.AddDays(1),
+					expires: DateTime.Now.AddDays(2),
 					claims: authClaims,
 					signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
 				);
@@ -892,6 +897,15 @@ namespace SpiritualNetwork.API.Services
                 activity.RefId1 = userId;
                 activity.ActivityType = "unfollow";
                 activity.Type = "profile";
+
+                var noti = await _notificationRepository.Table.Where(x => x.ActionByUserId == loginUserId && x.RefId1 == userId.ToString()
+                   && x.ActionType == "follow").FirstOrDefaultAsync();
+                if (noti != null)
+                {
+                    var unoti = await _userNotificationRepository.Table.Where(x => x.NotificationId == noti.Id).ToListAsync();
+                    _notificationRepository.DeleteHard(noti);
+                    _userNotificationRepository.DeleteHardRange(unoti);
+                }
 
                 _userFollowersRepository.DeleteHard(exists);
 

@@ -170,18 +170,20 @@ namespace SpiritualNetwork.API.Services
                     await _postService.UpdateCount(PostId, "like", 1);
                     like = reaction;
 
-                    NotificationRes notification = new NotificationRes();
-                    notification.PostId = PostId;
-                    notification.ActionByUserId = UserId;
-                    notification.ActionType = "like";
-                    notification.RefId1 = data.UserId.ToString();
-                    notification.RefId2 = "";
-                    notification.Message = "";
-                    notification.PushAttribute = "pushlikepost";
-					notification.EmailAttribute = "emaillikepost";
-					await _notificationService.SaveNotification(notification);
-
-					return new JsonResponse(200, true, "Success", notification);
+                    if(data.UserId != UserId)
+                    {
+                        NotificationRes notification = new NotificationRes();
+                        notification.PostId = PostId;
+                        notification.ActionByUserId = UserId;
+                        notification.ActionType = "like";
+                        notification.RefId1 = data.UserId.ToString();
+                        notification.RefId2 = "";
+                        notification.Message = "";
+                        notification.PushAttribute = "pushlikepost";
+                        notification.EmailAttribute = "emaillikepost";
+                        await _notificationService.SaveNotification(notification);
+                    }
+                    return new JsonResponse(200, true, "Success", null);
 				}
 
 				//var childPosts = await  _userPostRepository.Table.Where(x=>x.ParentId == PostId).ToListAsync();
