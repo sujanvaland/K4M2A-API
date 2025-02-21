@@ -1440,7 +1440,6 @@ namespace SpiritualNetwork.API.Services
 
             if(phoneRequest.OTP != "123456")
             {
-                // Replace with your Twilio Account SID and Auth Token
                 string accountSid = GlobalVariables.TwilioaccountSid;
                 string authToken = GlobalVariables.TwilioauthToken;
 
