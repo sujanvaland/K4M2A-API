@@ -86,7 +86,7 @@ namespace SpiritualNetwork.API.Controllers
             try
             {
                 if ((String.IsNullOrEmpty(loginRequest.Mobile) && String.IsNullOrEmpty(loginRequest.Username)) 
-                    || String.IsNullOrEmpty(loginRequest.Password) || String.IsNullOrEmpty(loginRequest.LoginMethod))
+                    || String.IsNullOrEmpty(loginRequest.Password))
                 {
                     return new JsonResponse(200, false, "Invalid Credential", null);
                 }
