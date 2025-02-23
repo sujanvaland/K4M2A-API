@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Npgsql;
 using SpiritualNetwork.API.AppContext;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -48,7 +49,7 @@ namespace SpiritualNetwork.API.Services
         private readonly AppDbContext _context;
         private readonly IRepository<UserNotification> _userNotificationRepository;
         private readonly IRepository<Notification> _notificationRepository;
-
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
             IRepository<PreRegisteredUser> preregistereduserrepository,
@@ -73,7 +74,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<ActivityLog> activityRepository,
             AppDbContext context,
             IRepository<UserNotification> userNotificationRepository,
-            IRepository<Notification> notificationRepository)
+            IRepository<Notification> notificationRepository,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -98,8 +100,10 @@ namespace SpiritualNetwork.API.Services
             _activityRepository = activityRepository;
             _context = context;
             _userNotificationRepository = userNotificationRepository;
-            _notificationService = notificationService;
-		}
+            _notificationRepository = notificationRepository;
+            _serviceScopeFactory = serviceScopeFactory;
+
+        }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
         {
@@ -1133,7 +1137,15 @@ namespace SpiritualNetwork.API.Services
 
                
 
-                var spuserList = await Task.WhenAll(userIds.Select(id => _profileService.GetUserInfoBoxByUserId(id, UserId)));
+                var spuserList = (await Task.WhenAll(userIds.Select(async id =>
+                {
+                    using (var scope = _serviceScopeFactory.CreateScope()) 
+                    {
+                        var profileService = scope.ServiceProvider.GetRequiredService<IProfileService>(); 
+                        return await profileService.GetUserInfoBoxByUserId(id, UserId); 
+                    }
+                }))).ToList();
+
                 userList.AddRange(spuserList);
 
                 if (userList.Count < 20)
