@@ -359,14 +359,14 @@ namespace SpiritualNetwork.API.Services
 		        {
 			        new Claim("Username", username),
 			        new Claim("Id", user.Id.ToString()),
-			        new Claim("Exp", DateTime.Now.AddMinutes(1).ToString())
+			        new Claim("Exp", DateTime.Now.AddMonths(1).ToString())
 		        };
 				var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
 
 				var token = new JwtSecurityToken(
 					issuer: _configuration["JWT:ValidIssuer"],
 					audience: _configuration["JWT:ValidAudience"],
-					expires: DateTime.Now.AddDays(2),
+					expires: DateTime.Now.AddMonths(1),
 					claims: authClaims,
 					signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
 				);
