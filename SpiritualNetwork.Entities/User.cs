@@ -71,7 +71,7 @@ namespace SpiritualNetwork.Entities
         public bool? IsBusinessAccount { get; set; }
         public string? SecondaryPassword { get; set; }
 		public string? GoogleId { get; set; }
-        public string WebsiteLink { get; set; }
+        public string? WebsiteLink { get; set; }
         public bool? IsPrincipal { get;set; }
 	}
 }
