@@ -1554,7 +1554,7 @@ namespace SpiritualNetwork.API.Services
 				smtpDetails.Password = GlobalVariables.SMTPPassword;
 				smtpDetails.Port = GlobalVariables.SMTPPort;
 				smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
-				var body = EmailHelper.SendEmailRequestWithtemplate(emailRequest, smtpDetails,"requestInvite.html");
+				var body = EmailHelper.SendEmailRequestWithtemplate(emailRequest, smtpDetails,"mailtemplate/requestInvite.html");
 
 				return new JsonResponse(200, true, "Success", user);
 			}

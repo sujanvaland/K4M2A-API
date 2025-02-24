@@ -126,8 +126,6 @@ namespace SpiritualNetwork.API.Services
                      _activityRepository.DeleteRange(data);
                     return new JsonResponse(200, true, "success", null);
                 }
-
-
             }
             catch (Exception ex)
             {
