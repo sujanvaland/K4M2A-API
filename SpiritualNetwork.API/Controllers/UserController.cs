@@ -524,7 +524,7 @@ namespace SpiritualNetwork.API.Controllers
 		{
 			try
 			{
-				var response = await _userService.getTagsList();
+				var response = await _userService.getTagsList(user_unique_id);
 				return response;
 			}
 			catch (Exception ex)

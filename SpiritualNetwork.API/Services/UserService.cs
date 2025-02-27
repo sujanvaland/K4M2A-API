@@ -50,6 +50,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserNotification> _userNotificationRepository;
         private readonly IRepository<Notification> _notificationRepository;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
             IRepository<PreRegisteredUser> preregistereduserrepository,
@@ -102,7 +103,6 @@ namespace SpiritualNetwork.API.Services
             _userNotificationRepository = userNotificationRepository;
             _notificationRepository = notificationRepository;
             _serviceScopeFactory = serviceScopeFactory;
-
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
@@ -1507,21 +1507,25 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        public async Task<JsonResponse> getTagsList()
+        public async Task<JsonResponse> getTagsList(int LoginId)
 		{
 			try
 			{
-                var tags = await _tagsRepository.Table.ToListAsync();
+                //var tags = await _tagsRepository.Table.ToListAsync();
 
-                //var tagList = await _userRepository.Table.Where(x=> x.IsPrincipal == true && x.IsDeleted == false)
-                //    .Select(x => new
-                //    {
-                //        Id = x.Id,
-                //        Name = x.FirstName + " " + x.LastName,
-                //        ProfileImg = x.ProfileImg
-                //    }).ToListAsync();
-
-				return new JsonResponse(200, true, "Success", tags);
+                var tags = await (from user in _userRepository.Table
+                           join uf in _userFollowersRepository.Table.Where(x => x.UserId == LoginId && x.IsDeleted == false) on user.Id equals uf.FollowToUserId into ufGroup
+                           from uf in ufGroup.DefaultIfEmpty()
+                           where user.IsPrincipal == true && user.IsDeleted == false
+                           select new
+                           {
+                               Id = user.Id,
+                               Name = user.FirstName + " " + user.LastName,
+                               UserName = user.UserName,
+                               IsFollowedByLoginUser = uf != null
+                           }).ToListAsync();
+                
+                return new JsonResponse(200, true, "Success", tags);
 			}
 			catch (Exception ex)
 			{
