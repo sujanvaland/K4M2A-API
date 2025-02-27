@@ -32,6 +32,7 @@ namespace SpiritualNetwork.API.Model
         public int? ParentPostId { get; set; }
         public UserDetails? RepostUserDetail { get; set; }
         public DateTime? CreatedDate { get; set; }
+        public UserPost? UserPostDetail { get; set; }
         public bool IsRead { get; set; }
     }
 

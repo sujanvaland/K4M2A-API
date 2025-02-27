@@ -527,6 +527,7 @@ namespace SpiritualNetwork.API.Services
                                       RepostUserDetail = _mapper.Map<UserDetails?>(PUD),
                                       CreatedDate = N.CreatedDate, 
                                       IsRead = UN.IsRead,
+                                      UserPostDetail = UP,
                                       Message =N.Message
                                   };
 
@@ -550,6 +551,7 @@ namespace SpiritualNetwork.API.Services
                     ParentPostId = g.First().ParentPostId,
                     RepostUserDetail = g.First().RepostUserDetail,
                     CreatedDate = g.First().CreatedDate,
+                    UserPostDetail = g.First().UserPostDetail,
                     IsRead = g.First().IsRead,
                     Message = g.First().Message
                 }).ToList();
@@ -566,6 +568,7 @@ namespace SpiritualNetwork.API.Services
                     ParentPostId = n.ParentPostId,
                     RepostUserDetail = n.RepostUserDetail,
                     CreatedDate = n.CreatedDate,
+                    UserPostDetail = n.UserPostDetail,
                     IsRead = n.IsRead,
                     Message = n.Message
                 }).ToList();

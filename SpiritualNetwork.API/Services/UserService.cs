@@ -1522,6 +1522,7 @@ namespace SpiritualNetwork.API.Services
                                Id = user.Id,
                                Name = user.FirstName + " " + user.LastName,
                                UserName = user.UserName,
+                               ProfileImg = user.ProfileImg,
                                IsFollowedByLoginUser = uf != null
                            }).ToListAsync();
                 
