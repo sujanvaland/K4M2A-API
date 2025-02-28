@@ -49,6 +49,7 @@ namespace SpiritualNetwork.API.Model
         [MaxLength(1000)]
         public string? Tags { get; set; }
         public int ModifiedBy { get; set; }
+        public bool? IsBusinessAccount { get; set; }
     }
 
     public class UserFollowersModel

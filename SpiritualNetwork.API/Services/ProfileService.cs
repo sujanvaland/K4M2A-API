@@ -151,6 +151,7 @@ namespace SpiritualNetwork.API.Services
                 profileData.BackgroundImg = profileReq.BackgroundImg;
                 profileData.Tags = profileReq.Tags;
                 profileData.ModifiedBy = profileReq.ModifiedBy;
+                profileData.IsBusinessAccount = profileReq.IsBusinessAccount;
 
                 await _userRepository.UpdateAsync(profileData);
 
