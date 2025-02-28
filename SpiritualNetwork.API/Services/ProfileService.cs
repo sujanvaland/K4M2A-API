@@ -138,7 +138,7 @@ namespace SpiritualNetwork.API.Services
 				}
 				profileData.About = profileReq.About;
                 profileData.DOB = profileReq.DOB;
-                profileData.Email = profileReq.Email;
+               
                 profileData.Gender = profileReq.Gender;
                 profileData.Location = profileReq.Location;
                 profileData.Profession = profileReq.Profession;
@@ -151,7 +151,47 @@ namespace SpiritualNetwork.API.Services
                 profileData.BackgroundImg = profileReq.BackgroundImg;
                 profileData.Tags = profileReq.Tags;
                 profileData.ModifiedBy = profileReq.ModifiedBy;
+
                 await _userRepository.UpdateAsync(profileData);
+
+                if (profileData.Email.ToLower() != profileReq?.Email?.ToLower() && profileReq?.Email?.Length > 0)
+                {
+                    profileData.Email = profileReq.Email;
+                    await _userRepository.UpdateAsync(profileData);
+
+                    EmailRequest emailRequest = new EmailRequest();
+                    emailRequest.USERNAME = profileData.FirstName + "" + profileData.LastName;
+                    emailRequest.CTATEXT = "SignIn Now";
+                    emailRequest.CTALINK = "https://k4m2a.com";
+                    emailRequest.SITETITLE = "K4M2A";
+                    if(profileData.Email.ToLower() == "")
+                    {
+                        emailRequest.CONTENT1 = "You've successfully completed the signup process for K4M2A";
+                    }
+                    else
+                    {
+                        emailRequest.CONTENT1 = " You've successfully Updated Your Email";
+                    }
+                    emailRequest.Subject = " We're excited to officially welcome you aboard. Your account is now active and ready for action";
+                    emailRequest.ToEmail = profileReq.Email;
+
+
+                    try
+                    {
+                        SMTPDetails smtpDetails = new SMTPDetails();
+                        smtpDetails.Username = GlobalVariables.SMTPUsername;
+                        smtpDetails.Host = GlobalVariables.SMTPHost;
+                        smtpDetails.Password = GlobalVariables.SMTPPassword;
+                        smtpDetails.Port = GlobalVariables.SMTPPort;
+                        smtpDetails.SSLEnable = GlobalVariables.SSLEnable;
+                        var body = EmailHelper.SendEmailRequest(emailRequest, smtpDetails);
+                    }
+                    catch (Exception ex)
+                    {
+                        //log to db
+                    }
+                }
+
                 //profileData.Password = "";
                 var profile = GetUserProfile(profileData);
 				return new JsonResponse(200, true, "Profile Updated Successfully", profile);
