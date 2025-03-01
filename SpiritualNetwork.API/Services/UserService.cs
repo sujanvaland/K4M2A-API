@@ -1522,7 +1522,8 @@ namespace SpiritualNetwork.API.Services
 									  Id = user.Id,
 									  Name = user.FirstName + " " + user.LastName,
 									  UserName = user.UserName,
-									  ProfileImg = user.ProfileImg
+									  ProfileImg = user.ProfileImg,
+									  IsBusinessAccount = user.IsBusinessAccount
 								  }).ToListAsync();
 
 				return new JsonResponse(200, true, "Success", tags);
@@ -1549,7 +1550,8 @@ namespace SpiritualNetwork.API.Services
                                Name = user.FirstName + " " + user.LastName,
                                UserName = user.UserName,
                                ProfileImg = user.ProfileImg,
-                               IsFollowedByLoginUser = uf != null
+                               IsFollowedByLoginUser = uf != null,
+                               IsBusinessAccount = user.IsBusinessAccount
                            }).ToListAsync();
                 
                 return new JsonResponse(200, true, "Success", tags);

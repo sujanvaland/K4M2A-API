@@ -622,6 +622,7 @@ namespace SpiritualNetwork.API.Services
                 postData.noOfRepost = 0;
                 postData.noOfViews = 0;
                 postData.createdOn = DateTime.UtcNow.ToString();
+                postData.IsBusinessAccount = user.IsBusinessAccount;
                 UploadPostResponse uploadPostResponse = new UploadPostResponse();
                 uploadPostResponse.Post = userPost;
 

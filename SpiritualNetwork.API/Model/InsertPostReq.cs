@@ -30,7 +30,8 @@ namespace SpiritualNetwork.API.Model
         public int? parentId { get; set; }
         public string type { get; set; }
         public string? profileImg { get; set; }
-        public int? pollId { get; set; }
+		public bool? IsBusinessAccount { get; set; }
+		public int? pollId { get; set; }
         public string poll { get; set; }
         public string eventDetail { get; set; }
         public List<Mentions> mentions { get;set; }
