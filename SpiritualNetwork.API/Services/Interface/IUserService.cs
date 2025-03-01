@@ -31,8 +31,9 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> ChangePassword(ChangePasswordReq req, int UserId);
         public Task<JsonResponse> EmailVerificationReq(EmailVerificationReq req);
         public Task<JsonResponse> VerifiedEmailReq(VerifiedEmail req);
-        public Task<JsonResponse> getTagsList(int LoginId);
-        public Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type);
+        public Task<JsonResponse> getUserTagsList(int LoginId);
+		public Task<JsonResponse> getTagsList(int UserId);
+		public Task<JsonResponse> SaveRemoveDeviceToken(int UserId, string? Token, string Type);
         public Task FollowUnFollowUser(int userId, int loginUserId);
         public Task<JsonResponse> PhoneVerificationReq(PhoneVerificationReq req);
         public Task<JsonResponse> VerifiedPhoneReq(VerifiedPhone req);

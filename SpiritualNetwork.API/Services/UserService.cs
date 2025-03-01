@@ -1507,7 +1507,33 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        public async Task<JsonResponse> getTagsList(int LoginId)
+		public async Task<JsonResponse> getTagsList(int userId)
+		{
+			try
+			{
+				//var tags = await _tagsRepository.Table.ToListAsync();
+
+				var tags = await (from user in _userRepository.Table
+								  join uf in _userFollowersRepository.Table.Where(x => x.UserId == userId && x.IsDeleted == false) on user.Id equals uf.FollowToUserId into ufGroup
+								  from uf in ufGroup.DefaultIfEmpty()
+								  where user.IsPrincipal == true && user.IsDeleted == false
+								  select new
+								  {
+									  Id = user.Id,
+									  Name = user.FirstName + " " + user.LastName,
+									  UserName = user.UserName,
+									  ProfileImg = user.ProfileImg
+								  }).ToListAsync();
+
+				return new JsonResponse(200, true, "Success", tags);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public async Task<JsonResponse> getUserTagsList(int LoginId)
 		{
 			try
 			{

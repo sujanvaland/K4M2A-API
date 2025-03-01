@@ -518,13 +518,27 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
-        [AllowAnonymous]
-		[HttpGet(Name = "GetTagsList")]
-		public async Task<JsonResponse> GetTagsList()
+		[HttpGet(Name = "GetUserTagsList")]
+		public async Task<JsonResponse> GetUserTagsList()
 		{
 			try
 			{
-				var response = await _userService.getTagsList(user_unique_id);
+				var response = await _userService.getUserTagsList(user_unique_id);
+				return response;
+			}
+			catch (Exception ex)
+			{
+				return new JsonResponse(200, false, "Fail", ex.Message);
+			}
+		}
+
+		[AllowAnonymous]
+		[HttpGet(Name = "GetTagsList")]
+		public async Task<JsonResponse> GetTagsList(int userId)
+		{
+			try
+			{
+				var response = await _userService.getTagsList(userId);
 				return response;
 			}
 			catch (Exception ex)
