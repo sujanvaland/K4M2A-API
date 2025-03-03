@@ -1651,7 +1651,7 @@ namespace SpiritualNetwork.API.Services
                 _ => "application/octet-stream", // Default MIME type if unknown
             };
         }
-        public async Task<JsonResponse> SaveReportBug(ReportBugsDataDto req)
+        public async Task<JsonResponse> SaveReportBug(ReportBugsDataDto req, int userId)
         {
             try
             {
@@ -1667,6 +1667,7 @@ namespace SpiritualNetwork.API.Services
                 reportBugs.BugTitle = Data.BugTitle;
                 reportBugs.Priority = Data.Priority;
                 reportBugs.Files = Data.Files;
+                reportBugs.CreatedBy = userId;
                 const long MaxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
 
                 if (req.Files.Count > 0)

@@ -593,7 +593,7 @@ namespace SpiritualNetwork.API.Controllers
                     }
                 }
 
-                return await _userService.SaveReportBug(DataDto);
+                return await _userService.SaveReportBug(DataDto,user_unique_id);
             }
             catch (Exception ex)
             {

@@ -41,7 +41,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> RequestInvite(RequestInviteRequest request);
         public Task<JsonResponse> getUserInviteList(int UserId);
         public Task<JsonResponse> GetUserFromYourContact(int UserId);
-        public Task<JsonResponse> SaveReportBug(ReportBugsDataDto req);
+        public Task<JsonResponse> SaveReportBug(ReportBugsDataDto req,int userId);
 
     }
 }
