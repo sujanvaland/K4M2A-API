@@ -41,6 +41,7 @@ namespace SpiritualNetwork.API.Model
         public int? isPinPost { get; set; }
         public string? latitude { get; set; }
         public string? longitude { get; set; }
+        public DateTime? ScheduleDateTime { get; set; }
     }
     public class PollRequest
     {

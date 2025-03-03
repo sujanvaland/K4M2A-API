@@ -19,7 +19,9 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task ReportPost(Report req,int UserId);
         public Task<JsonResponse> GetAllImgVideoLink(int Id, int PageNo, int? ProfileUserId, string? Type);
         public Task<JsonResponse> UpdateViews(List<int> req);
-
+        public Task<JsonResponse> SaveUpdateSchedulePost(ScheduleDataDto postDataDto, int userId);
+        public Task<JsonResponse> GetAllSchedulePost(int userId);
+        public Task<JsonResponse> DeleteSchedulePost(int userId, int Id);
         public void MigratePost();
         void UpdatePost();
         Task<UserPost> ChangeWhoCanReply(int postId, int whoCanReply);

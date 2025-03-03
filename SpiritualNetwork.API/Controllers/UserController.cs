@@ -562,7 +562,6 @@ namespace SpiritualNetwork.API.Controllers
 			}
 		}
 
-        [AllowAnonymous]
         [HttpPost(Name = "ReportBugs")]
         public async Task<JsonResponse> ReportBugs(IFormCollection form)
         {
