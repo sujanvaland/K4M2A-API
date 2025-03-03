@@ -20,6 +20,8 @@ using System.Linq;
 using Npgsql;
 using SpiritualNetwork.API.AppContext;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using HotChocolate.Types;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -49,7 +51,9 @@ namespace SpiritualNetwork.API.Services
         private readonly AppDbContext _context;
         private readonly IRepository<UserNotification> _userNotificationRepository;
         private readonly IRepository<Notification> _notificationRepository;
+        private readonly IRepository<ReportBugs> _reportBugsRepository;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IAttachmentService _attachmentService;
 
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -76,7 +80,9 @@ namespace SpiritualNetwork.API.Services
             AppDbContext context,
             IRepository<UserNotification> userNotificationRepository,
             IRepository<Notification> notificationRepository,
-            IServiceScopeFactory serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            IRepository<ReportBugs> reportBugsRepository,
+            IAttachmentService attachmentService)
         {
             _userNetworkRepository = userNetworkRepository;
             _onlineUsers = onlineUsers;
@@ -103,6 +109,8 @@ namespace SpiritualNetwork.API.Services
             _userNotificationRepository = userNotificationRepository;
             _notificationRepository = notificationRepository;
             _serviceScopeFactory = serviceScopeFactory;
+            _reportBugsRepository = reportBugsRepository;
+            _attachmentService = attachmentService;
         }
 
         public async Task<JsonResponse> OnlineOfflineUsers(int UserId, string ConnectionId, string Type)
@@ -1627,5 +1635,96 @@ namespace SpiritualNetwork.API.Services
 
            
 		}
-	}
+
+        private string GetContentType(string fileName)
+        {
+            var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                _ => "application/octet-stream", // Default MIME type if unknown
+            };
+        }
+        public async Task<JsonResponse> SaveReportBug(ReportBugsDataDto req)
+        {
+            try
+            {
+                var str = req.FormFields.ToList()[0].Value;
+
+                var Data = JsonSerializer.Deserialize<ReportBugsReq>(str);
+
+                if (Data == null)
+                    return new JsonResponse(200, false, "Fail", "Bad Request");
+              
+                ReportBugs reportBugs = new ReportBugs();
+                reportBugs.BugDescription = Data.BugDescription;
+                reportBugs.BugTitle = Data.BugTitle;
+                reportBugs.Priority = Data.Priority;
+                reportBugs.Files = Data.Files;
+                const long MaxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
+
+                if (req.Files.Count > 0)
+                {
+                    List<IFormFile> formFiles = new List<IFormFile>();
+
+                    // Iterate through postDataDto.Files (Base64 encoded)
+                    foreach (var item in req.Files)
+                    {
+                        // Filter based on file type extension
+                        if (!(item.FileName.ToLower().EndsWith(".mp4") || item.FileName.ToLower().EndsWith(".avi")
+                            || item.FileName.ToLower().EndsWith(".mov") || item.FileName.ToLower().EndsWith(".wmv")
+                            || item.FileName.ToLower().EndsWith(".flv") || item.FileName.ToLower().EndsWith(".mkv")
+                            || item.FileName.ToLower().EndsWith(".webm") || item.FileName.ToLower().EndsWith(".mpeg")
+                            || item.FileName.ToLower().EndsWith(".mpg") || item.FileName.ToLower().EndsWith(".3gp")))
+                        {
+                            // Convert Base64 back to byte array
+                            byte[] fileBytes = Convert.FromBase64String(item.Base64Content);
+
+                            // Validate file size
+                            if (fileBytes.Length > MaxFileSizeInBytes)
+                            {
+                                throw new Exception($"The file {item.FileName} exceeds the maximum allowed size of {MaxFileSizeInBytes / (1024 * 1024)} MB.");
+                            }
+                            // Create a stream from the byte array
+                            var stream = new MemoryStream(fileBytes);
+
+                            // Create an IFormFile instance
+                            var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName)
+                            {
+                                Headers = new HeaderDictionary()
+                            };
+                            // Set the correct content type based on the file extension
+                            formFile.ContentType = GetContentType(item.FileName);
+                            formFiles.Add(formFile);
+                        }
+                    }
+
+                    // Insert attachments (files)
+                    var uploadedFiles = await _attachmentService.InsertAttachment(formFiles);
+
+                    // Process uploaded files
+                    foreach (var item in uploadedFiles)
+                    {
+                            reportBugs.Files.Add(item.ActualUrl);
+                    }
+
+                }
+
+                 await _reportBugsRepository.InsertAsync(reportBugs);
+
+                return new JsonResponse(200, true, "Success", reportBugs);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+    }
 }

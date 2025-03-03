@@ -1,4 +1,6 @@
-﻿namespace SpiritualNetwork.API.Model
+﻿using SpiritualNetwork.Entities;
+
+namespace SpiritualNetwork.API.Model
 {
     public class Report
     {
@@ -30,6 +32,20 @@
         public int PostId { get; set; }
         public int PostUserId { get; set; }
         public string ActionType { get; set; }
+    }
+
+    public class ReportBugsReq
+    {
+        public string? BugTitle { get; set; }
+        public string? BugDescription { get; set; }
+        public string? Priority { get; set; }
+        public List<string>? Files { get; set; }
+    }
+
+    public class ReportBugsDataDto
+    {
+        public Dictionary<string, string> FormFields { get; set; } = new Dictionary<string, string>();
+        public List<FileDataDto> Files { get; set; } = new List<FileDataDto>();
     }
 
 }
