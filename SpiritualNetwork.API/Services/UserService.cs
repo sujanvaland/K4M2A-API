@@ -1320,18 +1320,14 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var query = await (from bl in _userMuteBlockListRepository.Table 
-                            join us in _userRepository.Table on bl.BlockedUserId equals us.Id
-                            where bl.UserId == UserId
-                            select new BlockUserRes
-                            {
-                                Id = us.Id,
-                                FullName = us.FirstName+" "+us.LastName,
-                                ProfileImgUrl = us.ProfileImg,
-                                UserName = us.UserName,
-                                IsBusinessAccount = us.IsBusinessAccount,
-                            }).ToListAsync();
-                return new JsonResponse(200, true, "Success", query);
+                var query = await (from bl in _userMuteBlockListRepository.Table
+                                   join us in _userRepository.Table on bl.BlockedUserId equals us.Id
+                                   where bl.UserId == UserId
+                                   select us).ToListAsync();
+
+                var result = await _profileService.GetUsersProfile(query, UserId);
+
+                return new JsonResponse(200, true, "Success", result);
             }
             catch (Exception ex)
             {
