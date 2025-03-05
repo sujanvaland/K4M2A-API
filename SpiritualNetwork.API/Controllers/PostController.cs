@@ -220,9 +220,9 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.Username = username;
                 
 				// Produce a message
-				await KafkaProducer.ProduceMessage("post", postDataDto);
-                //var response = await _postService.InsertPost(postDataDto);
-                return new JsonResponse(200,true,"Success", null);
+				//await KafkaProducer.ProduceMessage("post", postDataDto);
+                var response = await _postService.InsertPost(postDataDto);
+                return new JsonResponse(200,true,"Success", response);
             }
             catch (Exception ex)
             {

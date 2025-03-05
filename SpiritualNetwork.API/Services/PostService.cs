@@ -22,6 +22,8 @@ namespace SpiritualNetwork.API.Services
         private readonly INotificationService _notificationService;
         private readonly IRepository<UserPost> _userPostRepository;
         private readonly IRepository<SchedulePost> _schedulePostRepository;
+        private readonly IRepository<Poll> _pollRepository;
+
         private IRepository<PostFiles> _postFiles;
         private readonly IRepository<Entities.File> _fileRepository;
         private readonly IRepository<Reaction> _reactionRepository;
@@ -54,7 +56,8 @@ namespace SpiritualNetwork.API.Services
             IGlobalSettingService globalSettingService,
             IRepository<ReportEntity> reportRepository,
             IRepository<UserInterest> userInterestRepo,
-            IRepository<SchedulePost> schedulePostRepository)
+            IRepository<SchedulePost> schedulePostRepository,
+            IRepository<Poll> pollRepository)
         {
             _blockedPost = blockedPostRepository;
             _userSubcriptionRepo = userSubcriptionRepo;
@@ -75,6 +78,7 @@ namespace SpiritualNetwork.API.Services
             _reportRepository = reportRepository;
             _userInterestRepo = userInterestRepo;
             _schedulePostRepository = schedulePostRepository;
+            _pollRepository = pollRepository;
         }
 
         public async Task<UserPost> GetUserPostByPostId(int PostId)
@@ -819,9 +823,21 @@ namespace SpiritualNetwork.API.Services
                     userPost = new SchedulePost();
                 }
 
+
+
                 if (postData.poll != null)
                 {
-                    var poll = new Poll();
+                    Poll poll;
+                    
+                    if (postData.pollId > 0)
+                    {
+                        poll = await _pollRepository.GetByIdAsync(postData.pollId);
+                    }
+                    else
+                    {
+                        poll = new Poll();
+                    }
+
                     var polldata = JsonSerializer.Deserialize<PollRequest>(postData.poll);
                     poll.PollTitle = postData.textMsg;
                     poll.Choice1 = polldata.choice1;
@@ -832,8 +848,17 @@ namespace SpiritualNetwork.API.Services
                     poll.Hour = Convert.ToInt32(polldata.hour);
                     poll.Minute = Convert.ToInt32(polldata.minute);
                     poll.CreatedBy = Convert.ToInt32(polldata.createdBy);
-                    var pollresult = await _pollService.SavePoll(poll);
-                    postData.pollId = pollresult.Id;
+
+                    if (postData.pollId > 0)
+                    {
+                        await _pollRepository.UpdateAsync(poll);
+                    }
+                    else
+                    {
+                        await _pollRepository.InsertAsync(poll);
+                    }
+
+                    postData.pollId = poll.Id;
                     postData.poll = null;
                 }
                
@@ -845,6 +870,7 @@ namespace SpiritualNetwork.API.Services
                 userPost.Longitude = postData.longitude;
                 userPost.IsVideo = postData.videoUrl.Count > 0;
                 userPost.ScheduleTime = postData.ScheduleDateTime;
+                userPost.IsScheduled = false;
 
                 if (postData.id == 0)
                 {
@@ -979,7 +1005,7 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled == false && x.IsDeleted == false)
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled != false && x.IsDeleted == false)
                     .Select(x=> new
                     {
                         x.PostMessage,
