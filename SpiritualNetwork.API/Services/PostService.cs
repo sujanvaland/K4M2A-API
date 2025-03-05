@@ -1006,7 +1006,7 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled != false && x.IsDeleted == false)
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled != true && x.IsDeleted == false)
                     .Select(x=> new
                     {
                         x.PostMessage,
