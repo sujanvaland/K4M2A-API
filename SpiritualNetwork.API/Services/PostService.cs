@@ -13,6 +13,7 @@ using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Linq;
 using Npgsql;
+using Org.BouncyCastle.Crypto;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -1023,15 +1024,15 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-        public async Task<JsonResponse> DeleteSchedulePost(int userId,int Id)
+        public async Task<JsonResponse> DeleteSchedulePost(int userId,List<int> Id)
         {
             try
             {
-                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.Id == Id).FirstOrDefaultAsync();
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && Id.Contains(x.Id)).ToListAsync();
 
                 if(data != null)
                 {
-                    await _schedulePostRepository.DeleteAsync(data);
+                    await _schedulePostRepository.DeleteRangeAsync(data);
                     return new JsonResponse(200, true, "Deleted Schedule Post", null);
                 }
                 return new JsonResponse(200, false, "Post Not Found", null);

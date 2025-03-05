@@ -310,7 +310,7 @@ namespace SpiritualNetwork.API.Controllers
 
 
         [HttpPost(Name = "DeleteSchedulePost")]
-        public async Task<JsonResponse> DeleteSchedulePost(DeletePostReq req)
+        public async Task<JsonResponse> DeleteSchedulePost(DeleteSchedulePostReq req)
         {
             try
             {
