@@ -797,6 +797,118 @@ namespace SpiritualNetwork.API.Services
 
         }
 
+        public async Task<JsonResponse> InsertSchedulePosts(int Id)
+        {
+            try
+            {
+                var schedulepost = await _schedulePostRepository.GetByIdAsync(Id);
+                if(schedulepost == null)
+                {
+                    return new JsonResponse(200, false, "Schedule Post Not Found", null);
+                }
+                else if (schedulepost.IsScheduled == true)
+                {
+                    return new JsonResponse(200, false, "This Post is already Schedule", null);
+                }
+               
+                var user = await _userRepository.GetByIdAsync(schedulepost.UserId);
+
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
+                                   x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
+                //var str = postDataDto.FormFields.ToList()[0].Value;
+
+                var postData = JsonSerializer.Deserialize<Post>(schedulepost.PostMessage);
+                if (postData == null)
+                    return new JsonResponse(200, false, "Fail", "Bad Request");
+
+                postData.id = 0;
+
+                if (postData.poll != null)
+                {
+                    postData.pollId = postData.pollId;
+                    postData.poll = null;
+                }
+
+                UserPost userPost = new UserPost();
+                userPost.ParentId = postData.parentId;
+                userPost.UserId = user.Id;
+                userPost.PostMessage = "";
+                userPost.Type = postData.type;
+                userPost.Latitude = postData.latitude;
+                userPost.Longitude = postData.longitude;
+                userPost.IsVideo = postData.videoUrl.Count > 0;
+                await _userPostRepository.InsertAsync(userPost);
+
+                if (permiumcheck != null)
+                {
+                    postData.isPaid = true;
+                }
+                else { postData.isPaid = false; }
+
+                postData.id = userPost.Id;
+                postData.createdBy = user.FirstName + " " + user.LastName;
+                postData.userName = user.UserName;
+                postData.profileImg = user.ProfileImg;
+                postData.noOfComment = 0;
+                postData.noOfLikes = 0;
+                postData.noOfRepost = 0;
+                postData.noOfViews = 0;
+                postData.createdOn = DateTime.UtcNow.ToString();
+                postData.IsBusinessAccount = user.IsBusinessAccount;
+
+                userPost.PostMessage = JsonSerializer.Serialize(postData);
+
+                // Update the post
+                await _userPostRepository.UpdateAsync(userPost);
+
+                schedulepost.ModifiedBy = userPost.Id;
+                schedulepost.IsScheduled = true;
+
+                await _schedulePostRepository.UpdateAsync(schedulepost);
+
+                UploadPostResponse uploadPostResponse = new UploadPostResponse();
+                uploadPostResponse.Post = userPost;
+                uploadPostResponse.Files = new List<Entities.File>();
+
+                try
+                {
+                    NotificationRes notification = new NotificationRes();
+                    notification.PostId = postData.id;
+                    notification.ActionByUserId = user.Id;
+                    notification.ActionType = postData.type;
+                    notification.RefId1 = postData.parentId.ToString();
+                    notification.RefId2 = "";
+                    notification.Message = "";
+                    notification.PushAttribute = postData.type == "post" ? "pushpostfollowing" : "pushcommentpost";
+                    notification.EmailAttribute = postData.type == "post" ? "emailpostfollowing" : "emailcommentpost";
+                    await _notificationService.SaveNotification(notification);
+                }
+                catch (Exception ex)
+                {
+                    //log to db
+                }
+
+                var message = (new
+                {
+                    PostId = uploadPostResponse.Post.Id,
+                    UserUniqueId = user.Id,
+                    Topic = "hashtag"
+                });
+
+                await KafkaProducer.ProduceMessage("hashtag", message);
+
+                //await KafkaProducer.ProduceMessage("hashtag", uploadPostResponse);
+
+                return new JsonResponse(200, true, "Success", uploadPostResponse);
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(500, false, "Fail", ex.Message);
+            }
+
+        }
+
         public async Task<JsonResponse> SaveUpdateSchedulePost(ScheduleDataDto postDataDto,int userId)
         {
             try
@@ -1006,7 +1118,8 @@ namespace SpiritualNetwork.API.Services
         {
             try
             {
-                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled != true && x.IsDeleted == false)
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled == false && x.IsDeleted == false)
+                    .OrderByDescending(x => x.Id)
                     .Select(x=> new
                     {
                         x.PostMessage,
@@ -1032,7 +1145,7 @@ namespace SpiritualNetwork.API.Services
 
                 if(data != null)
                 {
-                    await _schedulePostRepository.DeleteRangeAsync(data);
+                     _schedulePostRepository.DeleteRange(data);
                     return new JsonResponse(200, true, "Deleted Schedule Post", null);
                 }
                 return new JsonResponse(200, false, "Post Not Found", null);

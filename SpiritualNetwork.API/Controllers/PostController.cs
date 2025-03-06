@@ -267,6 +267,19 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, true, "Fail", ex);
             }
         }
+        [AllowAnonymous]
+        [HttpPost(Name = "InsertSchedulePosts")]
+        public async Task<JsonResponse> InsertSchedulePosts(DeletePostReq req)
+        {
+            try
+            {
+                return await _postService.InsertSchedulePosts(req.Id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
 
         [HttpPost(Name = "RePost")]
         public async Task<JsonResponse> RePost(ReactionReq req)

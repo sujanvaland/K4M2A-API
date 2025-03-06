@@ -22,6 +22,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> SaveUpdateSchedulePost(ScheduleDataDto postDataDto, int userId);
         public Task<JsonResponse> GetAllSchedulePost(int userId);
         public Task<JsonResponse> DeleteSchedulePost(int userId, List<int> Id);
+        public Task<JsonResponse> InsertSchedulePosts(int Id);
         public void MigratePost();
         void UpdatePost();
         Task<UserPost> ChangeWhoCanReply(int postId, int whoCanReply);
