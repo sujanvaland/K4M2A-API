@@ -10,6 +10,6 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> GetMyGoogleContactList(int UserId);
         public Task<JsonResponse> RemoveContactList(int UserId);
         public Task<JsonResponse> GetSearchHashTag(string Name);
-
+        public Task<JsonResponse> SearchOrganisationUser(string Name, int PageNo, int Record, int LoginId);
     }
 }

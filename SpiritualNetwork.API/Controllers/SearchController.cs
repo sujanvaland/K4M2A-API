@@ -32,6 +32,21 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+        [HttpPost(Name = "SearchOrganisationUser")]
+        public async Task<JsonResponse> SearchOrganisationUser(SearchReqByPage req)
+        {
+            try
+            {
+                var response = await _searchService.SearchOrganisationUser(req.Name, req.PageNo, req.Records, user_unique_id);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
         [HttpPost(Name = "MentionSearchUser")]
         public async Task<JsonResponse> MentionSearchUser(SearchReqByPage req)
         {

@@ -117,6 +117,92 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
+        public async Task<JsonResponse> SearchOrganisationUser(string Name, int PageNo, int Record, int LoginId)
+        {
+            try
+            {
+                Name = Regex.Replace(Name, @"^@+", "").Trim();
+
+                if (Name.Length > 0)
+                {
+                    var trimmedName = string.Join("", Name.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+                    var data = await (from user in _userRepository.Table
+                                      join onlineUser in _onlineuserRepository.Table
+                                      on user.Id equals onlineUser.UserId into onlineJoin
+                                      from onlineUser in onlineJoin.DefaultIfEmpty()
+                                      join uf in _userFollowers.Table.Where(x => x.UserId == LoginId) on user.Id equals uf.FollowToUserId into ufGroup
+                                      from uf in ufGroup.DefaultIfEmpty()
+                                      where user.UserName.ToLower().Contains(Name.ToLower()) ||
+                                      user.FirstName.ToLower().Contains(Name.ToLower()) ||
+                                      user.LastName.ToLower().Contains(Name.ToLower()) ||
+                                      (user.FirstName.Trim() + user.LastName.Trim()).ToLower().Contains(trimmedName) &&
+                                      user.IsDeleted == false && user.IsBusinessAccount == true
+                                      select new SearchUserResModel
+                                      {
+                                          UniqueId = "",
+                                          FullName = "",
+                                          Email = "",
+                                          PhoneNumber = "",
+                                          Id = user.Id,
+                                          FirstName = user.FirstName,
+                                          LastName = user.LastName,
+                                          UserName = user.UserName,
+                                          ProfileImg = user.ProfileImg,
+                                          Online = onlineUser != null ? true : false,
+                                          IsFollowedByLoginUser = uf != null,
+                                          IsInvited = false,
+                                          IsBusinessAccount = user.IsBusinessAccount,
+                                      })
+                                    .Skip((PageNo - 1) * Record)
+                                    .Take(Record)
+                                    .ToListAsync();
+
+                    return new JsonResponse(200, true, "Success", data);
+
+                }
+                else
+                {
+                        var data = (from user in _userRepository.Table
+                                 join onlineUser in _onlineuserRepository.Table
+                                 on user.Id equals onlineUser.UserId into onlineJoin
+                                 from onlineUser in onlineJoin.DefaultIfEmpty()
+                                 join uf in _userFollowers.Table.Where(x => x.UserId == LoginId) on user.Id equals uf.FollowToUserId into ufGroup
+                                 from uf in ufGroup.DefaultIfEmpty()
+                                 where user.IsDeleted == false && user.IsBusinessAccount == true
+                                 orderby user.Id descending 
+                                 select new SearchUserResModel
+                                 {
+                                     UniqueId = "",
+                                     FullName = "",
+                                     Email = "",
+                                     PhoneNumber = "",
+                                     Id = user.Id,
+                                     FirstName = user.FirstName,
+                                     LastName = user.LastName,
+                                     UserName = user.UserName,
+                                     ProfileImg = user.ProfileImg,
+                                     Online = onlineUser != null,
+                                     IsFollowedByLoginUser = uf != null,
+                                     IsInvited = false,
+                                     IsBusinessAccount = user.IsBusinessAccount,
+                                 })
+                                .Skip((PageNo - 1) * Record)
+                                .Take(Record);
+
+                    return new JsonResponse(200, true, "Success", data);
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         public async Task<JsonResponse> GetSearchHashTag(string Name)
         {
             try
