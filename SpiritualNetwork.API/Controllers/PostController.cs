@@ -380,8 +380,8 @@ namespace SpiritualNetwork.API.Controllers
        
 
         [AllowAnonymous]
-        [HttpGet("seo/{postId}")]
-        public async Task<IActionResult> GetSeoMetadata(int postId)
+        [HttpGet(Name = "/{postId}")]
+        public async Task<IActionResult> postdetail(int postId)
         {
             var result = await _postService.GetPostByIdForSeo(user_unique_id,postId);
             if (result == null) return NotFound();
