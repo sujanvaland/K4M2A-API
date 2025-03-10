@@ -9,6 +9,7 @@ namespace SpiritualNetwork.API.Services.Interface
         public Task<JsonResponse> InsertPost(PostDataDto postDataDto);
         public Task<JsonResponse> GetAllPostsAsync(int Id, int PageNo,int? ProfileUserId,string? Type);
         public Task<JsonResponse> GetPostById(int loginUserId, int postId);
+        public Task<Model.TimelineModel.PostResponse> GetPostByIdForSeo(int loginUserId, int postId);
         public Task<JsonResponse> RePost(int PostId, int UserId);
         public Task<JsonResponse> UpdateCount(int PostId, string Type, int dir);
         public Task<JsonResponse> DeletePostAsync(int PostId);

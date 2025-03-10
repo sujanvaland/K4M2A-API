@@ -300,6 +300,29 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
+        public async Task<Model.TimelineModel.PostResponse> GetPostByIdForSeo(int loginUserId, int postId)
+        {
+            try
+            {
+                var post = _userPostRepository.GetById(postId);
+                if (post.IsDeleted)
+                {
+                    return null;
+                }
+                var postIdParam = new NpgsqlParameter("@postId", postId);
+                var userIdParam = new NpgsqlParameter("@requserId", loginUserId);
+
+                var result = await _context.PostResponses
+                              .FromSqlRaw("SELECT * FROM dbo.GetPostById(@postId, @requserId)", postIdParam, userIdParam)
+                              .FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         //public async Task<JsonResponse> RePost(int PostId, int UserId)
         //{
         //    try
@@ -411,12 +434,12 @@ namespace SpiritualNetwork.API.Services
         //            }
         //            _reactionRepository.DeleteHard(Reaction);
 
-                    
+
 
         //            return new JsonResponse(200, true, "Success", Reaction);
         //        }
 
-               
+
         //    }
         //    catch(Exception ex)
         //    {

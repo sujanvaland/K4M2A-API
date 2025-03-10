@@ -19,6 +19,7 @@ using Azure.Identity;
 using OpenAI.Images;
 using System.ClientModel;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -374,7 +375,42 @@ namespace SpiritualNetwork.API.Controllers
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
         }
-        
+
+        [AllowAnonymous]
+        [HttpGet("seo/{postId}")]
+        public async Task<IActionResult> GetSeoMetadata(int postId)
+        {
+            var result = await _postService.GetPostByIdForSeo(user_unique_id,postId);
+            if (result == null) return NotFound();
+
+            var postData = System.Text.Json.JsonSerializer.Deserialize<Post>(result.PostMessage);
+            var imageUrl = "https://k4m2a.com/images/meta-logo.jpeg";
+            if(postData.imgUrl?.Count() > 0)
+            {
+                imageUrl = postData.imgUrl.FirstOrDefault();
+            }
+            var html = $@"
+                <!DOCTYPE html>
+                <html lang='en'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>{postData.textMsg}</title>
+                    <meta name='description' content='{postData.textMsg}'>
+                    <meta property='og:title' content='{postData.textMsg}'>
+                    <meta property='og:description' content='{postData.textMsg}'>
+                    <meta property='og:image' content='{imageUrl}'>
+                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}/post/{postId}'>
+                </head>
+                <body>
+                    <script>window.location.href = '{result.UserName}/post/{postId}';</script>
+                </body>
+                </html>";
+
+            return Content(html, "text/html");
+        }
+
+
 
         [HttpPost(Name = "DeletePost")]
         public async Task<JsonResponse> DeletePost(DeletePostReq req)
