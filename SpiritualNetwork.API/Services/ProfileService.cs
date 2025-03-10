@@ -305,6 +305,7 @@ namespace SpiritualNetwork.API.Services
 				profileModel.NoOfFollowing = _userFollowers.Table.Where(x => x.UserId == profileModel.Id).Count();
 				profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                 profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == UserId && x.FollowToUserId == profileModel.Id).Count();
+                profileModel.IsBlockByUser = _blockmuteRepository.Table.Any(x => x.BlockedUserId == UserId &&  x.UserId == profileModel.Id && x.IsDeleted == false);
                 profileModel.IsBlock = _blockmuteRepository.Table.Any(x=> x.UserId == UserId && x.BlockedUserId == profileModel.Id && x.IsDeleted == false);
                 profileModel.IsMute = _blockmuteRepository.Table.Any(x => x.UserId == UserId && x.MuteedUserId == profileModel.Id && x.IsDeleted == false);
 
@@ -367,6 +368,11 @@ namespace SpiritualNetwork.API.Services
                 List<ProfileModel> profiles = new List<ProfileModel>();
                 foreach ( var user in users)
                 {
+                    var exist = _blockmuteRepository.Table.Where(x => x.UserId == user.Id && x.BlockedUserId == LoginUserId && x.IsDeleted == false).FirstOrDefault();
+                    if(exist != null)
+                    {
+                        continue;
+                    }
                     ProfileModel profileModel = _mapper.Map<ProfileModel>(user);
 					profileModel.Password = "";
 					profileModel.IsPremium = false;
@@ -375,6 +381,8 @@ namespace SpiritualNetwork.API.Services
                     profileModel.NoOfFollowers = _userFollowers.Table.Where(x => x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowedByLoginUser = _userFollowers.Table.Where(x => x.UserId == LoginUserId && x.FollowToUserId == profileModel.Id).Count();
                     profileModel.IsFollowingLoginUser = _userFollowers.Table.Where(x => x.FollowToUserId == LoginUserId && x.UserId == profileModel.Id).Count();
+
+
                     profiles.Add(profileModel);
                 }
                 return profiles;
