@@ -1,4 +1,3 @@
-
 using Microsoft.OpenApi.Models;
 using SpiritualNetwork.API.AppContext;
 using SpiritualNetwork.API.Services.Interface;
@@ -12,6 +11,8 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
+using SpiritualNetwork.API.Middleware;
+using SpiritualNetwork.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ var configRepository = new ConfigurationRepository(ConnectionString);
 
 GlobalVariables.NotificationAPIUrl = builder.Configuration.GetSection("NodeNotificationUrlLive").Value;
 GlobalVariables.ElasticPostNodeUrl = builder.Configuration.GetSection("NodeElasticPostUrlLive").Value;
-GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value; 
+GlobalVariables.BookLibrary = builder.Configuration.GetSection("BookLibraryUrl").Value;
 GlobalVariables.OpenAPIKey = builder.Configuration.GetSection("OpenAPIKey").Value;
 GlobalVariables.OpenAIapiURL = builder.Configuration.GetSection("OpenAIURL").Value;
 GlobalVariables.SiteName = await configRepository.GetConfigurationValueAsync("SiteName");
@@ -40,17 +41,13 @@ GlobalVariables.SMTPPort = await configRepository.GetConfigurationValueAsync("SM
 GlobalVariables.SSLEnable = await configRepository.GetConfigurationValueAsync("SSLEnable");
 GlobalVariables.TwilioaccountSid = await configRepository.GetConfigurationValueAsync("TwilioaccountSid");
 GlobalVariables.TwilioauthToken = await configRepository.GetConfigurationValueAsync("TwilioauthToken");
+
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) =>
 {
-    
-    dbContextBuilder.UseNpgsql(ConnectionString,dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
+    dbContextBuilder.UseNpgsql(ConnectionString, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
 });
 
-//builder.Services.AddDbContext<AppMSDbContext>((serviceProvider, dbContextBuilder) =>
-//{
-//	dbContextBuilder.UseSqlServer(ConnectionStringMSSql, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
-//});
-
+// Add GraphQL services
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>();
@@ -59,25 +56,14 @@ builder.Services.AddGraphQLSchema<AppDbContext>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-     builder =>
-     {
-         builder
-         .AllowAnyOrigin()
-         .AllowAnyHeader()
-         .AllowAnyMethod();
-     });
-
-    //options.AddPolicy("AllowSpecificOrigin", builder =>
-    //{
-    //    builder.WithOrigins("https://backoffice.generositymatrix.net", "http://localhost:3000")
-    //           .AllowAnyHeader()
-    //           .AllowAnyMethod();
-    //});
+    options.AddDefaultPolicy(builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
-
-
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -85,8 +71,8 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         In = ParameterLocation.Header,
-        Description = "JWT Autherization",
-        Name = "Autherization",
+        Description = "JWT Authorization",
+        Name = "Authorization",
         Type = SecuritySchemeType.Http,
         Scheme = "bearer"
     });
@@ -106,7 +92,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Register services
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -117,10 +106,10 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-builder.Services.AddScoped<IReactionService,ReactionService>();
+builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<ISubcriptionService, SubcriptionService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IChatService,ChatService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IPollService, PollService>();
 builder.Services.AddScoped<IRestClient, RestClient>();
 builder.Services.AddScoped<IEventService, EventService>();
@@ -130,10 +119,10 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IHastTagService, HashTagService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
-//builder.Services.AddSingleton<RabbitMQService>();
-//builder.Services.AddSingleton<RabbitMQConsumerService>();
-//builder.Services.AddHostedService<RabbitMQConsumerHostedService>();
+// Register Background Services
 builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
+
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
@@ -150,33 +139,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+
 var app = builder.Build();
 
+// Middleware configuration
 app.UseCors();
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseMiddleware<PrerenderMiddleware>();  // Ensure this comes after HttpClient registration
 app.UseRouting();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.UseSwagger();
 
-//app.MapGraphQL<AppDbContext>();
-
-// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-// specifying the Swagger JSON endpoint.
+// Swagger UI
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
-    // ^ This line sets the URL for the Swagger JSON file.
-    // You can adjust the path and version as per your setup.
-    // For example, if you have multiple versions, you can change "v1" to "v2".
 });
 
+// Endpoint mapping
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -184,4 +168,3 @@ app.MapControllerRoute(
 app.MapHub<NotificationHub>("/chathub");
 
 app.Run();
-
