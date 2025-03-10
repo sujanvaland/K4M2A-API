@@ -20,6 +20,7 @@ using OpenAI.Images;
 using System.ClientModel;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using SpiritualNetwork.API.Helper;
 
 namespace SpiritualNetwork.API.Controllers
 {
@@ -376,6 +377,8 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+       
+
         [AllowAnonymous]
         [HttpGet("seo/{postId}")]
         public async Task<IActionResult> GetSeoMetadata(int postId)
@@ -395,15 +398,15 @@ namespace SpiritualNetwork.API.Controllers
                 <head>
                     <meta charset='UTF-8'>
                     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                    <title>{postData.textMsg}</title>
-                    <meta name='description' content='{postData.textMsg}'>
-                    <meta property='og:title' content='{postData.textMsg}'>
-                    <meta property='og:description' content='{postData.textMsg}'>
+                    <title>{result.FirstName + ' ' +result.LastName} (@{result.UserName}) on K4M2A</title>
+                    <meta name='description' content='{CommonHelper.RemoveHtmlTags(postData.textMsg)}'>
+                    <meta property='og:title' content='{result.FirstName + ' ' + result.LastName} (@{result.UserName}) on K4M2A'>
+                    <meta property='og:description' content='{CommonHelper.RemoveHtmlTags(postData.textMsg)}'>
                     <meta property='og:image' content='{imageUrl}'>
-                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}/post/{postId}'>
+                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}'>
                 </head>
                 <body>
-                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}/post/{postId}';</script>
+                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}';</script>
                 </body>
                 </html>";
 
