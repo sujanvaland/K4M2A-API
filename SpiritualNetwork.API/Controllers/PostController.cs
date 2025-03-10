@@ -220,9 +220,9 @@ namespace SpiritualNetwork.API.Controllers
                 postDataDto.Username = username;
                 
 				// Produce a message
-				await KafkaProducer.ProduceMessage("post", postDataDto);
-                //var response = await _postService.InsertPost(postDataDto);
-                return new JsonResponse(200,true,"Success", null);
+				//await KafkaProducer.ProduceMessage("post", postDataDto);
+                var response = await _postService.InsertPost(postDataDto);
+                return new JsonResponse(200,true,"Success", response);
             }
             catch (Exception ex)
             {
@@ -230,6 +230,56 @@ namespace SpiritualNetwork.API.Controllers
             }
         }
 
+        [HttpPost(Name = "SaveUpdateSchedulePost")]
+        public async Task<JsonResponse> SaveUpdateSchedulePost(IFormCollection form)
+        {
+            try
+            {
+                var DataDto = new ScheduleDataDto();
+
+                // Populate the form fields
+                foreach (var key in form.Keys)
+                {
+                    DataDto.FormFields[key] = form[key];
+                }
+
+                // Handle file uploads
+                foreach (var file in form.Files)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(memoryStream);
+                        var base64Content = Convert.ToBase64String(memoryStream.ToArray());
+
+                        // Add file info to the DTO
+                        DataDto.Files.Add(new FileDataDto
+                        {
+                            FileName = file.FileName,
+                            Base64Content = base64Content
+                        });
+                    }
+                }
+
+                return await _postService.SaveUpdateSchedulePost(DataDto, user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex);
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost(Name = "InsertSchedulePosts")]
+        public async Task<JsonResponse> InsertSchedulePosts(DeletePostReq req)
+        {
+            try
+            {
+                return await _postService.InsertSchedulePosts(req.Id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
 
         [HttpPost(Name = "RePost")]
         public async Task<JsonResponse> RePost(ReactionReq req)
@@ -250,7 +300,34 @@ namespace SpiritualNetwork.API.Controllers
         {
             try
             {
-                return await _postService.GetAllPostsAsync(user_unique_id, req.PageNo, req.ProfileUserId,req.Type);
+                return await _postService.GetAllPostsAsync(user_unique_id, req.PageNo, req.ProfileUserId, req.Type);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [HttpGet(Name = "GetSchedulePosts")]
+        public async Task<JsonResponse> GetSchedulePosts()
+        {
+            try
+            {
+                return await _postService.GetAllSchedulePost(user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+
+        [HttpPost(Name = "DeleteSchedulePost")]
+        public async Task<JsonResponse> DeleteSchedulePost(DeleteSchedulePostReq req)
+        {
+            try
+            {
+                return await _postService.DeleteSchedulePost(user_unique_id,req.Id);
             }
             catch (Exception ex)
             {

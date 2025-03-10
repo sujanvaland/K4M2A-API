@@ -25,6 +25,7 @@ using System.IO.Hashing;
 using SpiritualNetwork.API.AppContext;
 using Org.BouncyCastle.Utilities.Collections;
 using static Antlr4.Runtime.Atn.SemanticContext;
+using System.Runtime.InteropServices;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -634,9 +635,25 @@ namespace SpiritualNetwork.API.Services
                 }
 
                 var data = await _userNotificationRepository.Table.Where(x => x.UserId == userId && x.Id == Id).FirstOrDefaultAsync();
-
                 if (data != null)
                 {
+                    var main = await _notificationRepository.Table.Where(x => x.Id == data.NotificationId).FirstOrDefaultAsync();
+                    if (main != null && main.ActionType == "like")
+                    {
+                        var allLikeNotification = await _notificationRepository.Table.Where(x => x.PostId == main.PostId && x.ActionType == "like")
+                                                 .Select(x => x.Id).ToListAsync();
+
+                        string updateQuery = @"
+                            UPDATE ""dbo"".""UserNotification""
+                            SET ""IsRead"" = true
+                            WHERE ""NotificationId"" IN ({0}) AND ""UserId"" = {1}";
+                        
+                        await _context.Database.ExecuteSqlRawAsync(updateQuery, string.Join(",", allLikeNotification), userId);
+
+                        return new JsonResponse(200, true, "Notification Read Success", null);
+
+                    }
+
                     data.IsRead = true;
                     await _userNotificationRepository.UpdateAsync(data);
                     return new JsonResponse(200, true, "Notification Read Success", null);

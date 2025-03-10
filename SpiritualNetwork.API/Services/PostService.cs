@@ -13,6 +13,7 @@ using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Linq;
 using Npgsql;
+using Org.BouncyCastle.Crypto;
 
 namespace SpiritualNetwork.API.Services
 {
@@ -21,6 +22,9 @@ namespace SpiritualNetwork.API.Services
         private readonly IAttachmentService _attachmentService;
         private readonly INotificationService _notificationService;
         private readonly IRepository<UserPost> _userPostRepository;
+        private readonly IRepository<SchedulePost> _schedulePostRepository;
+        private readonly IRepository<Poll> _pollRepository;
+
         private IRepository<PostFiles> _postFiles;
         private readonly IRepository<Entities.File> _fileRepository;
         private readonly IRepository<Reaction> _reactionRepository;
@@ -52,7 +56,9 @@ namespace SpiritualNetwork.API.Services
             IEventService eventService,
             IGlobalSettingService globalSettingService,
             IRepository<ReportEntity> reportRepository,
-            IRepository<UserInterest> userInterestRepo)
+            IRepository<UserInterest> userInterestRepo,
+            IRepository<SchedulePost> schedulePostRepository,
+            IRepository<Poll> pollRepository)
         {
             _blockedPost = blockedPostRepository;
             _userSubcriptionRepo = userSubcriptionRepo;
@@ -72,6 +78,8 @@ namespace SpiritualNetwork.API.Services
             _globalSettingService = globalSettingService;
             _reportRepository = reportRepository;
             _userInterestRepo = userInterestRepo;
+            _schedulePostRepository = schedulePostRepository;
+            _pollRepository = pollRepository;
         }
 
         public async Task<UserPost> GetUserPostByPostId(int PostId)
@@ -789,8 +797,368 @@ namespace SpiritualNetwork.API.Services
 
         }
 
-		// Function to get MIME type based on file extension
-		private string GetContentType(string fileName)
+        public async Task<JsonResponse> InsertSchedulePosts(int Id)
+        {
+            try
+            {
+                var schedulepost = await _schedulePostRepository.GetByIdAsync(Id);
+                if(schedulepost == null)
+                {
+                    return new JsonResponse(200, false, "Schedule Post Not Found", null);
+                }
+                else if (schedulepost.IsScheduled == true)
+                {
+                    return new JsonResponse(200, false, "This Post is already Schedule", null);
+                }
+               
+                var user = await _userRepository.GetByIdAsync(schedulepost.UserId);
+
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == user.Id &&
+                                   x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
+                //var str = postDataDto.FormFields.ToList()[0].Value;
+
+                var postData = JsonSerializer.Deserialize<Post>(schedulepost.PostMessage);
+                if (postData == null)
+                    return new JsonResponse(200, false, "Fail", "Bad Request");
+
+                postData.id = 0;
+
+                if (postData.poll != null)
+                {
+                    postData.pollId = postData.pollId;
+                    postData.poll = null;
+                }
+
+                UserPost userPost = new UserPost();
+                userPost.ParentId = postData.parentId;
+                userPost.UserId = user.Id;
+                userPost.PostMessage = "";
+                userPost.Type = postData.type;
+                userPost.Latitude = postData.latitude;
+                userPost.Longitude = postData.longitude;
+                userPost.IsVideo = postData.videoUrl.Count > 0;
+                await _userPostRepository.InsertAsync(userPost);
+
+                if (permiumcheck != null)
+                {
+                    postData.isPaid = true;
+                }
+                else { postData.isPaid = false; }
+
+                postData.id = userPost.Id;
+                postData.createdBy = user.FirstName + " " + user.LastName;
+                postData.userName = user.UserName;
+                postData.profileImg = user.ProfileImg;
+                postData.noOfComment = 0;
+                postData.noOfLikes = 0;
+                postData.noOfRepost = 0;
+                postData.noOfViews = 0;
+                postData.createdOn = DateTime.UtcNow.ToString();
+                postData.IsBusinessAccount = user.IsBusinessAccount;
+
+                userPost.PostMessage = JsonSerializer.Serialize(postData);
+
+                // Update the post
+                await _userPostRepository.UpdateAsync(userPost);
+
+                schedulepost.ModifiedBy = userPost.Id;
+                schedulepost.IsScheduled = true;
+
+                await _schedulePostRepository.UpdateAsync(schedulepost);
+
+                UploadPostResponse uploadPostResponse = new UploadPostResponse();
+                uploadPostResponse.Post = userPost;
+                uploadPostResponse.Files = new List<Entities.File>();
+
+                try
+                {
+                    NotificationRes notification = new NotificationRes();
+                    notification.PostId = postData.id;
+                    notification.ActionByUserId = user.Id;
+                    notification.ActionType = postData.type;
+                    notification.RefId1 = postData.parentId.ToString();
+                    notification.RefId2 = "";
+                    notification.Message = "";
+                    notification.PushAttribute = postData.type == "post" ? "pushpostfollowing" : "pushcommentpost";
+                    notification.EmailAttribute = postData.type == "post" ? "emailpostfollowing" : "emailcommentpost";
+                    await _notificationService.SaveNotification(notification);
+                }
+                catch (Exception ex)
+                {
+                    //log to db
+                }
+
+                var message = (new
+                {
+                    PostId = uploadPostResponse.Post.Id,
+                    UserUniqueId = user.Id,
+                    Topic = "hashtag"
+                });
+
+                await KafkaProducer.ProduceMessage("hashtag", message);
+
+                //await KafkaProducer.ProduceMessage("hashtag", uploadPostResponse);
+
+                return new JsonResponse(200, true, "Success", uploadPostResponse);
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(500, false, "Fail", ex.Message);
+            }
+
+        }
+
+        public async Task<JsonResponse> SaveUpdateSchedulePost(ScheduleDataDto postDataDto,int userId)
+        {
+            try
+            {
+                var user = _userRepository.GetById(userId);
+
+                var permiumcheck = _userSubcriptionRepo.Table.Where(x => x.UserId == userId &&
+                                   x.PaymentStatus == "completed" && x.IsDeleted == false).FirstOrDefault();
+                var str = postDataDto.FormFields.ToList()[0].Value;
+
+                var postData = JsonSerializer.Deserialize<Post>(str);
+                if (postData == null)
+                    return new JsonResponse(200, false, "Fail", "Bad Request");
+
+                SchedulePost userPost;
+
+                if (postData.id > 0)
+                {
+                    userPost = await _schedulePostRepository.GetByIdAsync(postData.id);
+                    if (userPost == null)
+                        return new JsonResponse(404, false, "Fail", "Post not found");
+                }
+                else
+                {
+                    userPost = new SchedulePost();
+                }
+
+
+
+                if (postData.poll != null)
+                {
+                    Poll poll;
+                    
+                    if (postData.pollId > 0)
+                    {
+                        poll = await _pollRepository.GetByIdAsync(postData.pollId);
+                    }
+                    else
+                    {
+                        poll = new Poll();
+                    }
+
+                    var polldata = JsonSerializer.Deserialize<PollRequest>(postData.poll);
+                    poll.PollTitle = postData.textMsg;
+                    poll.Choice1 = polldata.choice1;
+                    poll.Choice2 = polldata.choice2;
+                    poll.Choice3 = polldata.choice3;
+                    poll.Choice4 = polldata.choice4;
+                    poll.Day = Convert.ToInt32(polldata.day);
+                    poll.Hour = Convert.ToInt32(polldata.hour);
+                    poll.Minute = Convert.ToInt32(polldata.minute);
+                    poll.CreatedBy = Convert.ToInt32(polldata.createdBy);
+
+                    if (postData.pollId > 0)
+                    {
+                        await _pollRepository.UpdateAsync(poll);
+                    }
+                    else
+                    {
+                        await _pollRepository.InsertAsync(poll);
+                    }
+
+                    postData.pollId = poll.Id;
+                    postData.poll = null;
+                }
+               
+
+                //SchedulePost userPost = new SchedulePost();
+                userPost.UserId = user.Id;
+                userPost.PostMessage = "";
+                userPost.Latitude = postData.latitude;
+                userPost.Longitude = postData.longitude;
+                userPost.IsVideo = postData.videoUrl.Count > 0;
+                userPost.ScheduleTime = postData.ScheduleDateTime;
+                userPost.IsScheduled = false;
+
+                if (postData.id == 0)
+                {
+                    await _schedulePostRepository.InsertAsync(userPost);
+                }
+                else
+                {
+                    await _schedulePostRepository.UpdateAsync(userPost);
+                }
+                if (permiumcheck != null)
+                {
+                    postData.isPaid = true;
+                }
+                else { postData.isPaid = false; }
+
+                postData.id = userPost.Id;
+                postData.createdBy = user.FirstName + " " + user.LastName;
+                postData.userName = user.UserName;
+                postData.profileImg = user.ProfileImg;
+                postData.noOfComment = 0;
+                postData.noOfLikes = 0;
+                postData.noOfRepost = 0;
+                postData.noOfViews = 0;
+                postData.createdOn = DateTime.UtcNow.ToString();
+                postData.IsBusinessAccount = user.IsBusinessAccount;
+
+                UploadSchedulePostResponse uploadPostResponse = new UploadSchedulePostResponse();
+                uploadPostResponse.Post = userPost;
+
+                if (postDataDto.Files.Count == 0)
+                {
+                    userPost.PostMessage = JsonSerializer.Serialize(postData);
+                    await _schedulePostRepository.UpdateAsync(userPost);
+                }
+
+                // Define maximum file size (e.g., 10 MB)
+                const long MaxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
+
+                if (postDataDto.Files.Count > 0)
+                {
+                    List<IFormFile> formFiles = new List<IFormFile>();
+
+                    // Iterate through postDataDto.Files (Base64 encoded)
+                    foreach (var item in postDataDto.Files)
+                    {
+                        // Filter based on file type extension
+                        if (!(item.FileName.ToLower().EndsWith(".mp4") || item.FileName.ToLower().EndsWith(".avi")
+                            || item.FileName.ToLower().EndsWith(".mov") || item.FileName.ToLower().EndsWith(".wmv")
+                            || item.FileName.ToLower().EndsWith(".flv") || item.FileName.ToLower().EndsWith(".mkv")
+                            || item.FileName.ToLower().EndsWith(".webm") || item.FileName.ToLower().EndsWith(".mpeg")
+                            || item.FileName.ToLower().EndsWith(".mpg") || item.FileName.ToLower().EndsWith(".3gp")))
+                        {
+                            // Convert Base64 back to byte array
+                            byte[] fileBytes = Convert.FromBase64String(item.Base64Content);
+
+                            // Validate file size
+                            if (fileBytes.Length > MaxFileSizeInBytes)
+                            {
+                                throw new Exception($"The file {item.FileName} exceeds the maximum allowed size of {MaxFileSizeInBytes / (1024 * 1024)} MB.");
+                            }
+                            // Create a stream from the byte array
+                            var stream = new MemoryStream(fileBytes);
+
+                            // Create an IFormFile instance
+                            var formFile = new FormFile(stream, 0, fileBytes.Length, item.FileName, item.FileName)
+                            {
+                                Headers = new HeaderDictionary()
+                            };
+                            // Set the correct content type based on the file extension
+                            formFile.ContentType = GetContentType(item.FileName);
+                            formFiles.Add(formFile);
+                        }
+                    }
+
+                    // Insert attachments (files)
+                    var uploadedFiles = await _attachmentService.InsertAttachment(formFiles);
+                    uploadPostResponse.Files = uploadedFiles;
+
+                    //List<PostFiles> postFiles = new List<PostFiles>();
+                    //postData.imgUrl = new List<string>();
+                    //postData.pdfUrl = new List<string>();
+                    //postData.thumbnailUrl = new List<string>();
+
+
+                    foreach (var item in uploadedFiles)
+                    {
+                        //PostFiles post = new PostFiles
+                        //{
+                        //    PostId = userPost.Id,
+                        //    FileId = item.Id
+                        //};
+                        //postFiles.Add(post);
+
+                        if (item.FileExtension.ToLower() == ".jpg" || item.FileExtension.ToLower() == ".jpeg"
+                            || item.FileExtension.ToLower() == ".png" || item.FileExtension.ToLower() == ".gif"
+                            || item.FileExtension.ToLower() == ".svg" || item.FileExtension.ToLower() == ".webp"
+                            || item.FileExtension.ToLower() == ".bmp" || item.FileExtension.ToLower() == ".tiff")
+                        {
+                            postData.imgUrl.Add(item.ActualUrl);
+                            postData.thumbnailUrl.Add(item.ThumbnailUrl);
+                        }
+
+                        if (item.FileExtension.ToLower() == ".pdf")
+                        {
+                            postData.pdfUrl.Add(item.ActualUrl);
+                        }
+                    }
+
+                    //await _postFiles.InsertRangeAsync(postFiles);
+
+                    userPost.IsVideo = postData.videoUrl.Count > 0;
+
+                    userPost.PostMessage = JsonSerializer.Serialize(postData);
+
+                    await _schedulePostRepository.UpdateAsync(userPost);
+                }
+                else
+                {
+                    uploadPostResponse.Files = new List<Entities.File>();
+                }
+                
+                return new JsonResponse(200, true, "Success", uploadPostResponse);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(500, false, "Fail", ex.Message);
+            }
+
+        }
+
+        public async Task<JsonResponse> GetAllSchedulePost(int userId)
+        {
+            try
+            {
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && x.IsScheduled == false && x.IsDeleted == false)
+                    .OrderByDescending(x => x.Id)
+                    .Select(x=> new
+                    {
+                        x.PostMessage,
+                        x.Id,
+                        x.ScheduleTime,
+                    })
+                    .ToListAsync();
+
+                return new JsonResponse(200, true, "Success", data);
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(500, false, "Fail", ex.Message);
+            }
+        }
+
+        public async Task<JsonResponse> DeleteSchedulePost(int userId,List<int> Id)
+        {
+            try
+            {
+                var data = await _schedulePostRepository.Table.Where(x => x.UserId == userId && Id.Contains(x.Id)).ToListAsync();
+
+                if(data != null)
+                {
+                     _schedulePostRepository.DeleteRange(data);
+                    return new JsonResponse(200, true, "Deleted Schedule Post", null);
+                }
+                return new JsonResponse(200, false, "Post Not Found", null);
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(500, false, "Fail", ex.Message);
+            }
+        }
+
+        // Function to get MIME type based on file extension
+        private string GetContentType(string fileName)
 		{
 			var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
 			return extension switch

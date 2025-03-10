@@ -561,5 +561,43 @@ namespace SpiritualNetwork.API.Controllers
 				return new JsonResponse(200, false, "Fail", ex.Message);
 			}
 		}
-	}
+
+        [HttpPost(Name = "ReportBugs")]
+        public async Task<JsonResponse> ReportBugs(IFormCollection form)
+        {
+            try
+            {
+                var DataDto = new ReportBugsDataDto();
+
+                // Populate the form fields
+                foreach (var key in form.Keys)
+                {
+                    DataDto.FormFields[key] = form[key];
+                }
+
+                // Handle file uploads
+                foreach (var file in form.Files)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(memoryStream);
+                        var base64Content = Convert.ToBase64String(memoryStream.ToArray());
+
+                        // Add file info to the DTO
+                        DataDto.Files.Add(new FileDataDto
+                        {
+                            FileName = file.FileName,
+                            Base64Content = base64Content
+                        });
+                    }
+                }
+
+                return await _userService.SaveReportBug(DataDto,user_unique_id);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, true, "Fail", ex);
+            }
+        }
+    }
 }

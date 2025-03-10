@@ -9,7 +9,14 @@
 		public string Username { get; set; }
 	}
 
-	public class FileDataDto
+    public class ScheduleDataDto
+    {
+        public Dictionary<string, string> FormFields { get; set; } = new Dictionary<string, string>();
+        public List<FileDataDto> Files { get; set; } = new List<FileDataDto>();
+    }
+
+
+    public class FileDataDto
 	{
 		public string FileName { get; set; }
 		public string Base64Content { get; set; }
