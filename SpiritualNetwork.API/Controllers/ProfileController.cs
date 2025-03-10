@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SpiritualNetwork.API.Helper;
 using SpiritualNetwork.API.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
@@ -303,6 +304,39 @@ namespace SpiritualNetwork.API.Controllers
             {
                 return new JsonResponse(200, false, "Fail", ex.Message);
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet(Name = "/{username}")]
+        public async Task<IActionResult> profiledetail(string username)
+        {
+            var result = await _profileService.GetUserInfoBox(username, user_unique_id);
+            if (result == null) return NotFound();
+
+            var imageUrl = "https://k4m2a.com/images/meta-logo.jpeg";
+            if (String.IsNullOrEmpty(result.ProfileImg))
+            {
+                imageUrl = result.ProfileImg;
+            }
+            var html = $@"
+                <!DOCTYPE html>
+                <html lang='en'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>{result.FirstName + ' ' + result.LastName} (@{result.UserName}) on K4M2A</title>
+                    <meta name='description' content='{CommonHelper.RemoveHtmlTags(result.About)}'>
+                    <meta property='og:title' content='{result.FirstName + ' ' + result.LastName} (@{result.UserName}) on K4M2A'>
+                    <meta property='og:description' content='{CommonHelper.RemoveHtmlTags(result.About)}'>
+                    <meta property='og:image' content='{imageUrl}'>
+                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}'>
+                </head>
+                <body>
+                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}';</script>
+                </body>
+                </html>";
+
+            return Content(html, "text/html");
         }
     }
 }
