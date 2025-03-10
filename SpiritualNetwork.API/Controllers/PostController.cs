@@ -403,7 +403,7 @@ namespace SpiritualNetwork.API.Controllers
                     <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}/post/{postId}'>
                 </head>
                 <body>
-                    <script>window.location.href = '{result.UserName}/post/{postId}';</script>
+                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}/post/{postId}';</script>
                 </body>
                 </html>";
 
