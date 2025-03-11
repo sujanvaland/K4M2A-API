@@ -381,8 +381,9 @@ namespace SpiritualNetwork.API.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "/{postId}")]
-        public async Task<IActionResult> postdetail(int postId)
+        public async Task<IActionResult> postdetail(string encodedpostId)
         {
+            int postId = int.Parse(CommonHelper.DecodeBase64(encodedpostId));
             var result = await _postService.GetPostByIdForSeo(user_unique_id,postId);
             if (result == null) return NotFound();
 
