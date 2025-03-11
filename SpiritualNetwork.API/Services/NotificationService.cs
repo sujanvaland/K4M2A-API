@@ -113,15 +113,15 @@ namespace SpiritualNetwork.API.Services
         {
             var emailTemplate = _emailTemplateRepository.Table.Where(x => x.EmailType == emailType).FirstOrDefault();
             EmailRequest emailRequest = new EmailRequest();
-            emailRequest.SITETITLE = await _globalSettingService.GetValue("SITENAME");
+            emailRequest.SITETITLE = GlobalVariables.SiteName;
             emailRequest.USERNAME = user.UserName;
             emailRequest.CONTENT1 = emailTemplate.Content1;
             emailRequest.CONTENT2 = emailTemplate.Content2;
             emailRequest.CTALINK = emailTemplate.CTALink;
             emailRequest.CTATEXT = emailTemplate.CTAText;
             emailRequest.ToEmail = user.Email;
-            emailRequest.Subject = emailTemplate.Subject + await _globalSettingService.GetValue("SITENAME");
-            emailRequest.SUPPORTEMAIL = await _globalSettingService.GetValue("SupportEmail");
+            emailRequest.Subject = emailTemplate.Subject + GlobalVariables.SiteName;
+            emailRequest.SUPPORTEMAIL = GlobalVariables.SupportEmail;
 
             SMTPDetails smtpDetails = new SMTPDetails();
             smtpDetails.Username = GlobalVariables.SMTPUsername;

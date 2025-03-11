@@ -1,9 +1,10 @@
-﻿namespace SpiritualNetwork.API
+﻿namespace SpiritualNetwork.Entities
 {
     public static class GlobalVariables
     {
         public static string SiteName { get; set; }
-		public static string SiteUrl { get; set; }
+        public static string SupportEmail { get; set; }
+        public static string SiteUrl { get; set; }
 		public static int LoginUserId { get; set; } = 0;
         public static string LoginUserName { get; set; } = "";
         public static string LoginUserEmail { get; set; } = "";

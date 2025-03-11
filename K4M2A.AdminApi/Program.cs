@@ -1,18 +1,13 @@
 using Microsoft.OpenApi.Models;
-using SpiritualNetwork.API.AppContext;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Hubs;
 using RestSharp;
-using SpiritualNetwork.API;
-using SpiritualNetwork.API.GraphQLSchema;
-using EntityGraphQL.AspNet;
-using SpiritualNetwork.API.Middleware;
 using SpiritualNetwork.Entities;
+using K4M2A.AdminApi.AppContext;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using K4M2A.AdminApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +18,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 var ConnectionString = builder.Configuration.GetConnectionString("Default");
+var ConnectionStringMSSql = builder.Configuration.GetConnectionString("DefaultMSSql");
 
 var configRepository = new ConfigurationRepository(ConnectionString);
 
@@ -46,13 +42,6 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, dbContextBuilder) 
 {
     dbContextBuilder.UseNpgsql(ConnectionString, dbContextBuilder => dbContextBuilder.EnableRetryOnFailure());
 });
-
-// Add GraphQL services
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Query>();
-
-builder.Services.AddGraphQLSchema<AppDbContext>();
 
 builder.Services.AddCors(options =>
 {
@@ -97,31 +86,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Register services
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IGlobalSettingService, GlobalSettingService>();
-builder.Services.AddScoped<IQuestion, QuestionService>();
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<ISearchService, SearchService>();
-builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-builder.Services.AddScoped<IReactionService, ReactionService>();
-builder.Services.AddScoped<ISubcriptionService, SubcriptionService>();
-builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddScoped<IPollService, PollService>();
 builder.Services.AddScoped<IRestClient, RestClient>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IK4M2AService, K4M2AService>();
-builder.Services.AddScoped<ICommunityService, CommunityService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IHastTagService, HashTagService>();
-builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
-
-// Register Background Services
-builder.Services.AddHostedService<KafkaConsumerBackgroundService>();
-
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -163,7 +128,5 @@ app.UseSwaggerUI(c =>
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapHub<NotificationHub>("/chathub");
 
 app.Run();

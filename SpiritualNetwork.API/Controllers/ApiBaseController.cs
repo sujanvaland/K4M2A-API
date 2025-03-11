@@ -5,6 +5,7 @@ using SpiritualNetwork.API.AppContext;
 using SpiritualNetwork.API;
 using System.IdentityModel.Tokens.Jwt;
 using SpiritualNetwork.Entities.CommonModel;
+using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.Controllers
 {
