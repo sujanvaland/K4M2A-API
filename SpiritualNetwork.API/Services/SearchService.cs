@@ -17,18 +17,21 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserNetwork> _userNetworkRepository;
         private readonly IRepository<HashTag> _hashTagRepository;
         private readonly IRepository<UserFollowers> _userFollowers;
+        private readonly IRepository<UserMuteBlockList> _blockmuteRepository;
 
         public SearchService(IRepository<User> userRepository, 
             IRepository<OnlineUsers> onlineuserRepository,
             IRepository<UserNetwork> userNetworkRepository,
             IRepository<HashTag> hashTagRepository,
-            IRepository<UserFollowers> userFollowers)
+            IRepository<UserFollowers> userFollowers,
+            IRepository<UserMuteBlockList> blockmuteRepository)
         {
             _userNetworkRepository = userNetworkRepository;
             _userRepository = userRepository;
             _onlineuserRepository = onlineuserRepository;
             _hashTagRepository = hashTagRepository;
             _userFollowers = userFollowers;
+            _blockmuteRepository = blockmuteRepository;
         }
 
         public async Task<JsonResponse> SearchUser(string Name, int PageNo, int Record, int LoginId)
@@ -47,7 +50,13 @@ namespace SpiritualNetwork.API.Services
                                       from onlineUser in onlineJoin.DefaultIfEmpty()
                                       join uf in _userFollowers.Table.Where(x => x.UserId == LoginId) on user.Id equals uf.FollowToUserId into ufGroup
                                       from uf in ufGroup.DefaultIfEmpty()
-                                      where user.UserName.ToLower().Contains(Name.ToLower()) || 
+
+                                      join blocked in _blockmuteRepository.Table
+                                      on new { UserId = user.Id, BlockedUserId = LoginId }
+                                      equals new { blocked.UserId, blocked.BlockedUserId } into blockJoin
+                                      from blocked in blockJoin.DefaultIfEmpty()
+
+                                      where blocked == null && user.UserName.ToLower().Contains(Name.ToLower()) || 
                                       user.FirstName.ToLower().Contains(Name.ToLower()) || 
                                       user.LastName.ToLower().Contains(Name.ToLower()) ||
                                       (user.FirstName.Trim() + user.LastName.Trim()).ToLower().Contains(trimmedName) && 
@@ -133,7 +142,13 @@ namespace SpiritualNetwork.API.Services
                                       from onlineUser in onlineJoin.DefaultIfEmpty()
                                       join uf in _userFollowers.Table.Where(x => x.UserId == LoginId) on user.Id equals uf.FollowToUserId into ufGroup
                                       from uf in ufGroup.DefaultIfEmpty()
-                                      where user.UserName.ToLower().Contains(Name.ToLower()) ||
+
+                                      join blocked in _blockmuteRepository.Table
+                                      on new { UserId = user.Id, BlockedUserId = LoginId }
+                                      equals new { blocked.UserId, blocked.BlockedUserId } into blockJoin
+                                      from blocked in blockJoin.DefaultIfEmpty()
+
+                                      where blocked == null && user.UserName.ToLower().Contains(Name.ToLower()) ||
                                       user.FirstName.ToLower().Contains(Name.ToLower()) ||
                                       user.LastName.ToLower().Contains(Name.ToLower()) ||
                                       (user.FirstName.Trim() + user.LastName.Trim()).ToLower().Contains(trimmedName) &&

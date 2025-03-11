@@ -103,6 +103,12 @@ namespace SpiritualNetwork.API.Services
                 foreach (var member in req.userName)
                 {
                     var user = await _profileService.GetUserInfoBox(member, loginUserid);
+
+                    if (user != null && (user.IsBlockByUser == true || user.IsDeleted == true))
+                    {
+                        continue;
+                    }
+
                     MentionBoxModel infoBox = new MentionBoxModel();
                     infoBox.Id = user.Id;
                     infoBox.FullName = user.FirstName + " " + user.LastName;
