@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MetaData\**" />
+    <Content Remove="MetaData\**" />
+    <EmbeddedResource Remove="MetaData\**" />
+    <None Remove="MetaData\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.2" />
@@ -35,24 +42,27 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
-    <PackageReference Include="RestSharp" Version="110.2.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.2" />
     <PackageReference Include="Twilio" Version="6.16.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpiritualNetwork.Common\SpiritualNetwork.Common.csproj" />
-    <ProjectReference Include="..\SpiritualNetwork.Entities\SpiritualNetwork.Entities.csproj" />
+    <ProjectReference Include="..\K4M2A.Services\K4M2A.Services.csproj" />
+    <ProjectReference Include="..\SpiritualNetwork.Common\K4M2A.Common.csproj" />
+    <ProjectReference Include="..\SpiritualNetwork.Entities\K4M2A.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MetaData\" />
     <Folder Include="Middleware\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\images\k4m2a.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="wwwroot\logo.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -72,9 +82,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Certificates\service.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="k4m2a.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

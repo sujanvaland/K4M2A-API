@@ -29,7 +29,7 @@ namespace K4M2A.AdminApi.Controllers
                     return new JsonResponse(200, false, "Invalid Credential", null);
                 }
 
-                return await _userService.SignIn(loginRequest.Username, loginRequest.Password, 0);
+                return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
             }
             catch (Exception ex)
             {
