@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpiritualNetwork.Entities\K4M2A.Entities.csproj" />
+    <ProjectReference Include="..\K4M2A.Entities\K4M2A.Entities.csproj" />
   </ItemGroup>
 
 </Project>

@@ -50,8 +50,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\K4M2A.Services\K4M2A.Services.csproj" />
-    <ProjectReference Include="..\SpiritualNetwork.Common\K4M2A.Common.csproj" />
-    <ProjectReference Include="..\SpiritualNetwork.Entities\K4M2A.Entities.csproj" />
+    <ProjectReference Include="..\K4M2A.Common\K4M2A.Common.csproj" />
+    <ProjectReference Include="..\K4M2A.Entities\K4M2A.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

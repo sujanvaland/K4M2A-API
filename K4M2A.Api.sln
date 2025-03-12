@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Api", "K4M2A.Api.csproj", "{1150ED4F-16AA-428A-A0C1-169A39EFC789}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Api", "K4M2A.Api\K4M2A.Api.csproj", "{1150ED4F-16AA-428A-A0C1-169A39EFC789}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Entities", "..\SpiritualNetwork.Entities\K4M2A.Entities.csproj", "{239D5B8C-F334-4629-A348-C9414A523A98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Entities", "K4M2A.Entities\K4M2A.Entities.csproj", "{239D5B8C-F334-4629-A348-C9414A523A98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Common", "..\SpiritualNetwork.Common\K4M2A.Common.csproj", "{25B8235F-0EA6-4984-B2CA-D84993CC9593}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Common", "K4M2A.Common\K4M2A.Common.csproj", "{25B8235F-0EA6-4984-B2CA-D84993CC9593}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.AdminApi", "..\K4M2A.AdminApi\K4M2A.AdminApi.csproj", "{7DF99CA3-B505-4EB3-BE60-09548DE13377}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.AdminApi", "K4M2A.AdminApi\K4M2A.AdminApi.csproj", "{7DF99CA3-B505-4EB3-BE60-09548DE13377}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Services", "..\K4M2A.Services\K4M2A.Services.csproj", "{78892F66-AE45-448A-9232-1739611CAB11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "K4M2A.Services", "K4M2A.Services\K4M2A.Services.csproj", "{78892F66-AE45-448A-9232-1739611CAB11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
