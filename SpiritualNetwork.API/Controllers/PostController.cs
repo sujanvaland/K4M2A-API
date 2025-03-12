@@ -380,7 +380,7 @@ namespace SpiritualNetwork.API.Controllers
        
 
         [AllowAnonymous]
-        [HttpGet(Name = "/{postId}")]
+        [HttpGet("/{encodedpostId}")]
         public async Task<IActionResult> postdetail(string encodedpostId)
         {
             int postId = int.Parse(CommonHelper.DecodeBase64(encodedpostId));
@@ -404,10 +404,10 @@ namespace SpiritualNetwork.API.Controllers
                     <meta property='og:title' content='{result.FirstName + ' ' + result.LastName} (@{result.UserName}) on K4M2A'>
                     <meta property='og:description' content='{CommonHelper.RemoveHtmlTags(postData.textMsg)}'>
                     <meta property='og:image' content='{imageUrl}'>
-                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}'>
+                    <meta property='og:url' content='https://k4m2a.com/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}'>
                 </head>
                 <body>
-                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}';</script>
+                    <script>window.location.href = 'https://k4m2a.com/{result.UserName}/post/{CommonHelper.EncodeBase64(postId.ToString())}';</script>
                 </body>
                 </html>";
 

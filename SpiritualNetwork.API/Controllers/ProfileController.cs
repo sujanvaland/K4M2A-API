@@ -307,7 +307,7 @@ namespace SpiritualNetwork.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet(Name = "/{username}")]
+        [HttpGet("/u/{username}")]
         public async Task<IActionResult> profiledetail(string username)
         {
             var result = await _profileService.GetUserInfoBox(username, user_unique_id);
@@ -329,10 +329,10 @@ namespace SpiritualNetwork.API.Controllers
                     <meta property='og:title' content='{result.FirstName + ' ' + result.LastName} (@{result.UserName}) on K4M2A'>
                     <meta property='og:description' content='{CommonHelper.RemoveHtmlTags(result.About)}'>
                     <meta property='og:image' content='{imageUrl}'>
-                    <meta property='og:url' content='https://k4m2aui.azurewebsites.net/{result.UserName}'>
+                    <meta property='og:url' content='https://k4m2a.com/{result.UserName}'>
                 </head>
                 <body>
-                    <script>window.location.href = 'https://k4m2aui.azurewebsites.net/{result.UserName}';</script>
+                    <script>window.location.href = 'https://k4m2a.com/{result.UserName}';</script>
                 </body>
                 </html>";
 
