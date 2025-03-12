@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SpiritualNetwork.API.Model;
+using SpiritualNetwork.Entities.Model;
 using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.Helper

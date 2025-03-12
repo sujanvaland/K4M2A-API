@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Model;
+using SpiritualNetwork.Entities.Model;
 using SpiritualNetwork.Entities;
 using SpiritualNetwork.Entities.CommonModel;
-using static SpiritualNetwork.API.Model.TimelineModel;
+using static SpiritualNetwork.Entities.Model.TimelineModel;
 
 namespace SpiritualNetwork.API.AppContext
 {
@@ -25,9 +25,9 @@ namespace SpiritualNetwork.API.AppContext
         public DbSet<UserFeed> UserFeeds { get; set; }
         public DbSet<PostComment> PostComments { get; set; }
         public DbSet<Reaction> Reaction { get; set; }
-        public DbSet<Model.TimelineModel.PostResponse> PostResponses { get; set; }
-        public DbSet<Model.TimelineModel.CommentReposne> CommentResponses { get; set; }
-        public DbSet<Model.TimelineModel.UserChatResponse> UserChatResponse { get; set; }
+        public DbSet<TimelineModel.PostResponse> PostResponses { get; set; }
+        public DbSet<TimelineModel.CommentReposne> CommentResponses { get; set; }
+        public DbSet<TimelineModel.UserChatResponse> UserChatResponse { get; set; }
         public DbSet<ReactionResponse> Reactions { get; set; }
         public DbSet<UserFollowers> UserFollowers { get; set; }
         public DbSet<OnlineUsers> OnlineUsers { get; set; }

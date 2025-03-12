@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpiritualNetwork.API.Helper;
-using SpiritualNetwork.API.Model;
+using SpiritualNetwork.Entities.Model;
 using SpiritualNetwork.API.Services;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.Entities;

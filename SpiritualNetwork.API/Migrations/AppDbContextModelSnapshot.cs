@@ -24,7 +24,7 @@ namespace SpiritualNetwork.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.ContactUserRes", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.ContactUserRes", b =>
                 {
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -59,7 +59,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.InviteUserRes", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.InviteUserRes", b =>
                 {
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -87,7 +87,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.ReactionResponse", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.ReactionResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
@@ -114,7 +114,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.TimelineModel+CommentReposne", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+CommentReposne", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
@@ -147,7 +147,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.TimelineModel+PostResponse", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+PostResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
@@ -206,7 +206,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.API.Model.TimelineModel+UserChatResponse", b =>
+            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+UserChatResponse", b =>
                 {
                     b.Property<string>("ConnectionId")
                         .HasColumnType("text");
