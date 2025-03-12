@@ -11,7 +11,6 @@ using RestSharp;
 using SpiritualNetwork.API;
 using SpiritualNetwork.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
-using SpiritualNetwork.API.Middleware;
 using SpiritualNetwork.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
