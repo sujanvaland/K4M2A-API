@@ -64,12 +64,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Prerender.io">
-      <HintPath>bin\Debug\Prerender.io.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Certificates\ca.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
