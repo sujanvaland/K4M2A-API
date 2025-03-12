@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using HotChocolate.Types;
 
+
 namespace SpiritualNetwork.API.Services
 {
     public class UserService : IUserService
@@ -1511,27 +1512,59 @@ namespace SpiritualNetwork.API.Services
             }
         }
 
-		public async Task<JsonResponse> getTagsList(int userId)
+		public async Task<JsonResponse> getTagsList(int userId, int LoginId)
 		{
 			try
 			{
 				//var tags = await _tagsRepository.Table.ToListAsync();
+                if(userId != LoginId)
 
-				var tags = await (from user in _userRepository.Table
-								  join uf in _userFollowersRepository.Table.Where(x => x.UserId == userId && x.IsDeleted == false) on user.Id equals uf.FollowToUserId into ufGroup
-								  from uf in ufGroup.DefaultIfEmpty()
-								  where user.IsPrincipal == true && user.IsDeleted == false
-								  select new
-								  {
-									  Id = user.Id,
-									  Name = user.FirstName + " " + user.LastName,
-									  UserName = user.UserName,
-									  ProfileImg = user.ProfileImg,
-									  IsBusinessAccount = user.IsBusinessAccount
-								  }).ToListAsync();
+                {
+                    List<string> tagList = new List<string>();
 
-				return new JsonResponse(200, true, "Success", tags);
-			}
+                    var tagString = await _userRepository.Table.Where(x=>x.Id == userId).Select(x=> x.Tags).FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrEmpty(tagString))
+                    {
+                        tagList = JsonSerializer.Deserialize<List<string>>(tagString);
+                    }
+
+                    var tagsd = await (from user in _userRepository.Table
+                                      join uf in _userFollowersRepository.Table.Where(x => x.UserId == LoginId && x.IsDeleted == false)
+                                      on user.Id equals uf.FollowToUserId into ufGroup
+                                      from uf in ufGroup.DefaultIfEmpty()
+                                      where user.IsPrincipal == true && user.IsDeleted == false
+                                      && (tagList.Count == 0 || tagList.Contains(user.UserName)) // Filter users by tagList
+                                      select new
+                                      {
+                                          Id = user.Id,
+                                          Name = user.FirstName + " " + user.LastName,
+                                          UserName = user.UserName,
+                                          ProfileImg = user.ProfileImg,
+                                          IsFollowedByLoginUser = uf != null,
+                                          IsBusinessAccount = user.IsBusinessAccount
+                                      }).ToListAsync();
+
+                    return new JsonResponse(200, true, "Success", tagsd);
+
+                }
+                var tags = await (from user in _userRepository.Table
+                                  join uf in _userFollowersRepository.Table.Where(x => x.UserId == LoginId && x.IsDeleted == false) on user.Id equals uf.FollowToUserId into ufGroup
+                                  from uf in ufGroup.DefaultIfEmpty()
+                                  where user.IsPrincipal == true && user.IsDeleted == false
+                                  select new
+                                  {
+                                      Id = user.Id,
+                                      Name = user.FirstName + " " + user.LastName,
+                                      UserName = user.UserName,
+                                      ProfileImg = user.ProfileImg,
+                                      IsFollowedByLoginUser = uf != null,
+                                      IsBusinessAccount = user.IsBusinessAccount
+                                  }).ToListAsync();
+
+                return new JsonResponse(200, true, "Success", tags);
+
+            }
 			catch (Exception ex)
 			{
 				throw ex;

@@ -26,6 +26,7 @@ namespace SpiritualNetwork.API.Services
         private readonly IRepository<UserProfileSuggestion> _profilesuggestionRepo; 
         private readonly IRepository<UserSubcription> _userSubcriptionRepo;
         private readonly IRepository<UserMuteBlockList> _blockmuteRepository;
+        private readonly IRepository<UserPost> _postRepository;
         private readonly IMapper _mapper;
 
         public ProfileService(IRepository<User> userRepository, 
@@ -39,7 +40,8 @@ namespace SpiritualNetwork.API.Services
             IRepository<UserProfileSuggestion> profilesuggestionRepo,
             IRepository<UserSubcription> userSubcriptionRepo,
             IMapper mapper,
-            IRepository<UserMuteBlockList> blockmuteRepository)
+            IRepository<UserMuteBlockList> blockmuteRepository,
+            IRepository<UserPost> postRepository)
         {
             _userRepository = userRepository;
             _bookRepository = bookRepository;
@@ -53,6 +55,7 @@ namespace SpiritualNetwork.API.Services
             _userSubcriptionRepo = userSubcriptionRepo;
             _mapper = mapper;
             _blockmuteRepository = blockmuteRepository;
+            _postRepository = postRepository;
         }
 
         private List<T> Shuffle<T>(List<T> list)
@@ -308,7 +311,7 @@ namespace SpiritualNetwork.API.Services
                 profileModel.IsBlockByUser = _blockmuteRepository.Table.Any(x => x.BlockedUserId == UserId &&  x.UserId == profileModel.Id && x.IsDeleted == false);
                 profileModel.IsBlock = _blockmuteRepository.Table.Any(x=> x.UserId == UserId && x.BlockedUserId == profileModel.Id && x.IsDeleted == false);
                 profileModel.IsMute = _blockmuteRepository.Table.Any(x => x.UserId == UserId && x.MuteedUserId == profileModel.Id && x.IsDeleted == false);
-
+                profileModel.PostCount = await _postRepository.Table.Where(x => x.UserId == user.Id && x.Type == "post" && x.IsDeleted == false).CountAsync();
                 return profileModel;
             }
             catch (Exception ex)

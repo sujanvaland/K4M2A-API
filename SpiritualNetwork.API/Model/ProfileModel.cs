@@ -14,6 +14,7 @@ namespace SpiritualNetwork.API.Model
         public bool? IsBlockByUser { get; set; }
         public bool? IsBlock {  get; set; }
         public bool? IsMute { get; set; }
+        public int? PostCount { get; set; }
     }
 
     public class ProfileReqest 
