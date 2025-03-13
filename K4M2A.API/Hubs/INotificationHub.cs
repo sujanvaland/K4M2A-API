@@ -1,4 +1,4 @@
-﻿namespace SpiritualNetwork.API.Hubs
+﻿namespace K4M2A.API.Hubs
 {
     public interface INotificationHub
     {

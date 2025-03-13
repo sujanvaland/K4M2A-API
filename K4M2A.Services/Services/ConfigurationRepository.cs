@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Npgsql;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
 	public class ConfigurationRepository
 	{

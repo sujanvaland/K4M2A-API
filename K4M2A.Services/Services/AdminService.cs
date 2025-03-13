@@ -1,12 +1,12 @@
-﻿using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.Entities.CommonModel;
-using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities.Model;
+using K4M2A.Entities.CommonModel;
+using K4M2A.Entities;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Services.Interface;
-using Event = SpiritualNetwork.Entities.Event;
-using Community = SpiritualNetwork.Entities.Community;
+using K4M2A.API.Services.Interface;
+using Event = K4M2A.Entities.Event;
+using Community = K4M2A.Entities.Community;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class AdminService : IAdminService
     {

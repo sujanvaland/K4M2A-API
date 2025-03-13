@@ -1,17 +1,17 @@
 using Microsoft.OpenApi.Models;
-using SpiritualNetwork.Entities.AppContext;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.API.Services;
+using K4M2A.Entities.AppContext;
+using K4M2A.API.Services.Interface;
+using K4M2A.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Hubs;
+using K4M2A.API.Hubs;
 using RestSharp;
-using SpiritualNetwork.API;
-using SpiritualNetwork.API.GraphQLSchema;
+using K4M2A.API;
+using K4M2A.API.GraphQLSchema;
 using EntityGraphQL.AspNet;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

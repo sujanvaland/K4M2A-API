@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Common;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Common;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 using System.Text.Json;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class ProfileService : IProfileService
     {

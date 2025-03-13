@@ -3,13 +3,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Npgsql;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
-using SpiritualNetwork.Entities.AppContext;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
+using K4M2A.Entities.AppContext;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class ReactionService : IReactionService
     {

@@ -1,10 +1,10 @@
-﻿using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.Common;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+﻿using K4M2A.Entities.Model;
+using K4M2A.Common;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 using System.Threading.Tasks;
 
-namespace SpiritualNetwork.API.Services.Interface
+namespace K4M2A.API.Services.Interface
 {
     public interface IUserService
     {

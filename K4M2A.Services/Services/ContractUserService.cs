@@ -1,7 +1,7 @@
-﻿using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities.Model;
+using K4M2A.Entities;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
 	public interface IContractUserService
 	{

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Security.Principal;
 using System;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Entities.AppContext;
+using K4M2A.Entities.AppContext;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public interface IRepository<T> where T : IdEntity
     {

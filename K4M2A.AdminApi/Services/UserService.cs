@@ -1,11 +1,11 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using SpiritualNetwork.Entities.CommonModel;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities.CommonModel;
+using K4M2A.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Common;
+using K4M2A.Common;
 using K4M2A.AdminApi.Model;
 
 namespace K4M2A.AdminApi.Services

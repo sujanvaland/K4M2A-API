@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.CommonModel;
 
-namespace SpiritualNetwork.API.Services.Interface
+namespace K4M2A.API.Services.Interface
 {
     public interface IImageService
     {

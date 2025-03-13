@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
-using Event = SpiritualNetwork.Entities.Event;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
+using Event = K4M2A.Entities.Event;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class EventService : IEventService
     {

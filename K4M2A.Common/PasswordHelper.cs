@@ -1,6 +1,6 @@
 ﻿using DevOne.Security.Cryptography.BCrypt;
 
-namespace SpiritualNetwork.Common
+namespace K4M2A.Common
 {
     public static class PasswordHelper 
     {

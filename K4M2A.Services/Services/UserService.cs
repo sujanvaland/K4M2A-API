@@ -1,12 +1,12 @@
-﻿using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities.CommonModel;
-using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities.CommonModel;
+using K4M2A.Entities;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Common;
+using K4M2A.Common;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System;
@@ -21,10 +21,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
-using SpiritualNetwork.Entities.AppContext;
+using K4M2A.Entities.AppContext;
 using Microsoft.AspNetCore.Http.Internal;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class UserService : IUserService
     {

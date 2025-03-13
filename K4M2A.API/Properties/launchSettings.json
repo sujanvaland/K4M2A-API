@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "SpiritualNetwork.API": {
+    "K4M2A.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

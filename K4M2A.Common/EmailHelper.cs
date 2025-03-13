@@ -5,9 +5,9 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.CommonModel;
 
-namespace SpiritualNetwork.Common
+namespace K4M2A.Common
 {
     public static class EmailHelper
     {

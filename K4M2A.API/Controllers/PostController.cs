@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RestSharp;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 using System.Net;
 using System.Text;
 using Twilio.TwiML.Messaging;
@@ -20,9 +20,9 @@ using OpenAI.Images;
 using System.ClientModel;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Helper;
+using K4M2A.API.Helper;
 
-namespace SpiritualNetwork.API.Controllers
+namespace K4M2A.API.Controllers
 {
    
     [Route("api/[controller]/[action]")]

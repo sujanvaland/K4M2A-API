@@ -1,5 +1,5 @@
 ﻿
-namespace SpiritualNetwork.Entities
+namespace K4M2A.Entities
 {
     public class MessageGroupDetails : BaseEntity
     {

@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
 using System;
 using System.Text;
 using System.Threading;

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities.Model;
+using K4M2A.Entities;
 
-namespace SpiritualNetwork.API.Helper
+namespace K4M2A.API.Helper
 {
     public class AutoMapperProfile : Profile
     {

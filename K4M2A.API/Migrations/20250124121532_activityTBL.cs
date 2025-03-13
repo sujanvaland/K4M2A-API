@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SpiritualNetwork.API.Migrations
+namespace K4M2A.API.Migrations
 {
     /// <inheritdoc />
     public partial class activityTBL : Migration

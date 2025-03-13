@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SpiritualNetwork.Entities
+namespace K4M2A.Entities
 {
     public class Invitation : BaseEntity
     {

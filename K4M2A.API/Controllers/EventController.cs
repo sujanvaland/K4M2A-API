@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 
-namespace SpiritualNetwork.API.Controllers
+namespace K4M2A.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

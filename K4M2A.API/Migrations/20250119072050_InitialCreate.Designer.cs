@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SpiritualNetwork.Entities.AppContext;
+using K4M2A.Entities.AppContext;
 
 #nullable disable
 
-namespace SpiritualNetwork.API.Migrations
+namespace K4M2A.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250119072050_InitialCreate")]
@@ -26,7 +26,7 @@ namespace SpiritualNetwork.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Model.ReactionResponse", b =>
+            modelBuilder.Entity("K4M2A.Entities.Model.ReactionResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -53,7 +53,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+CommentReposne", b =>
+            modelBuilder.Entity("K4M2A.Entities.Model.TimelineModel+CommentReposne", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -86,7 +86,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+PostResponse", b =>
+            modelBuilder.Entity("K4M2A.Entities.Model.TimelineModel+PostResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -145,7 +145,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Model.TimelineModel+UserChatResponse", b =>
+            modelBuilder.Entity("K4M2A.Entities.Model.TimelineModel+UserChatResponse", b =>
                 {
                     b.Property<string>("ConnectionId")
                         .HasColumnType("text");
@@ -186,7 +186,7 @@ namespace SpiritualNetwork.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.AnswerOption", b =>
+            modelBuilder.Entity("K4M2A.Entities.AnswerOption", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -225,7 +225,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("AnswerOption", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.BlockedPosts", b =>
+            modelBuilder.Entity("K4M2A.Entities.BlockedPosts", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,7 +259,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("BlockedPosts", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Books", b =>
+            modelBuilder.Entity("K4M2A.Entities.Books", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -306,7 +306,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Book", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.ChatMessages", b =>
+            modelBuilder.Entity("K4M2A.Entities.ChatMessages", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -367,7 +367,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("ChatMessages", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.CommonModel.GlobalSetting", b =>
+            modelBuilder.Entity("K4M2A.Entities.CommonModel.GlobalSetting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -403,7 +403,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("GlobalSetting", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Community", b =>
+            modelBuilder.Entity("K4M2A.Entities.Community", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -453,7 +453,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Community", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.CommunityMember", b =>
+            modelBuilder.Entity("K4M2A.Entities.CommunityMember", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -499,7 +499,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("CommunityMembers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.CommunityReportPost", b =>
+            modelBuilder.Entity("K4M2A.Entities.CommunityReportPost", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -544,7 +544,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("CommunityReportPost", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.CommunityRules", b =>
+            modelBuilder.Entity("K4M2A.Entities.CommunityRules", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -584,7 +584,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("CommunityRules", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.DeviceToken", b =>
+            modelBuilder.Entity("K4M2A.Entities.DeviceToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -619,7 +619,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("DeviceToken", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EmailTemplate", b =>
+            modelBuilder.Entity("K4M2A.Entities.EmailTemplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -668,7 +668,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EmailTemplate", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EmailVerificationRequest", b =>
+            modelBuilder.Entity("K4M2A.Entities.EmailVerificationRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -712,7 +712,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EmailOTPRequest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Event", b =>
+            modelBuilder.Entity("K4M2A.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -799,7 +799,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Event", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EventAttendee", b =>
+            modelBuilder.Entity("K4M2A.Entities.EventAttendee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -839,7 +839,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EventAttendee", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EventComment", b =>
+            modelBuilder.Entity("K4M2A.Entities.EventComment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -877,7 +877,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EventComments", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EventSpeakers", b =>
+            modelBuilder.Entity("K4M2A.Entities.EventSpeakers", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -914,7 +914,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EventSpeakers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.EventType", b =>
+            modelBuilder.Entity("K4M2A.Entities.EventType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -946,7 +946,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("EventType", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Experience", b =>
+            modelBuilder.Entity("K4M2A.Entities.Experience", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -982,7 +982,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Experience", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.File", b =>
+            modelBuilder.Entity("K4M2A.Entities.File", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1032,7 +1032,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Files", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.GroupMember", b =>
+            modelBuilder.Entity("K4M2A.Entities.GroupMember", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1078,7 +1078,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("GroupMember", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Gurus", b =>
+            modelBuilder.Entity("K4M2A.Entities.Gurus", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1114,7 +1114,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Guru", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.HashTag", b =>
+            modelBuilder.Entity("K4M2A.Entities.HashTag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1150,7 +1150,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("HashTag", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Invitation", b =>
+            modelBuilder.Entity("K4M2A.Entities.Invitation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1182,7 +1182,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Invitation", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.InviteRequest", b =>
+            modelBuilder.Entity("K4M2A.Entities.InviteRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1234,7 +1234,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("InviteRequest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.MessageGroupDetails", b =>
+            modelBuilder.Entity("K4M2A.Entities.MessageGroupDetails", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1270,7 +1270,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("MessageGroupDetail", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Movies", b =>
+            modelBuilder.Entity("K4M2A.Entities.Movies", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1306,7 +1306,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Movie", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Notification", b =>
+            modelBuilder.Entity("K4M2A.Entities.Notification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1360,7 +1360,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Notification", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.OnBoardingQuestion", b =>
+            modelBuilder.Entity("K4M2A.Entities.OnBoardingQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1422,7 +1422,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Question", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.OnlineUsers", b =>
+            modelBuilder.Entity("K4M2A.Entities.OnlineUsers", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1457,7 +1457,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("OnlineUsers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PasswordResetRequest", b =>
+            modelBuilder.Entity("K4M2A.Entities.PasswordResetRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1501,7 +1501,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PasswordResetRequest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PhoneVerificationRequest", b =>
+            modelBuilder.Entity("K4M2A.Entities.PhoneVerificationRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1546,7 +1546,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PhoneOTPRequest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Poll", b =>
+            modelBuilder.Entity("K4M2A.Entities.Poll", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1601,7 +1601,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Poll", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PollVote", b =>
+            modelBuilder.Entity("K4M2A.Entities.PollVote", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1639,7 +1639,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PollVote", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PostComment", b =>
+            modelBuilder.Entity("K4M2A.Entities.PostComment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1681,7 +1681,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PostComments", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PostFiles", b =>
+            modelBuilder.Entity("K4M2A.Entities.PostFiles", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1715,7 +1715,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PostFiles", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Practices", b =>
+            modelBuilder.Entity("K4M2A.Entities.Practices", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1751,7 +1751,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Practice", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.PreRegisteredUser", b =>
+            modelBuilder.Entity("K4M2A.Entities.PreRegisteredUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1807,7 +1807,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("PreRegisteredUsers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Reaction", b =>
+            modelBuilder.Entity("K4M2A.Entities.Reaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1845,7 +1845,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Reaction", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.ReportEntity", b =>
+            modelBuilder.Entity("K4M2A.Entities.ReportEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1889,7 +1889,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Reports", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Service", b =>
+            modelBuilder.Entity("K4M2A.Entities.Service", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1935,7 +1935,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Services", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.ServiceFAQ", b =>
+            modelBuilder.Entity("K4M2A.Entities.ServiceFAQ", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1972,7 +1972,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("ServicesFAQ", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.ServiceImages", b =>
+            modelBuilder.Entity("K4M2A.Entities.ServiceImages", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2006,7 +2006,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("ServicesImages", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.SnoozeUser", b =>
+            modelBuilder.Entity("K4M2A.Entities.SnoozeUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2043,7 +2043,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("SnoozeUser", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.Tags", b =>
+            modelBuilder.Entity("K4M2A.Entities.Tags", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2081,7 +2081,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Tags", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.User", b =>
+            modelBuilder.Entity("K4M2A.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2243,7 +2243,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("Users", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserAnswers", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserAnswers", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2287,7 +2287,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserAnswers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserAttribute", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserAttribute", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2328,7 +2328,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserAttribute", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserContract", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserContract", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2380,7 +2380,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserContract", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserFeed", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserFeed", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2414,7 +2414,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserFeeds", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserFollowers", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserFollowers", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2448,7 +2448,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserFollowers", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserInterest", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserInterest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2493,7 +2493,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserInterest", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserMuteBlockList", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserMuteBlockList", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2530,7 +2530,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserMuteBlockLists", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserNetwork", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserNetwork", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2585,7 +2585,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserNetworks", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserNotification", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserNotification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2631,7 +2631,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserNotification", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserPost", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserPost", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2684,7 +2684,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserPosts", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserProfileSuggestion", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserProfileSuggestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2725,7 +2725,7 @@ namespace SpiritualNetwork.API.Migrations
                     b.ToTable("UserProfileSuggestion", "dbo");
                 });
 
-            modelBuilder.Entity("SpiritualNetwork.Entities.UserSubcription", b =>
+            modelBuilder.Entity("K4M2A.Entities.UserSubcription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

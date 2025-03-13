@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities;
 using K4M2A.AdminApi.AppContext;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using K4M2A.AdminApi.Services;

@@ -1,7 +1,7 @@
-﻿using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace SpiritualNetwork.Entities.Model
+namespace K4M2A.Entities.Model
 {
     public class TimelineModel
     {

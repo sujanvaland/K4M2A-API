@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpiritualNetwork.Entities.CommonModel
+namespace K4M2A.Entities.CommonModel
 {
     public class ValidateOTP
     {

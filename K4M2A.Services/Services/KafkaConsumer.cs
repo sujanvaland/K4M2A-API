@@ -2,13 +2,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
 	public class KafkaConsumerBackgroundService : BackgroundService
 	{

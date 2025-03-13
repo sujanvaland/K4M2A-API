@@ -1,10 +1,10 @@
-﻿using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities.CommonModel;
+﻿using K4M2A.API.Services.Interface;
+using K4M2A.Entities.CommonModel;
 using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using Microsoft.AspNetCore.Http;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class ImageService : IImageService
     {

@@ -1,8 +1,8 @@
 ﻿using Confluent.Kafka;
 using Newtonsoft.Json;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
 	public class KafkaProducer
 	{

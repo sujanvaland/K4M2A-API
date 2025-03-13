@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Common;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.Model;
+using K4M2A.API.Services.Interface;
+using K4M2A.Common;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
-using Event = SpiritualNetwork.Entities.Event;
-using Community = SpiritualNetwork.Entities.Community;
-using SpiritualNetwork.Entities.AppContext;
+using Event = K4M2A.Entities.Event;
+using Community = K4M2A.Entities.Community;
+using K4M2A.Entities.AppContext;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class NotificationService : INotificationService
     {

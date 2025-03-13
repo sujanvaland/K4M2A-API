@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using SpiritualNetwork.API.Hubs;
+using K4M2A.API.Hubs;
 
-namespace SpiritualNetwork.API.Hubs
+namespace K4M2A.API.Hubs
 {
     public class NotificationHub : Hub<INotificationHub>
     {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.API.Services.Interface;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.API.Services.Interface;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 using System.Net;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class FileService : IFileService
     {

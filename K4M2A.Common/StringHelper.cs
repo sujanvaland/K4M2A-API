@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpiritualNetwork.Common
+namespace K4M2A.Common
 {
     public static class StringHelper
     {

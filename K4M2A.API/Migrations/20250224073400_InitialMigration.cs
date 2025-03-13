@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace SpiritualNetwork.API.Migrations
+namespace K4M2A.API.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration

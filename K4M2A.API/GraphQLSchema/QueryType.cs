@@ -1,7 +1,7 @@
-﻿using SpiritualNetwork.Entities.AppContext;
-using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities.AppContext;
+using K4M2A.Entities;
 
-namespace SpiritualNetwork.API.GraphQLSchema
+namespace K4M2A.API.GraphQLSchema
 {
 
 	public class Query

@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SpiritualNetwork.Entities.AppContext;
-using SpiritualNetwork.API;
+using K4M2A.Entities.AppContext;
+using K4M2A.API;
 using System.IdentityModel.Tokens.Jwt;
-using SpiritualNetwork.Entities.CommonModel;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities.CommonModel;
+using K4M2A.Entities;
 
-namespace SpiritualNetwork.API.Controllers
+namespace K4M2A.API.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [Produces("application/json")]

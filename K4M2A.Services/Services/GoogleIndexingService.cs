@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SpiritualNetwork.API.Services
+namespace K4M2A.API.Services
 {
     public class GoogleIndexingService
     {

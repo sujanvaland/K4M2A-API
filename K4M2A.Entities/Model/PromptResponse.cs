@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SpiritualNetwork.Entities.Model
+namespace K4M2A.Entities.Model
 {
 	
 	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);

@@ -1,6 +1,6 @@
-﻿using SpiritualNetwork.Entities;
+﻿using K4M2A.Entities;
 
-namespace SpiritualNetwork.Entities.Model
+namespace K4M2A.Entities.Model
 {
     public class QuestionRes
     {

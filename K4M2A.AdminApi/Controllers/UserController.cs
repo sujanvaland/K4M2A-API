@@ -2,7 +2,7 @@
 using K4M2A.AdminApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities.CommonModel;
 
 namespace K4M2A.AdminApi.Controllers
 {

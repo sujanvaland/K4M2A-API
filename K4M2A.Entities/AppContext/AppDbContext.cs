@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Entities.Model;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
-using static SpiritualNetwork.Entities.Model.TimelineModel;
+using K4M2A.Entities.Model;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
+using static K4M2A.Entities.Model.TimelineModel;
 using Microsoft.Extensions.Configuration;
 
-namespace SpiritualNetwork.Entities.AppContext
+namespace K4M2A.Entities.AppContext
 {
     public class AppDbContext : DbContext
     {

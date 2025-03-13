@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.SignalR;
 
-namespace SpiritualNetwork.API.Helper
+namespace K4M2A.API.Helper
 {
     public class SpirttualHub : Hub,ISpirtual
     {

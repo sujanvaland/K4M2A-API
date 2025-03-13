@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Security.Principal;
 using System;
-using SpiritualNetwork.Entities;
+using K4M2A.Entities;
 using Microsoft.EntityFrameworkCore;
 using K4M2A.AdminApi.AppContext;
 

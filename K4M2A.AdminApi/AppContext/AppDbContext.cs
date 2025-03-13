@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpiritualNetwork.Entities;
-using SpiritualNetwork.Entities.CommonModel;
+using K4M2A.Entities;
+using K4M2A.Entities.CommonModel;
 
 namespace K4M2A.AdminApi.AppContext
 {
