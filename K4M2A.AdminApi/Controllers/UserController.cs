@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using K4M2A.Entities.CommonModel;
 using K4M2A.Services.Interface;
+using K4M2A.Services;
 
 namespace K4M2A.AdminApi.Controllers
 {
-    public class UserController : Controller
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class UserController : ApiBaseController
     {
         private IUserService _userService;
        
@@ -30,6 +33,20 @@ namespace K4M2A.AdminApi.Controllers
                 }
 
                 return await _userService.SignIn(loginRequest.Username, loginRequest.Password,"",0);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResponse(200, false, "Fail", ex.Message);
+            }
+        }
+
+        [HttpPost(Name = "GetAllUsers")]
+        public async Task<JsonResponse> GetAllUsers(SearchReqByPage req)
+        {
+            try
+            {
+                var response = await _userService.GetAllUsers(req.Name, req.PageNo, req.Records);
+                return response;
             }
             catch (Exception ex)
             {

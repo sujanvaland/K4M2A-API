@@ -54,6 +54,7 @@ namespace K4M2A.Services
         private readonly IRepository<ReportBugs> _reportBugsRepository;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IAttachmentService _attachmentService;
+
         private readonly AppDbContext _context;
         public UserService(
             IRepository<OnlineUsers> onlineUsers,
@@ -1721,6 +1722,83 @@ namespace K4M2A.Services
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<JsonResponse> GetAllUsers(string Name, int PageNo, int Record)
+        {
+            try
+            {
+                if (Name.Length > 0)
+                {
+                    var query = await (from user in _userRepository.Table
+                                       join onlineUser in _onlineUsers.Table
+                                       on user.Id equals onlineUser.UserId into onlineJoin
+                                       from onlineUser in onlineJoin.DefaultIfEmpty()
+                                       where user.UserName.ToLower().Contains(Name.ToLower()) ||
+                                       user.FirstName.ToLower().Contains(Name.ToLower()) ||
+                                       user.LastName.ToLower().Contains(Name.ToLower())
+                                       select new SearchUserResModel
+                                       {
+                                           UniqueId = "",
+                                           FullName = user.FirstName + " " + user.LastName,
+                                           Email = user.Email,
+                                           PhoneNumber = user.PhoneNumber,
+                                           Id = user.Id,
+                                           FirstName = user.FirstName,
+                                           LastName = user.LastName,
+                                           UserName = user.UserName,
+                                           ProfileImg = user.ProfileImg,
+                                           Online = onlineUser != null ? true : false,
+                                           IsInvited = false,
+                                           IsHidden = user.IsDeleted,
+                                           Created = user.CreatedDate,
+                                           IsBusinessAccount = user.IsBusinessAccount,
+                                       }).ToListAsync();
+
+                    var data = query.Skip((PageNo - 1) * Record).Take(Record).ToList();
+                    var UserCount = query.Count();
+
+                    UserListResponse userSearchListResponse = new UserListResponse();
+                    userSearchListResponse.UserCount = UserCount;
+                    userSearchListResponse.searchUserResModel = data;
+                    return new JsonResponse(200, true, "Success", userSearchListResponse);
+                }
+
+                var UserList = await (from user in _userRepository.Table
+                                      join onlineUser in _onlineUsers.Table
+                                      on user.Id equals onlineUser.UserId into onlineJoin
+                                      from onlineUser in onlineJoin.DefaultIfEmpty()
+                                      orderby user.CreatedDate
+                                      select new SearchUserResModel
+                                      {
+                                          UniqueId = "",
+                                          FullName = user.FirstName + " " + user.LastName,
+                                          Email = user.Email,
+                                          PhoneNumber = user.PhoneNumber,
+                                          Id = user.Id,
+                                          FirstName = user.FirstName,
+                                          LastName = user.LastName,
+                                          UserName = user.UserName,
+                                          ProfileImg = user.ProfileImg,
+                                          Online = onlineUser != null ? true : false,
+                                          IsInvited = false,
+                                          IsHidden = user.IsDeleted,
+                                          Created = user.CreatedDate,
+                                          IsBusinessAccount = user.IsBusinessAccount,
+                                      }).Skip((PageNo - 1) * Record)
+                                 .Take(Record).ToListAsync();
+
+                var Count = await _userRepository.Table.CountAsync();
+
+                UserListResponse userListResponse = new UserListResponse();
+                userListResponse.UserCount = Count;
+                userListResponse.searchUserResModel = UserList;
+                return new JsonResponse(200, true, "Success", userListResponse);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

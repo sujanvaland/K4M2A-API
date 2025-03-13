@@ -43,5 +43,7 @@ namespace K4M2A.Services.Interface
         public Task<JsonResponse> GetUserFromYourContact(int UserId);
         public Task<JsonResponse> SaveReportBug(ReportBugsDataDto req,int userId);
 
+        //Admin Methods
+        Task<JsonResponse> GetAllUsers(string Name, int PageNo, int Record);
     }
 }
