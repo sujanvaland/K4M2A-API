@@ -1,26 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class NotificationTemplatetbl : Migration
+    public partial class ReportBugsTBL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterColumn<string>(
+                name: "WebsiteLink",
+                schema: "dbo",
+                table: "Users",
+                type: "text",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "text");
+
             migrationBuilder.CreateTable(
-                name: "NotificationTemplate",
+                name: "ReportBugs",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Type = table.Column<string>(type: "text", nullable: false),
-                    Message = table.Column<string>(type: "text", nullable: false),
+                    BugTitle = table.Column<string>(type: "text", nullable: true),
+                    BugDescription = table.Column<string>(type: "text", nullable: true),
+                    Priority = table.Column<string>(type: "text", nullable: true),
+                    Files = table.Column<List<string>>(type: "text[]", nullable: true),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
                     ModifiedBy = table.Column<int>(type: "integer", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -29,7 +41,7 @@ namespace K4M2A.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NotificationTemplate", x => x.Id);
+                    table.PrimaryKey("PK_ReportBugs", x => x.Id);
                 });
         }
 
@@ -37,8 +49,19 @@ namespace K4M2A.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "NotificationTemplate",
+                name: "ReportBugs",
                 schema: "dbo");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "WebsiteLink",
+                schema: "dbo",
+                table: "Users",
+                type: "text",
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "text",
+                oldNullable: true);
         }
     }
 }

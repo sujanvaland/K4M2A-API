@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     /// <inheritdoc />
     public partial class updateSchedulePostTBL : Migration

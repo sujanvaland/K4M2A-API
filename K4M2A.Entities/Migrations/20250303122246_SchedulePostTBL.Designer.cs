@@ -10,11 +10,11 @@ using K4M2A.Entities.AppContext;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250303130206_updateSchedulePostTBL")]
-    partial class updateSchedulePostTBL
+    [Migration("20250303122246_SchedulePostTBL")]
+    partial class SchedulePostTBL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2116,9 +2116,6 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("IsScheduled")
                         .HasColumnType("boolean");
 
                     b.Property<bool?>("IsVideo")

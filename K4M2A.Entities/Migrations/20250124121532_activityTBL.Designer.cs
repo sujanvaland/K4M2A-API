@@ -9,11 +9,11 @@ using K4M2A.Entities.AppContext;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250119072050_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250124121532_activityTBL")]
+    partial class activityTBL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,7 +29,7 @@ namespace K4M2A.API.Migrations
             modelBuilder.Entity("K4M2A.Entities.Model.ReactionResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -56,7 +56,7 @@ namespace K4M2A.API.Migrations
             modelBuilder.Entity("K4M2A.Entities.Model.TimelineModel+CommentReposne", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -89,7 +89,7 @@ namespace K4M2A.API.Migrations
             modelBuilder.Entity("K4M2A.Entities.Model.TimelineModel+PostResponse", b =>
                 {
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -112,6 +112,9 @@ namespace K4M2A.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("PostUserId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ProfileImg")
                         .IsRequired()
                         .HasColumnType("text");
@@ -119,9 +122,6 @@ namespace K4M2A.API.Migrations
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -151,7 +151,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
@@ -186,6 +186,61 @@ namespace K4M2A.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("K4M2A.Entities.ActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActivityType")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("IPAddress")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Latitude")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Longitude")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("RefId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RefId2")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActivityLog", "dbo");
+                });
+
             modelBuilder.Entity("K4M2A.Entities.AnswerOption", b =>
                 {
                     b.Property<int>("Id")
@@ -198,7 +253,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("IsCorrect")
                         .HasColumnType("integer");
@@ -210,7 +265,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Option")
                         .IsRequired()
@@ -237,7 +292,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -246,7 +301,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -287,7 +342,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -296,7 +351,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -321,7 +376,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("DeleteForUserId1")
                         .HasColumnType("integer");
@@ -348,7 +403,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("ReceiverId")
                         .HasColumnType("integer");
@@ -379,7 +434,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -392,7 +447,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -418,7 +473,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -427,7 +482,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -471,7 +526,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -489,7 +544,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -514,7 +569,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -523,7 +578,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -559,7 +614,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Descriptions")
                         .HasMaxLength(200)
@@ -572,7 +627,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Rule")
                         .IsRequired()
@@ -596,7 +651,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -605,7 +660,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -677,19 +732,19 @@ namespace K4M2A.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -701,7 +756,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -733,14 +788,14 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("EndTime")
                         .HasColumnType("text");
@@ -779,10 +834,10 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StartTime")
                         .HasColumnType("text");
@@ -811,7 +866,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -829,7 +884,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -855,7 +910,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -867,7 +922,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -889,7 +944,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
@@ -901,7 +956,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Type")
                         .HasColumnType("text");
@@ -926,7 +981,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("EventTypeName")
                         .IsRequired()
@@ -939,7 +994,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -958,7 +1013,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ExperienceImg")
                         .IsRequired()
@@ -975,7 +1030,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -1005,7 +1060,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
@@ -1022,7 +1077,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasColumnType("text");
@@ -1044,7 +1099,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -1062,13 +1117,13 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("JoinDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("ModifiedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1090,7 +1145,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("GuruImg")
                         .IsRequired()
@@ -1107,7 +1162,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -1129,7 +1184,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1138,7 +1193,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1162,7 +1217,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1171,7 +1226,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1198,7 +1253,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1219,7 +1274,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
@@ -1234,6 +1289,19 @@ namespace K4M2A.API.Migrations
                     b.ToTable("InviteRequest", "dbo");
                 });
 
+            modelBuilder.Entity("K4M2A.Entities.MaxID", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+
+                    b.HasKey("id");
+
+                    b.ToTable("MaxID", "dbo");
+                });
+
             modelBuilder.Entity("K4M2A.Entities.MessageGroupDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -1246,7 +1314,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("GroupName")
                         .IsRequired()
@@ -1259,7 +1327,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ProfileImgUrl")
                         .IsRequired()
@@ -1282,7 +1350,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1291,7 +1359,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("MovieImg")
                         .IsRequired()
@@ -1326,7 +1394,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1340,7 +1408,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -1380,7 +1448,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -1405,7 +1473,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Question")
                         .IsRequired()
@@ -1438,7 +1506,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1447,7 +1515,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1466,16 +1534,16 @@ namespace K4M2A.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1487,7 +1555,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -1510,16 +1578,16 @@ namespace K4M2A.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("ExpirtionDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1531,7 +1599,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("OTP")
                         .IsRequired()
@@ -1572,7 +1640,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Day")
                         .HasColumnType("integer");
@@ -1590,7 +1658,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("PollTitle")
                         .IsRequired()
@@ -1617,7 +1685,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1626,7 +1694,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PollId")
                         .HasColumnType("integer");
@@ -1651,7 +1719,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1665,7 +1733,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("integer");
@@ -1693,7 +1761,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("FileId")
                         .HasColumnType("integer");
@@ -1705,7 +1773,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -1727,7 +1795,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1736,7 +1804,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("PracticeImg")
                         .IsRequired()
@@ -1763,7 +1831,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1795,7 +1863,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -1819,7 +1887,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1828,7 +1896,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -1860,7 +1928,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -1872,7 +1940,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("ReportId")
                         .HasColumnType("integer");
@@ -1905,7 +1973,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -1917,7 +1985,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1950,7 +2018,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1959,7 +2027,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Question")
                         .HasColumnType("text");
@@ -1984,7 +2052,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
@@ -1996,7 +2064,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("ServiceId")
                         .HasColumnType("integer");
@@ -2018,7 +2086,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2030,7 +2098,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("SnoozeUserId")
                         .HasColumnType("integer");
@@ -2058,7 +2126,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");
@@ -2070,7 +2138,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2101,10 +2169,10 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DOB")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -2171,7 +2239,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Organization")
                         .HasMaxLength(200)
@@ -2211,7 +2279,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime?>("ReActivationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("SecondaryPassword")
                         .HasColumnType("text");
@@ -2261,7 +2329,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("DescriptiveAnswer")
                         .HasMaxLength(1000)
@@ -2274,7 +2342,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("QuestionId")
                         .HasColumnType("integer");
@@ -2299,7 +2367,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2313,7 +2381,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -2358,7 +2426,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2367,7 +2435,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("NoOfCoins")
                         .HasColumnType("numeric");
@@ -2392,7 +2460,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2401,7 +2469,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -2426,7 +2494,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("FollowToUserId")
                         .HasColumnType("integer");
@@ -2438,7 +2506,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -2464,7 +2532,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2473,7 +2541,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("PostHashTag")
                         .IsRequired()
@@ -2508,7 +2576,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2517,7 +2585,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("MuteedUserId")
                         .HasColumnType("integer");
@@ -2542,7 +2610,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -2569,7 +2637,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
@@ -2597,7 +2665,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2618,7 +2686,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("NotificationId")
                         .HasColumnType("integer");
@@ -2643,7 +2711,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2661,7 +2729,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
@@ -2696,7 +2764,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2708,7 +2776,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("SuggestedId")
                         .HasColumnType("integer");
@@ -2737,7 +2805,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsAnnual")
                         .HasColumnType("boolean");
@@ -2758,7 +2826,7 @@ namespace K4M2A.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()

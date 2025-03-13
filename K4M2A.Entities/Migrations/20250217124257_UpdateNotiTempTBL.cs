@@ -2,25 +2,18 @@
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class UpdateNotiTempTBL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsPrincipal",
-                schema: "dbo",
-                table: "Users",
-                type: "boolean",
-                nullable: true);
-
             migrationBuilder.AddColumn<string>(
-                name: "WebsiteLink",
+                name: "Route",
                 schema: "dbo",
-                table: "Users",
+                table: "NotificationTemplate",
                 type: "text",
                 nullable: false,
                 defaultValue: "");
@@ -30,14 +23,9 @@ namespace K4M2A.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsPrincipal",
+                name: "Route",
                 schema: "dbo",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "WebsiteLink",
-                schema: "dbo",
-                table: "Users");
+                table: "NotificationTemplate");
         }
     }
 }

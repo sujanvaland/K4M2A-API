@@ -1,38 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class ReportBugsTBL : Migration
+    public partial class SchedulePostTBL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "WebsiteLink",
-                schema: "dbo",
-                table: "Users",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
-
             migrationBuilder.CreateTable(
-                name: "ReportBugs",
+                name: "SchedulePost",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BugTitle = table.Column<string>(type: "text", nullable: true),
-                    BugDescription = table.Column<string>(type: "text", nullable: true),
-                    Priority = table.Column<string>(type: "text", nullable: true),
-                    Files = table.Column<List<string>>(type: "text[]", nullable: true),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    PostMessage = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    Latitude = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    Longitude = table.Column<string>(type: "text", nullable: true),
+                    IsVideo = table.Column<bool>(type: "boolean", nullable: true),
+                    ScheduleTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
                     ModifiedBy = table.Column<int>(type: "integer", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -41,7 +33,7 @@ namespace K4M2A.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportBugs", x => x.Id);
+                    table.PrimaryKey("PK_SchedulePost", x => x.Id);
                 });
         }
 
@@ -49,19 +41,8 @@ namespace K4M2A.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ReportBugs",
+                name: "SchedulePost",
                 schema: "dbo");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "WebsiteLink",
-                schema: "dbo",
-                table: "Users",
-                type: "text",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
         }
     }
 }

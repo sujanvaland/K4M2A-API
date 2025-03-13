@@ -4,27 +4,23 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class SchedulePostTBL : Migration
+    public partial class NotificationTemplatetbl : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SchedulePost",
+                name: "NotificationTemplate",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    PostMessage = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
-                    Latitude = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                    Longitude = table.Column<string>(type: "text", nullable: true),
-                    IsVideo = table.Column<bool>(type: "boolean", nullable: true),
-                    ScheduleTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: false),
                     ModifiedBy = table.Column<int>(type: "integer", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -33,7 +29,7 @@ namespace K4M2A.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SchedulePost", x => x.Id);
+                    table.PrimaryKey("PK_NotificationTemplate", x => x.Id);
                 });
         }
 
@@ -41,7 +37,7 @@ namespace K4M2A.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SchedulePost",
+                name: "NotificationTemplate",
                 schema: "dbo");
         }
     }

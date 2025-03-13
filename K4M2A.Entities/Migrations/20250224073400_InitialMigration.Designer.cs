@@ -9,11 +9,11 @@ using K4M2A.Entities.AppContext;
 
 #nullable disable
 
-namespace K4M2A.API.Migrations
+namespace K4M2A.Entities.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250124121532_activityTBL")]
-    partial class activityTBL
+    [Migration("20250224073400_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,69 @@ namespace K4M2A.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("K4M2A.Entities.Model.ContactUserRes", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("IsBusinessAccount")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileImg")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("ContactUserRes", "dbo", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("K4M2A.Entities.Model.InviteUserRes", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Photo")
+                        .HasColumnType("text");
+
+                    b.ToTable("InviteUserRes", "dbo", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
 
             modelBuilder.Entity("K4M2A.Entities.Model.ReactionResponse", b =>
                 {
@@ -1428,6 +1491,46 @@ namespace K4M2A.API.Migrations
                     b.ToTable("Notification", "dbo");
                 });
 
+            modelBuilder.Entity("K4M2A.Entities.NotificationTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NotificationTemplate", "dbo");
+                });
+
             modelBuilder.Entity("K4M2A.Entities.OnBoardingQuestion", b =>
                 {
                     b.Property<int>("Id")
@@ -2210,6 +2313,9 @@ namespace K4M2A.API.Migrations
                     b.Property<int?>("IsPhoneVerified")
                         .HasColumnType("integer");
 
+                    b.Property<bool?>("IsPrincipal")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2305,6 +2411,10 @@ namespace K4M2A.API.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("WebsiteLink")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
