@@ -1,4 +1,4 @@
-﻿using SpiritualNetwork.API.AppContext;
+﻿using SpiritualNetwork.Entities.AppContext;
 using SpiritualNetwork.Entities;
 
 namespace SpiritualNetwork.API.GraphQLSchema

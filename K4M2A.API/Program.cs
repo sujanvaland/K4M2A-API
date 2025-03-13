@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Models;
-using SpiritualNetwork.API.AppContext;
+using SpiritualNetwork.Entities.AppContext;
 using SpiritualNetwork.API.Services.Interface;
 using SpiritualNetwork.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

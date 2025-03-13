@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SpiritualNetwork.API.AppContext;
+using SpiritualNetwork.Entities.AppContext;
 using SpiritualNetwork.API;
 using System.IdentityModel.Tokens.Jwt;
 using SpiritualNetwork.Entities.CommonModel;
