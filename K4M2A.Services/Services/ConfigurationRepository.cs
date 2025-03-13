@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Npgsql;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
 	public class ConfigurationRepository
 	{

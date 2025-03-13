@@ -1,10 +1,10 @@
-﻿using K4M2A.API.Services.Interface;
+﻿using K4M2A.Services.Interface;
 using K4M2A.Entities.CommonModel;
 using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using Microsoft.AspNetCore.Http;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class ImageService : IImageService
     {

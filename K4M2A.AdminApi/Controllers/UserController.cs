@@ -1,8 +1,8 @@
-﻿using K4M2A.AdminApi.Model;
-using K4M2A.AdminApi.Services;
+﻿using K4M2A.Entities.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using K4M2A.Entities.CommonModel;
+using K4M2A.Services.Interface;
 
 namespace K4M2A.AdminApi.Controllers
 {
@@ -29,7 +29,7 @@ namespace K4M2A.AdminApi.Controllers
                     return new JsonResponse(200, false, "Invalid Credential", null);
                 }
 
-                return await _userService.SignIn(loginRequest.Username, loginRequest.Password);
+                return await _userService.SignIn(loginRequest.Username, loginRequest.Password,"",0);
             }
             catch (Exception ex)
             {

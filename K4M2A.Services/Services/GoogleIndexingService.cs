@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class GoogleIndexingService
     {

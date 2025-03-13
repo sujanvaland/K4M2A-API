@@ -7,7 +7,7 @@ using RestSharp;
 using K4M2A.Entities;
 using K4M2A.AdminApi.AppContext;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using K4M2A.AdminApi.Services;
+using K4M2A.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

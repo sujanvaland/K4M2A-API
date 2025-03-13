@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using K4M2A.API.Helper;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services;
+using K4M2A.Services.Interface;
 using K4M2A.Entities.CommonModel;
 using System;
 

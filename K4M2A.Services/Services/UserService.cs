@@ -1,5 +1,5 @@
 ﻿using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Entities.CommonModel;
 using K4M2A.Entities;
 using System.Security.Claims;
@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Http;
 using K4M2A.Entities.AppContext;
 using Microsoft.AspNetCore.Http.Internal;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class UserService : IUserService
     {

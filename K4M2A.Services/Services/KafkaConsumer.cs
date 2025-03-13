@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
 	public class KafkaConsumerBackgroundService : BackgroundService
 	{

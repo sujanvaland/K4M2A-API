@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
-    <PackageReference Include="RestSharp" Version="112.0.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Twilio" Version="7.8.5" />
   </ItemGroup>
@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\K4M2A.Common\K4M2A.Common.csproj" />
     <ProjectReference Include="..\K4M2A.Entities\K4M2A.Entities.csproj" />
+    <ProjectReference Include="..\K4M2A.Services\K4M2A.Services.csproj" />
   </ItemGroup>
 
 </Project>

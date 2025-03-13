@@ -2,11 +2,11 @@
 using K4M2A.Entities.CommonModel;
 using K4M2A.Entities;
 using Microsoft.EntityFrameworkCore;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using Event = K4M2A.Entities.Event;
 using Community = K4M2A.Entities.Community;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class AdminService : IAdminService
     {

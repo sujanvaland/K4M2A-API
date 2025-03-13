@@ -8,13 +8,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using K4M2A.Entities.AppContext;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class ChatService : IChatService
     {

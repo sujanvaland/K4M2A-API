@@ -5,7 +5,7 @@ using K4M2A.Entities;
 using Microsoft.EntityFrameworkCore;
 using K4M2A.Entities.AppContext;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public interface IRepository<T> where T : IdEntity
     {

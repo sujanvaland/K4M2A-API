@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using K4M2A.Entities;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
 	public class KafkaProducer
 	{

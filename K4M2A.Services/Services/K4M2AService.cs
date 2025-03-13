@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class K4M2AService : IK4M2AService
      {

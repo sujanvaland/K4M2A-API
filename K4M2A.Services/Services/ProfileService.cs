@@ -2,13 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Common;
 using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
 using System.Text.Json;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class ProfileService : IProfileService
     {

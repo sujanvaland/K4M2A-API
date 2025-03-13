@@ -4,7 +4,7 @@ using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
 using System.Threading.Tasks;
 
-namespace K4M2A.API.Services.Interface
+namespace K4M2A.Services.Interface
 {
     public interface IUserService
     {

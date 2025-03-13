@@ -1,7 +1,7 @@
 ﻿using K4M2A.Entities.Model;
 using K4M2A.Entities;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
 	public interface IContractUserService
 	{

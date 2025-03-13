@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using K4M2A.Entities.AppContext;
-using K4M2A.API.Services.Interface;
-using K4M2A.API.Services;
+using K4M2A.Services.Interface;
+using K4M2A.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;

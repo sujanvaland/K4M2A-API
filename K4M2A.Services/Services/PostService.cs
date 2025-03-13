@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using K4M2A.Entities.AppContext;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services.Interface;
 using K4M2A.Common;
 using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
@@ -12,7 +12,7 @@ using Npgsql;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
-namespace K4M2A.API.Services
+namespace K4M2A.Services
 {
     public class PostService : IPostService
     {

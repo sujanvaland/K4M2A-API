@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using K4M2A.Entities.Model;
-using K4M2A.API.Services;
-using K4M2A.API.Services.Interface;
+using K4M2A.Services;
+using K4M2A.Services.Interface;
 using K4M2A.Entities;
 using K4M2A.Entities.CommonModel;
 
